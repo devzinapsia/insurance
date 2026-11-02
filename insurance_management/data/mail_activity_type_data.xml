@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="mail_activity_type_policy_expiry" model="mail.activity.type">
+            <field name="name">Policy expiry</field>
+            <field name="summary">Decide on the policy renewal</field>
+            <field name="icon">fa-shield</field>
+            <field name="res_model">insurance.policy</field>
+        </record>
+    </data>
+</odoo>

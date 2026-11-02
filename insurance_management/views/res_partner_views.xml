@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_partner_view_form_insurance" model="ir.ui.view">
+        <field name="name">res.partner.form.insurance</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_view_insurance_policies" type="object" class="oe_stat_button" icon="fa-shield"
+                        groups="insurance_management.group_insurance_user"
+                        invisible="not is_insurer and not is_insurance_producer">
+                    <field name="insurance_policy_count" widget="statinfo" string="Policies in force"/>
+                </button>
+            </xpath>
+            <xpath expr="//page[@name='sales_purchases']//group[@name='misc']" position="after">
+                <group name="insurance" string="Insurance" groups="insurance_management.group_insurance_user">
+                    <field name="is_insurer"/>
+                    <field name="is_insurance_producer"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="res_partner_view_search_insurance" model="ir.ui.view">
+        <field name="name">res.partner.search.insurance</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_res_partner_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='type_company']" position="after">
+                <separator/>
+                <filter name="insurers" string="Insurers" domain="[('is_insurer', '=', True)]"/>
+                <filter name="insurance_producers" string="Producers" domain="[('is_insurance_producer', '=', True)]"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

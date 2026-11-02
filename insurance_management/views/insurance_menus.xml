@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_insurance_root"
+              name="Insurance"
+              web_icon="insurance_management,static/description/icon.png"
+              action="insurance_policy_action"
+              groups="group_insurance_user"
+              sequence="60"/>
+
+    <menuitem id="menu_insurance_policies"
+              name="Policies"
+              parent="menu_insurance_root"
+              sequence="10"/>
+
+    <menuitem id="menu_insurance_policy"
+              name="Policies"
+              parent="menu_insurance_policies"
+              action="insurance_policy_action"
+              sequence="10"/>
+
+    <menuitem id="menu_insurance_insured_item"
+              name="Insurable items"
+              parent="menu_insurance_policies"
+              action="insurance_insured_item_action"
+              sequence="20"/>
+
+    <menuitem id="menu_insurance_reporting"
+              name="Reporting"
+              parent="menu_insurance_root"
+              sequence="50"/>
+
+    <menuitem id="menu_insurance_report_expiration"
+              name="Upcoming expirations"
+              parent="menu_insurance_reporting"
+              action="insurance_policy_expiration_action"
+              sequence="10"/>
+
+    <record id="action_server_print_policies_in_force" model="ir.actions.server">
+        <field name="name">Policies in force (PDF)</field>
+        <field name="model_id" ref="model_insurance_policy"/>
+        <field name="state">code</field>
+        <field name="code">action = model.action_print_policies_in_force()</field>
+        <field name="group_ids" eval="[Command.link(ref('group_insurance_user'))]"/>
+    </record>
+
+    <menuitem id="menu_insurance_report_in_force_pdf"
+              name="Policies in force (PDF)"
+              parent="menu_insurance_reporting"
+              action="action_server_print_policies_in_force"
+              sequence="20"/>
+
+    <menuitem id="menu_insurance_configuration"
+              name="Configuration"
+              parent="menu_insurance_root"
+              groups="group_insurance_manager"
+              sequence="100"/>
+
+    <menuitem id="menu_insurance_branch"
+              name="Branches"
+              parent="menu_insurance_configuration"
+              action="insurance_branch_action"
+              sequence="20"/>
+
+    <menuitem id="menu_insurance_settings"
+              name="Settings"
+              parent="menu_insurance_configuration"
+              action="insurance_settings_action"
+              sequence="1"/>
+
+    <menuitem id="menu_insurance_document_type"
+              name="Document types"
+              parent="menu_insurance_configuration"
+              action="insurance_document_type_action"
+              sequence="30"/>
+</odoo>

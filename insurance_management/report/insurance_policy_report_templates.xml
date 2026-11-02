@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_insurance_policy" model="ir.actions.report">
+        <field name="name">Policy sheet</field>
+        <field name="model">insurance.policy</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">insurance_management.report_insurance_policy</field>
+        <field name="report_file">insurance_management.report_insurance_policy</field>
+        <field name="print_report_name">'Policy - %s' % (object.policy_number or object.name)</field>
+        <field name="binding_model_id" ref="model_insurance_policy"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <record id="action_report_insurance_policy_list" model="ir.actions.report">
+        <field name="name">Policies in force list</field>
+        <field name="model">insurance.policy</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">insurance_management.report_insurance_policy_list</field>
+        <field name="report_file">insurance_management.report_insurance_policy_list</field>
+        <field name="print_report_name">'Policies in force'</field>
+        <field name="binding_model_id" ref="model_insurance_policy"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <template id="report_insurance_policy_document">
+        <t t-call="web.external_layout">
+            <div class="page">
+                <h2 class="mb-1">
+                    <span>Insurance policy</span>
+                    <span t-if="o.policy_number" t-field="o.policy_number"></span>
+                </h2>
+                <p class="text-muted mb-3">
+                    <span t-field="o.name"></span> - <span t-field="o.state"></span>
+                </p>
+                <div class="row mb-3">
+                    <div class="col-6">
+                        <table class="table table-sm table-borderless">
+                            <tr><td class="text-muted">Branch</td><td><span t-field="o.branch_id"></span></td></tr>
+                            <tr><td class="text-muted">Insurer</td><td><span t-field="o.insurer_id"></span></td></tr>
+                            <tr><td class="text-muted">Producer</td><td><span t-field="o.producer_id"></span></td></tr>
+                            <tr><td class="text-muted">Responsible</td><td><span t-field="o.user_id"></span></td></tr>
+                        </table>
+                    </div>
+                    <div class="col-6">
+                        <table class="table table-sm table-borderless">
+                            <tr t-if="o.date_from and o.date_to">
+                                <td class="text-muted">Validity</td>
+                                <td><span t-field="o.date_from"></span> - <span t-field="o.date_to"></span></td>
+                            </tr>
+                            <tr t-if="o.duration_months or o.duration_days">
+                                <td class="text-muted">Duration (months)</td>
+                                <td><span t-field="o.duration_months"></span><t t-if="o.duration_days"> + <span t-field="o.duration_days"></span> days</t></td>
+                            </tr>
+                            <tr><td class="text-muted">Renewal type</td><td><span t-field="o.renewal_type"></span></td></tr>
+                            <tr t-if="o.previous_policy_id"><td class="text-muted">Previous policy</td><td><span t-field="o.previous_policy_id"></span></td></tr>
+                            <tr t-if="o.renewed_by_id"><td class="text-muted">Renewed by</td><td><span t-field="o.renewed_by_id"></span></td></tr>
+                        </table>
+                    </div>
+                </div>
+                <div t-if="show_amounts" class="row mb-3">
+                    <div class="col-6">
+                        <table class="table table-sm table-borderless">
+                            <tr><td class="text-muted">Net premium</td><td class="text-end"><span t-field="o.premium" t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"></span></td></tr>
+                            <tr><td class="text-muted">Total premium</td><td class="text-end"><span t-field="o.premium_total" t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"></span></td></tr>
+                            <tr><td class="text-muted">Total sum insured</td><td class="text-end"><span t-field="o.sum_insured_total" t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"></span></td></tr>
+                        </table>
+                    </div>
+                    <div class="col-6">
+                        <table t-if="o.deductible_type" class="table table-sm table-borderless">
+                            <tr>
+                                <td class="text-muted">Deductible</td>
+                                <td class="text-end">
+                                    <span t-if="o.deductible_type == 'amount'" t-field="o.deductible_amount" t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"></span>
+                                    <span t-else=""><span t-field="o.deductible_percent"></span> %</span>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <h4 t-if="o.object_ids" class="mt-3">Insured objects</h4>
+                <table t-if="o.object_ids" class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Description</th>
+                            <th t-if="o.object_type == 'vehicle'">License plate</th>
+                            <th>Coverage</th>
+                            <th t-if="show_amounts" class="text-end">Sum insured</th>
+                            <th>Added on</th>
+                            <th>Removed on</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr t-foreach="o.object_ids" t-as="line" t-att-class="'text-muted' if line.state == 'excluded' else ''">
+                            <td>
+                                <span t-field="line.name"></span>
+                                <t t-if="line.insured_item_id"><br/><small class="text-muted" t-field="line.insured_item_id"></small></t>
+                            </td>
+                            <td t-if="o.object_type == 'vehicle'"><span t-field="line.license_plate"></span></td>
+                            <td><span t-field="line.coverage"></span></td>
+                            <td t-if="show_amounts" class="text-end"><span t-field="line.sum_insured" t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"></span></td>
+                            <td><span t-field="line.date_start"></span></td>
+                            <td>
+                                <span t-field="line.date_end"></span>
+                                <t t-if="line.exclusion_reason"><br/><small class="text-muted" t-field="line.exclusion_reason"></small></t>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <t t-if="not is_html_empty(o.coverage)">
+                    <h4 class="mt-3">Coverages</h4>
+                    <div t-field="o.coverage"></div>
+                </t>
+            </div>
+        </t>
+    </template>
+
+    <template id="report_insurance_policy">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="insurance_management.report_insurance_policy_document"/>
+            </t>
+        </t>
+    </template>
+
+    <template id="report_insurance_policy_list">
+        <t t-call="web.html_container">
+            <t t-set="o" t-value="docs[:1]"/>
+            <t t-set="company" t-value="docs[:1].company_id or env.company"/>
+            <t t-call="web.external_layout">
+                <div class="page">
+                    <h2>Policies in force</h2>
+                    <p class="text-muted">As of <span t-out="print_date" t-options="{'widget': 'date'}"></span> - <span t-out="len(docs)"></span> policies</p>
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Policy number</th>
+                                <th>Branch</th>
+                                <th>Insurer</th>
+                                <th>Producer</th>
+                                <th>Valid from</th>
+                                <th>Valid to</th>
+                                <th class="text-end">Active objects</th>
+                                <th t-if="show_amounts" class="text-end">Total sum insured</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr t-foreach="docs" t-as="policy">
+                                <td><span t-out="policy.policy_number or policy.name"></span></td>
+                                <td><span t-field="policy.branch_id"></span></td>
+                                <td><span t-field="policy.insurer_id"></span></td>
+                                <td><span t-field="policy.producer_id"></span></td>
+                                <td><span t-field="policy.date_from"></span></td>
+                                <td><span t-field="policy.date_to"></span></td>
+                                <td class="text-end"><span t-field="policy.object_count"></span></td>
+                                <td t-if="show_amounts" class="text-end"><span t-field="policy.sum_insured_total" t-options="{'widget': 'monetary', 'display_currency': policy.currency_id}"></span></td>
+                                <td><span t-field="policy.state"></span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </t>
+        </t>
+    </template>
+</odoo>

@@ -1,0 +1,345 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="insurance_policy_view_list" model="ir.ui.view">
+        <field name="name">insurance.policy.list</field>
+        <field name="model">insurance.policy</field>
+        <field name="arch" type="xml">
+            <list string="Insurance policies" decoration-muted="state in ('draft', 'cancelled')" decoration-warning="state == 'expiring'" decoration-danger="state == 'expired'">
+                <field name="name"/>
+                <field name="policy_number"/>
+                <field name="branch_id"/>
+                <field name="insurer_id"/>
+                <field name="producer_id"/>
+                <field name="date_from"/>
+                <field name="date_to"/>
+                <field name="renewal_type" optional="hide"/>
+                <field name="user_id" widget="many2one_avatar_user" optional="show"/>
+                <field name="currency_id" column_invisible="True"/>
+                <field name="premium_total" sum="Total" optional="show"/>
+                <field name="sum_insured_total" optional="hide"/>
+                <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'color'}" optional="hide"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+                <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-success="state in ('in_force', 'renewed')" decoration-warning="state == 'expiring'" decoration-danger="state in ('expired', 'cancelled')"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="insurance_policy_view_form" model="ir.ui.view">
+        <field name="name">insurance.policy.form</field>
+        <field name="model">insurance.policy</field>
+        <field name="arch" type="xml">
+            <form string="Insurance policy">
+                <header>
+                    <button name="action_confirm" type="object" string="Confirm" class="btn-primary" invisible="state != 'draft'" data-hotkey="v"/>
+                    <button name="action_renew" type="object" string="Renew" class="btn-primary" invisible="state not in ('expiring', 'expired') or renewed_by_id" data-hotkey="r"/>
+                    <button name="action_open_non_renewal_wizard" type="object" string="Do not renew" invisible="state not in ('in_force', 'expiring') or renewed_by_id or renewal_type == 'no_renew'"/>
+                    <button name="action_request_renewal" type="object" string="Request renewal" invisible="state not in ('in_force', 'expiring') or renewed_by_id or renewal_type == 'no_renew'"/>
+                    <button name="action_reset_to_draft" type="object" string="Reset to draft" invisible="state in ('draft', 'cancelled')" groups="insurance_management.group_insurance_manager" confirm="Reset this policy to draft?"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,in_force,expiring,expired"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_documents" type="object" class="oe_stat_button" icon="fa-files-o">
+                            <field name="document_count" widget="statinfo" string="Documents"/>
+                        </button>
+                        <button name="action_view_renewals" type="object" class="oe_stat_button" icon="fa-history" invisible="renewal_count &lt;= 1">
+                            <field name="renewal_count" widget="statinfo" string="Renewals"/>
+                        </button>
+                    </div>
+                    <widget name="web_ribbon" title="Expires today" bg_color="text-bg-warning" invisible="not expires_today"/>
+                    <field name="expires_today" invisible="1"/>
+                    <div class="alert alert-warning mb-2" role="alert" invisible="not duration_warning">
+                        <field name="duration_warning"/>
+                    </div>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                        <h3 class="d-flex gap-2">
+                            <label for="policy_number" class="text-muted"/>
+                            <field name="policy_number" placeholder="Number assigned by the insurer" readonly="is_locked"/>
+                        </h3>
+                    </div>
+                    <field name="is_locked" invisible="1"/>
+                    <group>
+                        <group name="parties">
+                            <field name="branch_id" readonly="is_locked" options="{'no_create': True}"/>
+                            <field name="insurer_id" readonly="is_locked" context="{'default_is_insurer': True, 'default_is_company': True}"/>
+                            <field name="producer_id" readonly="is_locked" context="{'default_is_insurance_producer': True}"/>
+                            <field name="user_id" widget="many2one_avatar_user" readonly="is_locked"/>
+                            <field name="renewal_type" readonly="is_locked or renewed_by_id"/>
+                            <field name="keep_number_on_renewal" readonly="is_locked"/>
+                            <field name="previous_policy_id" invisible="not previous_policy_id"/>
+                            <field name="renewed_by_id" invisible="not renewed_by_id"/>
+                        </group>
+                        <group name="validity">
+                            <field name="date_from" readonly="is_locked"/>
+                            <field name="date_to" readonly="is_locked"/>
+                            <label for="duration_months"/>
+                            <div class="o_row">
+                                <field name="duration_months" class="oe_inline"/>
+                                <span invisible="not duration_days">+ <field name="duration_days" class="oe_inline"/> days</span>
+                            </div>
+                            <field name="covered_today"/>
+                            <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'color'}" readonly="is_locked"/>
+                            <field name="company_id" groups="base.group_multi_company" readonly="state != 'draft'"/>
+                        </group>
+                    </group>
+                    <group name="non_renewal" string="Non-renewal" invisible="renewal_type != 'no_renew' and not non_renewal_sent_date">
+                        <group>
+                            <field name="non_renewal_reason" readonly="is_locked"/>
+                        </group>
+                        <group>
+                            <field name="non_renewal_date"/>
+                            <field name="non_renewal_sent_date"/>
+                        </group>
+                    </group>
+                    <group name="renewal_request" invisible="not renewal_request_sent_date">
+                        <group>
+                            <field name="renewal_request_sent_date"/>
+                        </group>
+                    </group>
+                    <group name="amounts">
+                        <group name="premiums" string="Cost" groups="insurance_management.group_insurance_see_amounts">
+                            <field name="currency_id" groups="base.group_multi_currency" readonly="is_locked"/>
+                            <field name="premium" readonly="is_locked"/>
+                            <field name="premium_total" readonly="is_locked"/>
+                            <field name="sum_insured_total"/>
+                        </group>
+                        <group name="deductible" string="Deductible" groups="insurance_management.group_insurance_see_amounts">
+                            <field name="deductible_type" readonly="is_locked"/>
+                            <field name="deductible_amount" invisible="deductible_type != 'amount'" readonly="is_locked"/>
+                            <field name="deductible_percent" invisible="deductible_type != 'percentage'" readonly="is_locked"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page name="objects" string="Insured objects">
+                            <field name="object_ids" readonly="is_locked" context="{'default_policy_id': id}">
+                                <list editable="bottom" decoration-muted="state == 'excluded'">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name"/>
+                                    <field name="insured_item_id" optional="show" context="{'default_name': name}"/>
+                                    <field name="license_plate" column_invisible="parent.object_type != 'vehicle'"/>
+                                    <field name="chassis_number" column_invisible="parent.object_type != 'vehicle'" optional="show"/>
+                                    <field name="engine_number" column_invisible="parent.object_type != 'vehicle'" optional="hide"/>
+                                    <field name="coverage" optional="show"/>
+                                    <field name="currency_id" column_invisible="True"/>
+                                    <field name="sum_insured" sum="Total"/>
+                                    <field name="date_start" optional="show"/>
+                                    <field name="date_end" optional="show"/>
+                                    <field name="exclusion_reason" optional="hide"/>
+                                    <field name="state" widget="badge" decoration-success="state == 'active'" decoration-muted="state == 'excluded'"/>
+                                    <button name="action_open_exclude_wizard" type="object" icon="fa-ban" title="Remove from policy" invisible="state != 'active' or parent.state == 'draft' or not id"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page name="coverages" string="Coverages">
+                            <field name="coverage" readonly="is_locked" placeholder="Coverages and clauses of the policy..."/>
+                        </page>
+                        <page name="documents" string="Documents">
+                            <button name="action_open_document_upload" type="object" string="Upload document" icon="fa-upload" class="btn-secondary mb-2"/>
+                            <field name="attachment_ids" context="{'default_res_model': 'insurance.policy', 'default_res_id': id}">
+                                <list create="0" editable="bottom" decoration-warning="not insurance_document_type_id">
+                                    <field name="name"/>
+                                    <field name="insurance_document_type_id" options="{'no_create': True}"/>
+                                    <field name="create_date" string="Uploaded on" readonly="1"/>
+                                    <field name="create_uid" string="Uploaded by" widget="many2one_avatar_user" readonly="1"/>
+                                    <field name="datas" filename="name" widget="binary" string="File" readonly="1"/>
+                                </list>
+                            </field>
+                            <div class="text-muted small">Files attached from the chatter also appear here; set their document type.</div>
+                        </page>
+                        <page name="notifications" string="Notifications">
+                            <group>
+                                <group string="Expiry alerts">
+                                    <field name="alert_days" placeholder="Empty: branch or settings value" readonly="is_locked"/>
+                                    <field name="effective_alert_days"/>
+                                    <field name="notify_user_ids" widget="many2many_avatar_user" readonly="is_locked"/>
+                                    <field name="days_left" invisible="state not in ('in_force', 'expiring')"/>
+                                </group>
+                                <group string="Non-renewal instruction">
+                                    <field name="non_renewal_send_mode" widget="radio" readonly="is_locked"/>
+                                    <field name="non_renewal_days" invisible="non_renewal_send_mode != 'automatic'" readonly="is_locked"/>
+                                </group>
+                            </group>
+                            <field name="alert_ids" readonly="1">
+                                <list decoration-muted="skipped">
+                                    <field name="sent_on"/>
+                                    <field name="alert_type"/>
+                                    <field name="threshold_days"/>
+                                    <field name="date_to"/>
+                                    <field name="skipped"/>
+                                    <field name="recipient_ids" widget="many2many_avatar_user"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page name="notes" string="Notes">
+                            <field name="note" placeholder="Internal notes..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="insurance_policy_view_list_expiration" model="ir.ui.view">
+        <field name="name">insurance.policy.list.expiration</field>
+        <field name="model">insurance.policy</field>
+        <field name="priority">30</field>
+        <field name="arch" type="xml">
+            <list string="Upcoming expirations" default_order="date_to, id" decoration-warning="state == 'expiring'" decoration-danger="expires_today">
+                <field name="date_to"/>
+                <field name="days_left"/>
+                <field name="policy_number"/>
+                <field name="branch_id"/>
+                <field name="insurer_id"/>
+                <field name="producer_id" optional="show"/>
+                <field name="renewal_type"/>
+                <field name="renewed_by_id" optional="show"/>
+                <field name="user_id" widget="many2one_avatar_user" optional="show"/>
+                <field name="expires_today" column_invisible="True"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+                <field name="state" widget="badge" decoration-success="state == 'in_force'" decoration-warning="state == 'expiring'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="insurance_policy_view_kanban" model="ir.ui.view">
+        <field name="name">insurance.policy.kanban</field>
+        <field name="model">insurance.policy</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state" default_order="date_to, id" quick_create="false" sample="1">
+                <field name="state"/>
+                <field name="days_left"/>
+                <field name="expires_today"/>
+                <progressbar field="activity_state" colors='{"planned": "success", "today": "warning", "overdue": "danger"}'/>
+                <templates>
+                    <t t-name="card">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="text-truncate">
+                                <field name="policy_number" class="fw-bold"/>
+                                <span t-if="!record.policy_number.raw_value" class="fw-bold text-muted">
+                                    <field name="name"/>
+                                </span>
+                            </div>
+                            <span t-if="record.expires_today.raw_value" class="badge text-bg-warning">Expires today</span>
+                            <span t-elif="['in_force', 'expiring'].includes(record.state.raw_value) and record.days_left.raw_value &lt;= 30" class="badge text-bg-light">
+                                <field name="days_left"/> days
+                            </span>
+                        </div>
+                        <field name="branch_id" class="text-muted"/>
+                        <field name="insurer_id"/>
+                        <div class="text-muted small"><field name="date_from"/> - <field name="date_to"/></div>
+                        <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'color'}"/>
+                        <footer class="pt-1">
+                            <field name="activity_ids" widget="kanban_activity"/>
+                            <field name="user_id" widget="many2one_avatar_user" class="ms-auto"/>
+                        </footer>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="insurance_policy_view_calendar" model="ir.ui.view">
+        <field name="name">insurance.policy.calendar</field>
+        <field name="model">insurance.policy</field>
+        <field name="arch" type="xml">
+            <calendar string="Policy expirations" date_start="date_to" color="branch_id" mode="month" quick_create="0" event_open_popup="1">
+                <field name="policy_number"/>
+                <field name="insurer_id"/>
+                <field name="branch_id" filters="1"/>
+                <field name="state"/>
+                <field name="user_id" widget="many2one_avatar_user"/>
+            </calendar>
+        </field>
+    </record>
+
+    <record id="insurance_policy_view_pivot" model="ir.ui.view">
+        <field name="name">insurance.policy.pivot</field>
+        <field name="model">insurance.policy</field>
+        <field name="arch" type="xml">
+            <pivot string="Policy analysis" sample="1">
+                <field name="branch_id" type="row"/>
+                <field name="state" type="col"/>
+                <field name="premium_total" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="insurance_policy_view_graph" model="ir.ui.view">
+        <field name="name">insurance.policy.graph</field>
+        <field name="model">insurance.policy</field>
+        <field name="arch" type="xml">
+            <graph string="Policies by branch" type="bar" sample="1">
+                <field name="branch_id"/>
+                <field name="state"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="insurance_policy_view_search" model="ir.ui.view">
+        <field name="name">insurance.policy.search</field>
+        <field name="model">insurance.policy</field>
+        <field name="arch" type="xml">
+            <search string="Insurance policies">
+                <field name="name" string="Policy" filter_domain="['|', ('name', 'ilike', self), ('policy_number', 'ilike', self)]"/>
+                <field name="branch_id"/>
+                <field name="insurer_id"/>
+                <field name="producer_id"/>
+                <field name="user_id"/>
+                <field name="object_ids" string="Insured object" filter_domain="['|', '|', ('object_ids.name', 'ilike', self), ('object_ids.license_plate', 'ilike', self), ('object_ids.insured_item_id.name', 'ilike', self)]"/>
+                <field name="tag_ids"/>
+                <separator/>
+                <filter name="in_force" string="In force" domain="[('state', 'in', ('in_force', 'expiring'))]"/>
+                <filter name="expire_30_days" string="Expire in 30 days"
+                        domain="[('state', 'in', ('in_force', 'expiring')), ('date_to', '&gt;=', context_today().strftime('%Y-%m-%d')), ('date_to', '&lt;=', (context_today() + relativedelta(days=30)).strftime('%Y-%m-%d'))]"/>
+                <filter name="expired_not_renewed" string="Expired without renewal" domain="[('state', '=', 'expired')]"/>
+                <filter name="expires_today" string="Expires today" domain="[('expires_today', '=', True)]"/>
+                <filter name="covered_today" string="Covered today" domain="[('covered_today', '=', True)]"/>
+                <separator/>
+                <filter name="draft" string="Draft" domain="[('state', '=', 'draft')]"/>
+                <filter name="not_renewed" string="Not to be renewed" domain="[('renewal_type', '=', 'no_renew')]"/>
+                <separator/>
+                <filter name="my_policies" string="My policies" domain="[('user_id', '=', uid)]"/>
+                <separator/>
+                <filter name="filter_date_to" string="End date" date="date_to"/>
+
+                <group name="group_by">
+                    <filter name="group_by_state" string="Status" context="{'group_by': 'state'}"/>
+                    <filter name="group_by_branch" string="Branch" context="{'group_by': 'branch_id'}"/>
+                    <filter name="group_by_insurer" string="Insurer" context="{'group_by': 'insurer_id'}"/>
+                    <filter name="group_by_producer" string="Producer" context="{'group_by': 'producer_id'}"/>
+                    <filter name="group_by_user" string="Responsible" context="{'group_by': 'user_id'}"/>
+                    <filter name="group_by_date_to" string="End date" context="{'group_by': 'date_to:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="insurance_policy_action" model="ir.actions.act_window">
+        <field name="name">Policies</field>
+        <field name="res_model">insurance.policy</field>
+        <field name="view_mode">kanban,list,form,calendar,pivot,graph,activity</field>
+        <field name="search_view_id" ref="insurance_policy_view_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Register an insurance policy</p>
+            <p>Load the policies the company contracts, with their validity, insurer, producer and insured objects.</p>
+        </field>
+    </record>
+
+    <record id="insurance_policy_expiration_action" model="ir.actions.act_window">
+        <field name="name">Upcoming expirations</field>
+        <field name="res_model">insurance.policy</field>
+        <field name="view_mode">list,calendar,pivot,form</field>
+        <field name="search_view_id" ref="insurance_policy_view_search"/>
+        <field name="domain">[('state', 'in', ('in_force', 'expiring'))]</field>
+        <field name="context">{'search_default_expire_30_days': 1}</field>
+        <field name="view_ids" eval="[Command.clear(),
+            Command.create({'view_mode': 'list', 'view_id': ref('insurance_policy_view_list_expiration')}),
+            Command.create({'view_mode': 'calendar', 'view_id': ref('insurance_policy_view_calendar')})]"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No policy expires in this period</p>
+            <p>Policies in force ordered by end date. Remove the filter to see every policy in force.</p>
+        </field>
+    </record>
+</odoo>

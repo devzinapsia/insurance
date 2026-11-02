@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="insurance_policy_object_exclude_view_form" model="ir.ui.view">
+        <field name="name">insurance.policy.object.exclude.form</field>
+        <field name="model">insurance.policy.object.exclude</field>
+        <field name="arch" type="xml">
+            <form string="Remove insured object">
+                <p class="text-muted">
+                    The object stays in the policy as history, marked as removed.
+                </p>
+                <group>
+                    <field name="object_id"/>
+                    <field name="date_end"/>
+                    <field name="reason"/>
+                </group>
+                <footer>
+                    <button name="action_confirm" type="object" string="Remove" class="btn-primary" data-hotkey="q"/>
+                    <button string="Discard" special="cancel" class="btn-secondary" data-hotkey="x"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

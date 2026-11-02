@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="insurance_insured_item_view_list" model="ir.ui.view">
+        <field name="name">insurance.insured.item.list</field>
+        <field name="model">insurance.insured.item</field>
+        <field name="arch" type="xml">
+            <list string="Insurable items">
+                <field name="name"/>
+                <field name="item_type"/>
+                <field name="location" optional="show"/>
+                <field name="identification" optional="show"/>
+                <field name="currency_id" column_invisible="True"/>
+                <field name="reference_value" optional="hide"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="insurance_insured_item_view_form" model="ir.ui.view">
+        <field name="name">insurance.insured.item.form</field>
+        <field name="model">insurance.insured.item</field>
+        <field name="arch" type="xml">
+            <form string="Insurable item">
+                <sheet>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <field name="active" invisible="1"/>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" placeholder="e.g. Main warehouse"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="item_type"/>
+                            <field name="location"/>
+                            <field name="identification"/>
+                        </group>
+                        <group>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="reference_value"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page name="notes" string="Notes">
+                            <field name="note" placeholder="Internal notes..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="insurance_insured_item_view_search" model="ir.ui.view">
+        <field name="name">insurance.insured.item.search</field>
+        <field name="model">insurance.insured.item</field>
+        <field name="arch" type="xml">
+            <search string="Insurable items">
+                <field name="name" filter_domain="['|', '|', ('name', 'ilike', self), ('identification', 'ilike', self), ('location', 'ilike', self)]"/>
+                <field name="item_type"/>
+                <separator/>
+                <filter name="inactive" string="Archived" domain="[('active', '=', False)]"/>
+                <group name="group_by">
+                    <filter name="group_by_item_type" string="Item type" context="{'group_by': 'item_type'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="insurance_insured_item_action" model="ir.actions.act_window">
+        <field name="name">Insurable items</field>
+        <field name="res_model">insurance.insured.item</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="insurance_insured_item_view_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Create an insurable item</p>
+            <p>Items such as a warehouse, a shop or a piece of equipment, which keep their insurance history across policies.</p>
+        </field>
+    </record>
+</odoo>

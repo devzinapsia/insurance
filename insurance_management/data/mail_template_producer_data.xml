@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Emails to the producer. Email-client safe HTML: tables, inline
+             styles, 600 px max, no external fonts; the only image is the
+             company logo served by this Odoo, with alt text. No amounts. -->
+        <record id="mail_template_policy_non_renewal" model="mail.template">
+            <field name="name">Insurance: non-renewal instruction</field>
+            <field name="model_id" ref="insurance_management.model_insurance_policy"/>
+            <field name="subject">Non-renewal instruction - policy {{ object.policy_number or object.name }}</field>
+            <field name="email_from">{{ (object.company_id.email_formatted or user.email_formatted) }}</field>
+            <field name="use_default_to" eval="False"/>
+            <field name="partner_to">{{ object.producer_id.id }}</field>
+            <field name="lang">{{ object.producer_id.lang }}</field>
+            <field name="auto_delete" eval="True"/>
+            <field name="description">Sent to the producer when a policy is marked not to renew.</field>
+            <field name="body_html" type="html">
+<div style="margin:0; padding:0; background-color:#f3f4f6;">
+<t t-set="insured_objects" t-value="object._get_mail_objects()"/>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f3f4f6;">
+<tr><td align="center" style="padding:24px 12px;">
+<table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:100%; max-width:600px; background-color:#ffffff; border:1px solid #d1d5db; border-radius:6px; font-family:Arial, Helvetica, sans-serif; color:#1f2937;">
+    <tr><td style="padding:20px 24px; border-bottom:3px solid #b42318;">
+        <img t-att-src="'%s/logo.png?company=%s' % (object.get_base_url(), object.company_id.id)" t-att-alt="object.company_id.name" height="40" style="height:40px; max-width:200px; border:0; display:block;"/>
+    </td></tr>
+    <tr><td style="padding:24px 24px 8px 24px; font-size:15px; line-height:22px;">
+        <p style="margin:0 0 16px 0;">Hello <t t-out="object.producer_id.name or ''">Producer</t>,</p>
+        <p style="margin:0 0 16px 0; font-size:17px; line-height:24px; font-weight:bold; color:#b42318;">Please do not renew the following policy.</p>
+        <p style="margin:0 0 16px 0;">On behalf of <t t-out="object.company_id.name or ''">My Company</t>, we instruct you not to renew this policy when its validity ends. Please inform the insurer, so that it is neither renewed nor invoiced again.</p>
+    </td></tr>
+    <tr><td style="padding:0 24px 8px 24px;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="font-size:14px; line-height:20px; border-collapse:collapse;">
+            <tr t-if="object.policy_number">
+                <td style="padding:8px; width:38%; color:#4b5563; border-bottom:1px solid #e5e7eb;">Policy number</td>
+                <td style="padding:8px; font-weight:bold; border-bottom:1px solid #e5e7eb;" t-out="object.policy_number">POL-001</td>
+            </tr>
+            <tr t-if="object.branch_id">
+                <td style="padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;">Branch</td>
+                <td style="padding:8px; border-bottom:1px solid #e5e7eb;" t-out="object.branch_id.name">Motor</td>
+            </tr>
+            <tr t-if="object.insurer_id">
+                <td style="padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;">Insurer</td>
+                <td style="padding:8px; border-bottom:1px solid #e5e7eb;" t-out="object.insurer_id.name">Insurer</td>
+            </tr>
+            <tr t-if="object.date_from and object.date_to">
+                <td style="padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;">Validity</td>
+                <td style="padding:8px; border-bottom:1px solid #e5e7eb;" t-out="object._get_mail_validity()">from 01/03/2026 until 12:00 on 28/02/2027</td>
+            </tr>
+        </table>
+    </td></tr>
+    <tr t-if="insured_objects"><td style="padding:16px 24px 0 24px; font-size:14px; line-height:20px;">
+        <p style="margin:0 0 8px 0; font-weight:bold;">Insured objects (<t t-out="len(insured_objects)">2</t>)</p>
+        <ul style="margin:0; padding:0 0 0 20px;">
+            <li t-foreach="insured_objects" t-as="insured_object" style="margin:0 0 4px 0;" t-out="object._get_mail_object_label(insured_object)">Truck (AB123CD)</li>
+        </ul>
+    </td></tr>
+    <tr><td style="padding:20px 24px 24px 24px; font-size:15px; line-height:22px;">
+        <p style="margin:0 0 16px 0;">Please confirm that you have received this instruction.</p>
+        <p style="margin:0;">Kind regards,<br/>
+            <strong t-out="object.company_id.name or ''">My Company</strong>
+            <t t-if="object.company_id.email"><br/><t t-out="object.company_id.email">info@example.com</t></t>
+            <t t-if="object.company_id.phone"><br/><t t-out="object.company_id.phone">+54 11 0000-0000</t></t>
+        </p>
+    </td></tr>
+</table>
+</td></tr>
+</table>
+</div>
+            </field>
+        </record>
+
+        <record id="mail_template_policy_renewal_request" model="mail.template">
+            <field name="name">Insurance: renewal request</field>
+            <field name="model_id" ref="insurance_management.model_insurance_policy"/>
+            <field name="subject">Renewal request - policy {{ object.policy_number or object.name }}</field>
+            <field name="email_from">{{ (object.company_id.email_formatted or user.email_formatted) }}</field>
+            <field name="use_default_to" eval="False"/>
+            <field name="partner_to">{{ object.producer_id.id }}</field>
+            <field name="lang">{{ object.producer_id.lang }}</field>
+            <field name="auto_delete" eval="True"/>
+            <field name="description">Sent to the producer to ask for a renewal proposal.</field>
+            <field name="body_html" type="html">
+<div style="margin:0; padding:0; background-color:#f3f4f6;">
+<t t-set="insured_objects" t-value="object._get_mail_objects()"/>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f3f4f6;">
+<tr><td align="center" style="padding:24px 12px;">
+<table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:100%; max-width:600px; background-color:#ffffff; border:1px solid #d1d5db; border-radius:6px; font-family:Arial, Helvetica, sans-serif; color:#1f2937;">
+    <tr><td style="padding:20px 24px; border-bottom:3px solid #1f4e79;">
+        <img t-att-src="'%s/logo.png?company=%s' % (object.get_base_url(), object.company_id.id)" t-att-alt="object.company_id.name" height="40" style="height:40px; max-width:200px; border:0; display:block;"/>
+    </td></tr>
+    <tr><td style="padding:24px 24px 8px 24px; font-size:15px; line-height:22px;">
+        <p style="margin:0 0 16px 0;">Hello <t t-out="object.producer_id.name or ''">Producer</t>,</p>
+        <p style="margin:0 0 16px 0; font-size:17px; line-height:24px; font-weight:bold; color:#1f4e79;">We would like to renew the following policy.</p>
+        <p style="margin:0 0 16px 0;">Please send us a renewal proposal with its coverages, premium and deductible for the insured objects listed below.</p>
+    </td></tr>
+    <tr><td style="padding:0 24px 8px 24px;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="font-size:14px; line-height:20px; border-collapse:collapse;">
+            <tr t-if="object.policy_number">
+                <td style="padding:8px; width:38%; color:#4b5563; border-bottom:1px solid #e5e7eb;">Policy number</td>
+                <td style="padding:8px; font-weight:bold; border-bottom:1px solid #e5e7eb;" t-out="object.policy_number">POL-001</td>
+            </tr>
+            <tr t-if="object.branch_id">
+                <td style="padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;">Branch</td>
+                <td style="padding:8px; border-bottom:1px solid #e5e7eb;" t-out="object.branch_id.name">Motor</td>
+            </tr>
+            <tr t-if="object.insurer_id">
+                <td style="padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;">Current insurer</td>
+                <td style="padding:8px; border-bottom:1px solid #e5e7eb;" t-out="object.insurer_id.name">Insurer</td>
+            </tr>
+            <tr t-if="object.date_from and object.date_to">
+                <td style="padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;">Current validity</td>
+                <td style="padding:8px; border-bottom:1px solid #e5e7eb;" t-out="object._get_mail_validity()">from 01/03/2026 until 12:00 on 28/02/2027</td>
+            </tr>
+        </table>
+    </td></tr>
+    <tr t-if="insured_objects"><td style="padding:16px 24px 0 24px; font-size:14px; line-height:20px;">
+        <p style="margin:0 0 8px 0; font-weight:bold;">Insured objects (<t t-out="len(insured_objects)">2</t>)</p>
+        <ul style="margin:0; padding:0 0 0 20px;">
+            <li t-foreach="insured_objects" t-as="insured_object" style="margin:0 0 4px 0;">
+                <t t-out="object._get_mail_object_label(insured_object)">Truck (AB123CD)</t><t t-if="insured_object.coverage"> - <t t-out="insured_object.coverage">All risks</t></t>
+            </li>
+        </ul>
+    </td></tr>
+    <tr><td style="padding:20px 24px 24px 24px; font-size:15px; line-height:22px;">
+        <p style="margin:0 0 16px 0;">Thank you in advance.</p>
+        <p style="margin:0;">Kind regards,<br/>
+            <strong t-out="object.company_id.name or ''">My Company</strong>
+            <t t-if="object.company_id.email"><br/><t t-out="object.company_id.email">info@example.com</t></t>
+            <t t-if="object.company_id.phone"><br/><t t-out="object.company_id.phone">+54 11 0000-0000</t></t>
+        </p>
+    </td></tr>
+</table>
+</td></tr>
+</table>
+</div>
+            </field>
+        </record>
+    </data>
+</odoo>

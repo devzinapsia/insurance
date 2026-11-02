@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Internal alerts, sent by the daily process: one email per user to
+             notify, in the user's language (context insurance_recipient_lang).
+             Email-client safe HTML; no amounts (users may not see them). -->
+        <record id="mail_template_policy_expiry_notice" model="mail.template">
+            <field name="name">Insurance: expiry notice</field>
+            <field name="model_id" ref="insurance_management.model_insurance_policy"/>
+            <field name="subject">{{ object._get_alert_subject('expiry_notice', ctx.get('insurance_days_left')) }}</field>
+            <field name="email_from">{{ (object.company_id.email_formatted or user.email_formatted) }}</field>
+            <field name="use_default_to" eval="False"/>
+            <field name="lang">{{ ctx.get('insurance_recipient_lang') or object.company_id.partner_id.lang }}</field>
+            <field name="auto_delete" eval="True"/>
+            <field name="description">Sent to the users to notify when a policy reaches an alert threshold.</field>
+            <field name="body_html" type="html">
+<div style="margin:0; padding:0; background-color:#f3f4f6;">
+<t t-set="days_left" t-value="ctx.get('insurance_days_left')"/>
+<t t-set="insured_objects" t-value="object._get_mail_objects()"/>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f3f4f6;">
+<tr><td align="center" style="padding:24px 12px;">
+<table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:100%; max-width:600px; background-color:#ffffff; border:1px solid #d1d5db; border-radius:6px; font-family:Arial, Helvetica, sans-serif; color:#1f2937;">
+    <tr><td style="padding:20px 24px; border-bottom:3px solid #b45309;">
+        <img t-att-src="'%s/logo.png?company=%s' % (object.get_base_url(), object.company_id.id)" t-att-alt="object.company_id.name" height="40" style="height:40px; max-width:200px; border:0; display:block;"/>
+    </td></tr>
+    <tr><td style="padding:24px 24px 8px 24px; font-size:15px; line-height:22px;">
+        <p style="margin:0 0 16px 0;">Hello <t t-out="ctx.get('insurance_recipient_name') or ''">Marc Demo</t>,</p>
+        <p style="margin:0 0 16px 0; font-size:17px; line-height:24px; font-weight:bold; color:#b45309;" t-out="object._get_alert_subject('expiry_notice', days_left)">Policy POL-001 (Motor) expires in 15 days</p>
+        <p style="margin:0 0 16px 0;">The following policy is about to expire and needs a decision.</p>
+    </td></tr>
+    <tr><td style="padding:0 24px 8px 24px;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="font-size:14px; line-height:20px; border-collapse:collapse;">
+            <tr t-if="object.policy_number">
+                <td style="padding:8px; width:38%; color:#4b5563; border-bottom:1px solid #e5e7eb;">Policy number</td>
+                <td style="padding:8px; font-weight:bold; border-bottom:1px solid #e5e7eb;" t-out="object.policy_number">POL-001</td>
+            </tr>
+            <tr>
+                <td style="padding:8px; width:38%; color:#4b5563; border-bottom:1px solid #e5e7eb;">Reference</td>
+                <td style="padding:8px; border-bottom:1px solid #e5e7eb;" t-out="object.name">SEG/2026/0001</td>
+            </tr>
+            <tr t-if="object.branch_id">
+                <td style="padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;">Branch</td>
+                <td style="padding:8px; border-bottom:1px solid #e5e7eb;" t-out="object.branch_id.name">Motor</td>
+            </tr>
+            <tr t-if="object.insurer_id">
+                <td style="padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;">Insurer</td>
+                <td style="padding:8px; border-bottom:1px solid #e5e7eb;" t-out="object.insurer_id.name">Insurer</td>
+            </tr>
+            <tr t-if="object.producer_id">
+                <td style="padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;">Producer</td>
+                <td style="padding:8px; border-bottom:1px solid #e5e7eb;" t-out="object.producer_id.name">Producer</td>
+            </tr>
+            <tr t-if="object.date_from and object.date_to">
+                <td style="padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;">Validity</td>
+                <td style="padding:8px; border-bottom:1px solid #e5e7eb;" t-out="object._get_mail_validity()">from 01/03/2026 until 12:00 on 28/02/2027</td>
+            </tr>
+            <tr t-if="days_left is not None and days_left &gt;= 0">
+                <td style="padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;">Days left</td>
+                <td style="padding:8px; font-weight:bold; border-bottom:1px solid #e5e7eb;" t-out="days_left">15</td>
+            </tr>
+            <tr>
+                <td style="padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;">Renewal type</td>
+                <td style="padding:8px; border-bottom:1px solid #e5e7eb;" t-out="object._get_renewal_type_label()">To be defined</td>
+            </tr>
+            <tr t-if="insured_objects">
+                <td style="padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb; vertical-align:top;">Insured objects</td>
+                <td style="padding:8px; border-bottom:1px solid #e5e7eb;">
+                    <t t-out="len(insured_objects)">2</t>: <t t-foreach="insured_objects[:3]" t-as="insured_object"><t t-out="object._get_mail_object_label(insured_object)">Truck (AB123CD)</t><t t-if="not insured_object_last">, </t></t><t t-if="len(insured_objects) &gt; 3"> (+<t t-out="len(insured_objects) - 3">5</t>)</t>
+                </td>
+            </tr>
+        </table>
+    </td></tr>
+    <tr><td style="padding:16px 24px 8px 24px; font-size:15px; line-height:22px;">
+        <p style="margin:0; padding:12px 14px; border-left:4px solid #b45309; background-color:#f9fafb;">What to do: decide whether to renew it. From the policy you can renew it, mark it not to renew (the producer is notified) or request a renewal proposal from the producer.</p>
+    </td></tr>
+    <tr><td style="padding:16px 24px 8px 24px;">
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+            <tr><td bgcolor="#1f4e79" style="border-radius:4px; background-color:#1f4e79;">
+                <a t-att-href="object._get_record_url()" target="_blank" style="display:inline-block; padding:12px 24px; font-family:Arial, Helvetica, sans-serif; font-size:15px; font-weight:bold; color:#ffffff; text-decoration:none; border-radius:4px;">View policy</a>
+            </td></tr>
+        </table>
+    </td></tr>
+    <tr><td style="padding:16px 24px 24px 24px; font-size:12px; line-height:18px; color:#6b7280;">
+        You receive this email because you are a user to notify for this policy at <t t-out="object.company_id.name or ''">My Company</t>.
+    </td></tr>
+</table>
+</td></tr>
+</table>
+</div>
+            </field>
+        </record>
+        <record id="mail_template_policy_expired" model="mail.template">
+            <field name="name">Insurance: policy expired</field>
+            <field name="model_id" ref="insurance_management.model_insurance_policy"/>
+            <field name="subject">{{ object._get_alert_subject('expired', ctx.get('insurance_days_left')) }}</field>
+            <field name="email_from">{{ (object.company_id.email_formatted or user.email_formatted) }}</field>
+            <field name="use_default_to" eval="False"/>
+            <field name="lang">{{ ctx.get('insurance_recipient_lang') or object.company_id.partner_id.lang }}</field>
+            <field name="auto_delete" eval="True"/>
+            <field name="description">Sent to the users to notify the day after a policy ends without renewal.</field>
+            <field name="body_html" type="html">
+<div style="margin:0; padding:0; background-color:#f3f4f6;">
+<t t-set="days_left" t-value="ctx.get('insurance_days_left')"/>
+<t t-set="insured_objects" t-value="object._get_mail_objects()"/>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f3f4f6;">
+<tr><td align="center" style="padding:24px 12px;">
+<table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:100%; max-width:600px; background-color:#ffffff; border:1px solid #d1d5db; border-radius:6px; font-family:Arial, Helvetica, sans-serif; color:#1f2937;">
+    <tr><td style="padding:20px 24px; border-bottom:3px solid #b42318;">
+        <img t-att-src="'%s/logo.png?company=%s' % (object.get_base_url(), object.company_id.id)" t-att-alt="object.company_id.name" height="40" style="height:40px; max-width:200px; border:0; display:block;"/>
+    </td></tr>
+    <tr><td style="padding:24px 24px 8px 24px; font-size:15px; line-height:22px;">
+        <p style="margin:0 0 16px 0;">Hello <t t-out="ctx.get('insurance_recipient_name') or ''">Marc Demo</t>,</p>
+        <p style="margin:0 0 16px 0; font-size:17px; line-height:24px; font-weight:bold; color:#b42318;" t-out="object._get_alert_subject('expired', days_left)">Policy POL-001 (Motor) expired</p>
+        <p style="margin:0 0 16px 0;">The coverage of the following policy has ended and it was not renewed.</p>
+    </td></tr>
+    <tr><td style="padding:0 24px 8px 24px;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="font-size:14px; line-height:20px; border-collapse:collapse;">
+            <tr t-if="object.policy_number">
+                <td style="padding:8px; width:38%; color:#4b5563; border-bottom:1px solid #e5e7eb;">Policy number</td>
+                <td style="padding:8px; font-weight:bold; border-bottom:1px solid #e5e7eb;" t-out="object.policy_number">POL-001</td>
+            </tr>
+            <tr>
+                <td style="padding:8px; width:38%; color:#4b5563; border-bottom:1px solid #e5e7eb;">Reference</td>
+                <td style="padding:8px; border-bottom:1px solid #e5e7eb;" t-out="object.name">SEG/2026/0001</td>
+            </tr>
+            <tr t-if="object.branch_id">
+                <td style="padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;">Branch</td>
+                <td style="padding:8px; border-bottom:1px solid #e5e7eb;" t-out="object.branch_id.name">Motor</td>
+            </tr>
+            <tr t-if="object.insurer_id">
+                <td style="padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;">Insurer</td>
+                <td style="padding:8px; border-bottom:1px solid #e5e7eb;" t-out="object.insurer_id.name">Insurer</td>
+            </tr>
+            <tr t-if="object.producer_id">
+                <td style="padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;">Producer</td>
+                <td style="padding:8px; border-bottom:1px solid #e5e7eb;" t-out="object.producer_id.name">Producer</td>
+            </tr>
+            <tr t-if="object.date_from and object.date_to">
+                <td style="padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;">Validity</td>
+                <td style="padding:8px; border-bottom:1px solid #e5e7eb;" t-out="object._get_mail_validity()">from 01/03/2026 until 12:00 on 28/02/2027</td>
+            </tr>
+            <tr>
+                <td style="padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;">Renewal type</td>
+                <td style="padding:8px; border-bottom:1px solid #e5e7eb;" t-out="object._get_renewal_type_label()">To be defined</td>
+            </tr>
+            <tr t-if="insured_objects">
+                <td style="padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb; vertical-align:top;">Insured objects</td>
+                <td style="padding:8px; border-bottom:1px solid #e5e7eb;">
+                    <t t-out="len(insured_objects)">2</t>: <t t-foreach="insured_objects[:3]" t-as="insured_object"><t t-out="object._get_mail_object_label(insured_object)">Truck (AB123CD)</t><t t-if="not insured_object_last">, </t></t><t t-if="len(insured_objects) &gt; 3"> (+<t t-out="len(insured_objects) - 3">5</t>)</t>
+                </td>
+            </tr>
+        </table>
+    </td></tr>
+    <tr><td style="padding:16px 24px 8px 24px; font-size:15px; line-height:22px;">
+        <p style="margin:0; padding:12px 14px; border-left:4px solid #b42318; background-color:#f9fafb;">What to do: if the coverage must continue, renew it now (late renewal) and contact the producer. Otherwise no action is needed.</p>
+    </td></tr>
+    <tr><td style="padding:16px 24px 8px 24px;">
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+            <tr><td bgcolor="#1f4e79" style="border-radius:4px; background-color:#1f4e79;">
+                <a t-att-href="object._get_record_url()" target="_blank" style="display:inline-block; padding:12px 24px; font-family:Arial, Helvetica, sans-serif; font-size:15px; font-weight:bold; color:#ffffff; text-decoration:none; border-radius:4px;">View policy</a>
+            </td></tr>
+        </table>
+    </td></tr>
+    <tr><td style="padding:16px 24px 24px 24px; font-size:12px; line-height:18px; color:#6b7280;">
+        You receive this email because you are a user to notify for this policy at <t t-out="object.company_id.name or ''">My Company</t>.
+    </td></tr>
+</table>
+</td></tr>
+</table>
+</div>
+            </field>
+        </record>
+    </data>
+</odoo>

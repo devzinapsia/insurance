@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="insurance_document_type_view_list" model="ir.ui.view">
+        <field name="name">insurance.document.type.list</field>
+        <field name="model">insurance.document.type</field>
+        <field name="arch" type="xml">
+            <list string="Document types">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="description" optional="show"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="insurance_document_type_view_form" model="ir.ui.view">
+        <field name="name">insurance.document.type.form</field>
+        <field name="model">insurance.document.type</field>
+        <field name="arch" type="xml">
+            <form string="Document type">
+                <sheet>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <field name="active" invisible="1"/>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" placeholder="e.g. Coverage certificate"/></h1>
+                    </div>
+                    <group>
+                        <field name="description"/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="insurance_document_type_view_search" model="ir.ui.view">
+        <field name="name">insurance.document.type.search</field>
+        <field name="model">insurance.document.type</field>
+        <field name="arch" type="xml">
+            <search string="Document types">
+                <field name="name"/>
+                <filter name="inactive" string="Archived" domain="[('active', '=', False)]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="insurance_document_type_action" model="ir.actions.act_window">
+        <field name="name">Document types</field>
+        <field name="res_model">insurance.document.type</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="insurance_document_type_view_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Create a document type</p>
+            <p>Document types classify the files attached to policies (policy, coverage certificate, payment receipt...).</p>
+        </field>
+    </record>
+
+    <!-- Policy documents (attachments) -->
+    <record id="ir_attachment_view_list_insurance" model="ir.ui.view">
+        <field name="name">ir.attachment.list.insurance</field>
+        <field name="model">ir.attachment</field>
+        <field name="priority">90</field>
+        <field name="arch" type="xml">
+            <list string="Documents" create="0" editable="bottom">
+                <field name="name"/>
+                <field name="insurance_document_type_id" options="{'no_create': True}"/>
+                <field name="create_date" string="Uploaded on" readonly="1"/>
+                <field name="create_uid" string="Uploaded by" widget="many2one_avatar_user" readonly="1"/>
+                <field name="file_size" optional="hide" readonly="1"/>
+                <field name="datas" filename="name" widget="binary" string="File" readonly="1"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="ir_attachment_view_search_insurance" model="ir.ui.view">
+        <field name="name">ir.attachment.search.insurance</field>
+        <field name="model">ir.attachment</field>
+        <field name="priority">90</field>
+        <field name="arch" type="xml">
+            <search string="Documents">
+                <field name="name"/>
+                <field name="insurance_document_type_id"/>
+                <filter name="without_type" string="Without document type" domain="[('insurance_document_type_id', '=', False)]"/>
+                <group name="group_by">
+                    <filter name="group_by_type" string="Document type" context="{'group_by': 'insurance_document_type_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="insurance_policy_document_action" model="ir.actions.act_window">
+        <field name="name">Documents</field>
+        <field name="res_model">ir.attachment</field>
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="ir_attachment_view_list_insurance"/>
+        <field name="search_view_id" ref="ir_attachment_view_search_insurance"/>
+    </record>
+</odoo>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="insurance_policy_non_renewal_view_form" model="ir.ui.view">
+        <field name="name">insurance.policy.non.renewal.form</field>
+        <field name="model">insurance.policy.non.renewal</field>
+        <field name="arch" type="xml">
+            <form string="Do not renew">
+                <p class="text-muted">
+                    The policy stays in force until its end date and then moves to "Not renewed".
+                </p>
+                <group>
+                    <field name="policy_id"/>
+                    <field name="reason" placeholder="Why is this policy not renewed?"/>
+                </group>
+                <group string="Instruction to the producer">
+                    <field name="producer_id"/>
+                    <field name="send_mode" invisible="1"/>
+                    <div colspan="2" class="text-muted" invisible="send_mode != 'automatic' or send_instruction">
+                        Automatic sending: the instruction will be emailed <field name="non_renewal_days" class="oe_inline" readonly="1"/> days before the end date.
+                    </div>
+                    <field name="send_instruction"/>
+                    <field name="cc_insurer" invisible="not send_instruction"/>
+                    <field name="cc_responsible" invisible="not send_instruction"/>
+                </group>
+                <footer>
+                    <button name="action_confirm" type="object" string="Confirm" class="btn-primary" data-hotkey="q"/>
+                    <button string="Discard" special="cancel" class="btn-secondary" data-hotkey="x"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

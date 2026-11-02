@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="insurance_settings_view_form" model="ir.ui.view">
+        <field name="name">insurance.settings.form</field>
+        <field name="model">insurance.settings</field>
+        <field name="arch" type="xml">
+            <form string="Insurance settings" create="0" delete="0">
+                <header>
+                    <button name="action_save" type="object" string="Save" class="btn-primary" data-hotkey="s"/>
+                    <button name="action_run_expiry_process" type="object" string="Run the expiry process now"
+                            confirm="This sends the expiry notices that are due today. Continue?"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>Insurance settings</h1>
+                        <field name="company_id" groups="base.group_multi_company" options="{'no_open': True}"/>
+                    </div>
+                    <group>
+                        <group string="Expiry alerts" name="alerts">
+                            <field name="alert_days" placeholder="e.g. 30,15,7"/>
+                            <field name="notify_user_ids" widget="many2many_avatar_user"/>
+                            <div colspan="2" class="text-muted">
+                                Branches and policies can set their own alert days (the most specific wins) and add users to notify (they are added up, together with the policy responsible).
+                            </div>
+                        </group>
+                        <group string="Validity" name="validity">
+                            <field name="min_duration_months"/>
+                            <field name="max_duration_months"/>
+                            <field name="duration_check" widget="radio"/>
+                            <field name="coverage_time" widget="radio"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Non-renewal instruction" name="non_renewal">
+                            <field name="non_renewal_send_mode" widget="radio"/>
+                            <field name="non_renewal_days" invisible="non_renewal_send_mode != 'automatic'"/>
+                            <div colspan="2" class="text-muted">
+                                Default values for new policies; each policy can change them.
+                            </div>
+                        </group>
+                        <group string="Amounts and processing" name="global">
+                            <field name="hide_costs"/>
+                            <field name="batch_size"/>
+                            <div colspan="2" class="text-muted">
+                                These two settings apply to all companies.
+                            </div>
+                        </group>
+                    </group>
+                    <group string="Configuration" name="links">
+                        <div colspan="2" class="d-flex flex-wrap gap-2">
+                            <button name="%(insurance_management.insurance_branch_action)d" type="action" string="Branches" icon="oi-arrow-right" class="btn-link"/>
+                            <button name="%(insurance_management.insurance_document_type_action)d" type="action" string="Document types" icon="oi-arrow-right" class="btn-link"/>
+                            <button name="action_open_templates" type="object" string="Email templates" icon="oi-arrow-right" class="btn-link"/>
+                        </div>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="insurance_settings_action" model="ir.actions.act_window">
+        <field name="name">Settings</field>
+        <field name="res_model">insurance.settings</field>
+        <field name="view_mode">form</field>
+        <field name="target">current</field>
+    </record>
+</odoo>

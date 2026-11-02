@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="insurance_branch_view_list" model="ir.ui.view">
+        <field name="name">insurance.branch.list</field>
+        <field name="model">insurance.branch</field>
+        <field name="arch" type="xml">
+            <list string="Insurance branches">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="code"/>
+                <field name="object_type"/>
+                <field name="alert_days"/>
+                <field name="notify_user_ids" widget="many2many_avatar_user" optional="hide"/>
+                <field name="company_id" groups="base.group_multi_company" optional="show"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="insurance_branch_view_form" model="ir.ui.view">
+        <field name="name">insurance.branch.form</field>
+        <field name="model">insurance.branch</field>
+        <field name="arch" type="xml">
+            <form string="Insurance branch">
+                <sheet>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <field name="active" invisible="1"/>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" placeholder="e.g. Motor"/></h1>
+                    </div>
+                    <group>
+                        <group name="main">
+                            <field name="code"/>
+                            <field name="object_type"/>
+                            <field name="company_id" groups="base.group_multi_company" placeholder="Shared by all companies"/>
+                        </group>
+                        <group name="notifications" string="Notifications">
+                            <field name="alert_days" placeholder="e.g. 30,15,7"/>
+                            <field name="notify_user_ids" widget="many2many_avatar_user"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page name="notes" string="Notes">
+                            <field name="note" placeholder="Internal notes about this branch..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="insurance_branch_view_search" model="ir.ui.view">
+        <field name="name">insurance.branch.search</field>
+        <field name="model">insurance.branch</field>
+        <field name="arch" type="xml">
+            <search string="Insurance branches">
+                <field name="name" filter_domain="['|', ('name', 'ilike', self), ('code', 'ilike', self)]"/>
+                <field name="object_type"/>
+                <separator/>
+                <filter name="inactive" string="Archived" domain="[('active', '=', False)]"/>
+                <group name="group_by">
+                    <filter name="group_by_object_type" string="Object type" context="{'group_by': 'object_type'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="insurance_branch_action" model="ir.actions.act_window">
+        <field name="name">Branches</field>
+        <field name="res_model">insurance.branch</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="insurance_branch_view_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Create an insurance branch</p>
+            <p>Branches classify policies (motor, fire, surety bond...) and set their default alert days and users to notify.</p>
+        </field>
+    </record>
+</odoo>

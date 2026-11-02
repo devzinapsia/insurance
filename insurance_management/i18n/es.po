@@ -1,0 +1,3108 @@
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-02 23:32+0000\n"
+"PO-Revision-Date: 2026-11-02 23:32+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#. module: insurance_management
+#: model:ir.actions.report,print_report_name:insurance_management.action_report_insurance_policy_list
+msgid "'Policies in force'"
+msgstr "'Pólizas vigentes'"
+
+#. module: insurance_management
+#: model:ir.actions.report,print_report_name:insurance_management.action_report_insurance_policy
+msgid "'Policy - %s' % (object.policy_number or object.name)"
+msgstr "'Póliza - %s' % (object.policy_number or object.name)"
+
+#. module: insurance_management
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_settings__coverage_time__0
+#: model:ir.model.fields.selection,name:insurance_management.selection__res_company__insurance_coverage_time__0
+msgid "0:00"
+msgstr "0:00"
+
+#. module: insurance_management
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_settings__coverage_time__12
+#: model:ir.model.fields.selection,name:insurance_management.selection__res_company__insurance_coverage_time__12
+msgid "12:00"
+msgstr "12:00"
+
+#. module: insurance_management
+#: model:mail.template,body_html:insurance_management.mail_template_policy_expired
+msgid ""
+"<div style=\"margin:0; padding:0; background-color:#f3f4f6;\">\n"
+"<t t-set=\"days_left\" t-value=\"ctx.get('insurance_days_left')\"/>\n"
+"<t t-set=\"insured_objects\" t-value=\"object._get_mail_objects()\"/>\n"
+"<table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"background-color:#f3f4f6;\">\n"
+"<tr><td align=\"center\" style=\"padding:24px 12px;\">\n"
+"<table role=\"presentation\" width=\"600\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"width:100%; max-width:600px; background-color:#ffffff; border:1px solid #d1d5db; border-radius:6px; font-family:Arial, Helvetica, sans-serif; color:#1f2937;\">\n"
+"    <tr><td style=\"padding:20px 24px; border-bottom:3px solid #b42318;\">\n"
+"        <img t-att-src=\"'%s/logo.png?company=%s' % (object.get_base_url(), object.company_id.id)\" t-att-alt=\"object.company_id.name\" height=\"40\" style=\"height:40px; max-width:200px; border:0; display:block;\"/>\n"
+"    </td></tr>\n"
+"    <tr><td style=\"padding:24px 24px 8px 24px; font-size:15px; line-height:22px;\">\n"
+"        <p style=\"margin:0 0 16px 0;\">Hello <t t-out=\"ctx.get('insurance_recipient_name') or ''\">Marc Demo</t>,</p>\n"
+"        <p style=\"margin:0 0 16px 0; font-size:17px; line-height:24px; font-weight:bold; color:#b42318;\" t-out=\"object._get_alert_subject('expired', days_left)\">Policy POL-001 (Motor) expired</p>\n"
+"        <p style=\"margin:0 0 16px 0;\">The coverage of the following policy has ended and it was not renewed.</p>\n"
+"    </td></tr>\n"
+"    <tr><td style=\"padding:0 24px 8px 24px;\">\n"
+"        <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"font-size:14px; line-height:20px; border-collapse:collapse;\">\n"
+"            <tr t-if=\"object.policy_number\">\n"
+"                <td style=\"padding:8px; width:38%; color:#4b5563; border-bottom:1px solid #e5e7eb;\">Policy number</td>\n"
+"                <td style=\"padding:8px; font-weight:bold; border-bottom:1px solid #e5e7eb;\" t-out=\"object.policy_number\">POL-001</td>\n"
+"            </tr>\n"
+"            <tr>\n"
+"                <td style=\"padding:8px; width:38%; color:#4b5563; border-bottom:1px solid #e5e7eb;\">Reference</td>\n"
+"                <td style=\"padding:8px; border-bottom:1px solid #e5e7eb;\" t-out=\"object.name\">SEG/2026/0001</td>\n"
+"            </tr>\n"
+"            <tr t-if=\"object.branch_id\">\n"
+"                <td style=\"padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;\">Branch</td>\n"
+"                <td style=\"padding:8px; border-bottom:1px solid #e5e7eb;\" t-out=\"object.branch_id.name\">Motor</td>\n"
+"            </tr>\n"
+"            <tr t-if=\"object.insurer_id\">\n"
+"                <td style=\"padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;\">Insurer</td>\n"
+"                <td style=\"padding:8px; border-bottom:1px solid #e5e7eb;\" t-out=\"object.insurer_id.name\">Insurer</td>\n"
+"            </tr>\n"
+"            <tr t-if=\"object.producer_id\">\n"
+"                <td style=\"padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;\">Producer</td>\n"
+"                <td style=\"padding:8px; border-bottom:1px solid #e5e7eb;\" t-out=\"object.producer_id.name\">Producer</td>\n"
+"            </tr>\n"
+"            <tr t-if=\"object.date_from and object.date_to\">\n"
+"                <td style=\"padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;\">Validity</td>\n"
+"                <td style=\"padding:8px; border-bottom:1px solid #e5e7eb;\" t-out=\"object._get_mail_validity()\">from 01/03/2026 until 12:00 on 28/02/2027</td>\n"
+"            </tr>\n"
+"            <tr>\n"
+"                <td style=\"padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;\">Renewal type</td>\n"
+"                <td style=\"padding:8px; border-bottom:1px solid #e5e7eb;\" t-out=\"object._get_renewal_type_label()\">To be defined</td>\n"
+"            </tr>\n"
+"            <tr t-if=\"insured_objects\">\n"
+"                <td style=\"padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb; vertical-align:top;\">Insured objects</td>\n"
+"                <td style=\"padding:8px; border-bottom:1px solid #e5e7eb;\">\n"
+"                    <t t-out=\"len(insured_objects)\">2</t>: <t t-foreach=\"insured_objects[:3]\" t-as=\"insured_object\"><t t-out=\"object._get_mail_object_label(insured_object)\">Truck (AB123CD)</t><t t-if=\"not insured_object_last\">, </t></t><t t-if=\"len(insured_objects) &gt; 3\"> (+<t t-out=\"len(insured_objects) - 3\">5</t>)</t>\n"
+"                </td>\n"
+"            </tr>\n"
+"        </table>\n"
+"    </td></tr>\n"
+"    <tr><td style=\"padding:16px 24px 8px 24px; font-size:15px; line-height:22px;\">\n"
+"        <p style=\"margin:0; padding:12px 14px; border-left:4px solid #b42318; background-color:#f9fafb;\">What to do: if the coverage must continue, renew it now (late renewal) and contact the producer. Otherwise no action is needed.</p>\n"
+"    </td></tr>\n"
+"    <tr><td style=\"padding:16px 24px 8px 24px;\">\n"
+"        <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\">\n"
+"            <tr><td bgcolor=\"#1f4e79\" style=\"border-radius:4px; background-color:#1f4e79;\">\n"
+"                <a t-att-href=\"object._get_record_url()\" target=\"_blank\" style=\"display:inline-block; padding:12px 24px; font-family:Arial, Helvetica, sans-serif; font-size:15px; font-weight:bold; color:#ffffff; text-decoration:none; border-radius:4px;\">View policy</a>\n"
+"            </td></tr>\n"
+"        </table>\n"
+"    </td></tr>\n"
+"    <tr><td style=\"padding:16px 24px 24px 24px; font-size:12px; line-height:18px; color:#6b7280;\">\n"
+"        You receive this email because you are a user to notify for this policy at <t t-out=\"object.company_id.name or ''\">My Company</t>.\n"
+"    </td></tr>\n"
+"</table>\n"
+"</td></tr>\n"
+"</table>\n"
+"</div>\n"
+"            "
+msgstr ""
+"<div style=\"margin:0; padding:0; background-color:#f3f4f6;\">\n"
+"<t t-set=\"days_left\" t-value=\"ctx.get('insurance_days_left')\"/>\n"
+"<t t-set=\"insured_objects\" t-value=\"object._get_mail_objects()\"/>\n"
+"<table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"background-color:#f3f4f6;\">\n"
+"<tr><td align=\"center\" style=\"padding:24px 12px;\">\n"
+"<table role=\"presentation\" width=\"600\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"width:100%; max-width:600px; background-color:#ffffff; border:1px solid #d1d5db; border-radius:6px; font-family:Arial, Helvetica, sans-serif; color:#1f2937;\">\n"
+"    <tr><td style=\"padding:20px 24px; border-bottom:3px solid #b42318;\">\n"
+"        <img t-att-src=\"'%s/logo.png?company=%s' % (object.get_base_url(), object.company_id.id)\" t-att-alt=\"object.company_id.name\" height=\"40\" style=\"height:40px; max-width:200px; border:0; display:block;\"/>\n"
+"    </td></tr>\n"
+"    <tr><td style=\"padding:24px 24px 8px 24px; font-size:15px; line-height:22px;\">\n"
+"        <p style=\"margin:0 0 16px 0;\">Hola <t t-out=\"ctx.get('insurance_recipient_name') or ''\">Marc Demo</t>,</p>\n"
+"        <p style=\"margin:0 0 16px 0; font-size:17px; line-height:24px; font-weight:bold; color:#b42318;\" t-out=\"object._get_alert_subject('expired', days_left)\">La póliza POL-001 (Automotor) venció</p>\n"
+"        <p style=\"margin:0 0 16px 0;\">La cobertura de la siguiente póliza terminó y no fue renovada.</p>\n"
+"    </td></tr>\n"
+"    <tr><td style=\"padding:0 24px 8px 24px;\">\n"
+"        <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"font-size:14px; line-height:20px; border-collapse:collapse;\">\n"
+"            <tr t-if=\"object.policy_number\">\n"
+"                <td style=\"padding:8px; width:38%; color:#4b5563; border-bottom:1px solid #e5e7eb;\">Número de póliza</td>\n"
+"                <td style=\"padding:8px; font-weight:bold; border-bottom:1px solid #e5e7eb;\" t-out=\"object.policy_number\">POL-001</td>\n"
+"            </tr>\n"
+"            <tr>\n"
+"                <td style=\"padding:8px; width:38%; color:#4b5563; border-bottom:1px solid #e5e7eb;\">Referencia</td>\n"
+"                <td style=\"padding:8px; border-bottom:1px solid #e5e7eb;\" t-out=\"object.name\">SEG/2026/0001</td>\n"
+"            </tr>\n"
+"            <tr t-if=\"object.branch_id\">\n"
+"                <td style=\"padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;\">Ramo</td>\n"
+"                <td style=\"padding:8px; border-bottom:1px solid #e5e7eb;\" t-out=\"object.branch_id.name\">Automotor</td>\n"
+"            </tr>\n"
+"            <tr t-if=\"object.insurer_id\">\n"
+"                <td style=\"padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;\">Aseguradora</td>\n"
+"                <td style=\"padding:8px; border-bottom:1px solid #e5e7eb;\" t-out=\"object.insurer_id.name\">Aseguradora</td>\n"
+"            </tr>\n"
+"            <tr t-if=\"object.producer_id\">\n"
+"                <td style=\"padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;\">Productor</td>\n"
+"                <td style=\"padding:8px; border-bottom:1px solid #e5e7eb;\" t-out=\"object.producer_id.name\">Productor</td>\n"
+"            </tr>\n"
+"            <tr t-if=\"object.date_from and object.date_to\">\n"
+"                <td style=\"padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;\">Vigencia</td>\n"
+"                <td style=\"padding:8px; border-bottom:1px solid #e5e7eb;\" t-out=\"object._get_mail_validity()\">desde el 01/03/2026 hasta las 12:00 del 28/02/2027</td>\n"
+"            </tr>\n"
+"            <tr>\n"
+"                <td style=\"padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;\">Tipo de renovación</td>\n"
+"                <td style=\"padding:8px; border-bottom:1px solid #e5e7eb;\" t-out=\"object._get_renewal_type_label()\">A definir</td>\n"
+"            </tr>\n"
+"            <tr t-if=\"insured_objects\">\n"
+"                <td style=\"padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb; vertical-align:top;\">Objetos asegurados</td>\n"
+"                <td style=\"padding:8px; border-bottom:1px solid #e5e7eb;\">\n"
+"                    <t t-out=\"len(insured_objects)\">2</t>: <t t-foreach=\"insured_objects[:3]\" t-as=\"insured_object\"><t t-out=\"object._get_mail_object_label(insured_object)\">Camión (AB123CD)</t><t t-if=\"not insured_object_last\">, </t></t><t t-if=\"len(insured_objects) &gt; 3\"> (+<t t-out=\"len(insured_objects) - 3\">5</t>)</t>\n"
+"                </td>\n"
+"            </tr>\n"
+"        </table>\n"
+"    </td></tr>\n"
+"    <tr><td style=\"padding:16px 24px 8px 24px; font-size:15px; line-height:22px;\">\n"
+"        <p style=\"margin:0; padding:12px 14px; border-left:4px solid #b42318; background-color:#f9fafb;\">Qué hacer: si la cobertura debe continuar, renuévela ahora (renovación tardía) y comuníquese con el productor. Si no, no hace falta ninguna acción.</p>\n"
+"    </td></tr>\n"
+"    <tr><td style=\"padding:16px 24px 8px 24px;\">\n"
+"        <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\">\n"
+"            <tr><td bgcolor=\"#1f4e79\" style=\"border-radius:4px; background-color:#1f4e79;\">\n"
+"                <a t-att-href=\"object._get_record_url()\" target=\"_blank\" style=\"display:inline-block; padding:12px 24px; font-family:Arial, Helvetica, sans-serif; font-size:15px; font-weight:bold; color:#ffffff; text-decoration:none; border-radius:4px;\">Ver póliza</a>\n"
+"            </td></tr>\n"
+"        </table>\n"
+"    </td></tr>\n"
+"    <tr><td style=\"padding:16px 24px 24px 24px; font-size:12px; line-height:18px; color:#6b7280;\">\n"
+"        Recibe este correo porque es un usuario a notificar de esta póliza en <t t-out=\"object.company_id.name or ''\">Mi compañía</t>.\n"
+"    </td></tr>\n"
+"</table>\n"
+"</td></tr>\n"
+"</table>\n"
+"</div>\n"
+"            "
+
+#. module: insurance_management
+#: model:mail.template,body_html:insurance_management.mail_template_policy_expiry_notice
+msgid ""
+"<div style=\"margin:0; padding:0; background-color:#f3f4f6;\">\n"
+"<t t-set=\"days_left\" t-value=\"ctx.get('insurance_days_left')\"/>\n"
+"<t t-set=\"insured_objects\" t-value=\"object._get_mail_objects()\"/>\n"
+"<table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"background-color:#f3f4f6;\">\n"
+"<tr><td align=\"center\" style=\"padding:24px 12px;\">\n"
+"<table role=\"presentation\" width=\"600\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"width:100%; max-width:600px; background-color:#ffffff; border:1px solid #d1d5db; border-radius:6px; font-family:Arial, Helvetica, sans-serif; color:#1f2937;\">\n"
+"    <tr><td style=\"padding:20px 24px; border-bottom:3px solid #b45309;\">\n"
+"        <img t-att-src=\"'%s/logo.png?company=%s' % (object.get_base_url(), object.company_id.id)\" t-att-alt=\"object.company_id.name\" height=\"40\" style=\"height:40px; max-width:200px; border:0; display:block;\"/>\n"
+"    </td></tr>\n"
+"    <tr><td style=\"padding:24px 24px 8px 24px; font-size:15px; line-height:22px;\">\n"
+"        <p style=\"margin:0 0 16px 0;\">Hello <t t-out=\"ctx.get('insurance_recipient_name') or ''\">Marc Demo</t>,</p>\n"
+"        <p style=\"margin:0 0 16px 0; font-size:17px; line-height:24px; font-weight:bold; color:#b45309;\" t-out=\"object._get_alert_subject('expiry_notice', days_left)\">Policy POL-001 (Motor) expires in 15 days</p>\n"
+"        <p style=\"margin:0 0 16px 0;\">The following policy is about to expire and needs a decision.</p>\n"
+"    </td></tr>\n"
+"    <tr><td style=\"padding:0 24px 8px 24px;\">\n"
+"        <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"font-size:14px; line-height:20px; border-collapse:collapse;\">\n"
+"            <tr t-if=\"object.policy_number\">\n"
+"                <td style=\"padding:8px; width:38%; color:#4b5563; border-bottom:1px solid #e5e7eb;\">Policy number</td>\n"
+"                <td style=\"padding:8px; font-weight:bold; border-bottom:1px solid #e5e7eb;\" t-out=\"object.policy_number\">POL-001</td>\n"
+"            </tr>\n"
+"            <tr>\n"
+"                <td style=\"padding:8px; width:38%; color:#4b5563; border-bottom:1px solid #e5e7eb;\">Reference</td>\n"
+"                <td style=\"padding:8px; border-bottom:1px solid #e5e7eb;\" t-out=\"object.name\">SEG/2026/0001</td>\n"
+"            </tr>\n"
+"            <tr t-if=\"object.branch_id\">\n"
+"                <td style=\"padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;\">Branch</td>\n"
+"                <td style=\"padding:8px; border-bottom:1px solid #e5e7eb;\" t-out=\"object.branch_id.name\">Motor</td>\n"
+"            </tr>\n"
+"            <tr t-if=\"object.insurer_id\">\n"
+"                <td style=\"padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;\">Insurer</td>\n"
+"                <td style=\"padding:8px; border-bottom:1px solid #e5e7eb;\" t-out=\"object.insurer_id.name\">Insurer</td>\n"
+"            </tr>\n"
+"            <tr t-if=\"object.producer_id\">\n"
+"                <td style=\"padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;\">Producer</td>\n"
+"                <td style=\"padding:8px; border-bottom:1px solid #e5e7eb;\" t-out=\"object.producer_id.name\">Producer</td>\n"
+"            </tr>\n"
+"            <tr t-if=\"object.date_from and object.date_to\">\n"
+"                <td style=\"padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;\">Validity</td>\n"
+"                <td style=\"padding:8px; border-bottom:1px solid #e5e7eb;\" t-out=\"object._get_mail_validity()\">from 01/03/2026 until 12:00 on 28/02/2027</td>\n"
+"            </tr>\n"
+"            <tr t-if=\"days_left is not None and days_left &gt;= 0\">\n"
+"                <td style=\"padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;\">Days left</td>\n"
+"                <td style=\"padding:8px; font-weight:bold; border-bottom:1px solid #e5e7eb;\" t-out=\"days_left\">15</td>\n"
+"            </tr>\n"
+"            <tr>\n"
+"                <td style=\"padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;\">Renewal type</td>\n"
+"                <td style=\"padding:8px; border-bottom:1px solid #e5e7eb;\" t-out=\"object._get_renewal_type_label()\">To be defined</td>\n"
+"            </tr>\n"
+"            <tr t-if=\"insured_objects\">\n"
+"                <td style=\"padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb; vertical-align:top;\">Insured objects</td>\n"
+"                <td style=\"padding:8px; border-bottom:1px solid #e5e7eb;\">\n"
+"                    <t t-out=\"len(insured_objects)\">2</t>: <t t-foreach=\"insured_objects[:3]\" t-as=\"insured_object\"><t t-out=\"object._get_mail_object_label(insured_object)\">Truck (AB123CD)</t><t t-if=\"not insured_object_last\">, </t></t><t t-if=\"len(insured_objects) &gt; 3\"> (+<t t-out=\"len(insured_objects) - 3\">5</t>)</t>\n"
+"                </td>\n"
+"            </tr>\n"
+"        </table>\n"
+"    </td></tr>\n"
+"    <tr><td style=\"padding:16px 24px 8px 24px; font-size:15px; line-height:22px;\">\n"
+"        <p style=\"margin:0; padding:12px 14px; border-left:4px solid #b45309; background-color:#f9fafb;\">What to do: decide whether to renew it. From the policy you can renew it, mark it not to renew (the producer is notified) or request a renewal proposal from the producer.</p>\n"
+"    </td></tr>\n"
+"    <tr><td style=\"padding:16px 24px 8px 24px;\">\n"
+"        <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\">\n"
+"            <tr><td bgcolor=\"#1f4e79\" style=\"border-radius:4px; background-color:#1f4e79;\">\n"
+"                <a t-att-href=\"object._get_record_url()\" target=\"_blank\" style=\"display:inline-block; padding:12px 24px; font-family:Arial, Helvetica, sans-serif; font-size:15px; font-weight:bold; color:#ffffff; text-decoration:none; border-radius:4px;\">View policy</a>\n"
+"            </td></tr>\n"
+"        </table>\n"
+"    </td></tr>\n"
+"    <tr><td style=\"padding:16px 24px 24px 24px; font-size:12px; line-height:18px; color:#6b7280;\">\n"
+"        You receive this email because you are a user to notify for this policy at <t t-out=\"object.company_id.name or ''\">My Company</t>.\n"
+"    </td></tr>\n"
+"</table>\n"
+"</td></tr>\n"
+"</table>\n"
+"</div>\n"
+"            "
+msgstr ""
+"<div style=\"margin:0; padding:0; background-color:#f3f4f6;\">\n"
+"<t t-set=\"days_left\" t-value=\"ctx.get('insurance_days_left')\"/>\n"
+"<t t-set=\"insured_objects\" t-value=\"object._get_mail_objects()\"/>\n"
+"<table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"background-color:#f3f4f6;\">\n"
+"<tr><td align=\"center\" style=\"padding:24px 12px;\">\n"
+"<table role=\"presentation\" width=\"600\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"width:100%; max-width:600px; background-color:#ffffff; border:1px solid #d1d5db; border-radius:6px; font-family:Arial, Helvetica, sans-serif; color:#1f2937;\">\n"
+"    <tr><td style=\"padding:20px 24px; border-bottom:3px solid #b45309;\">\n"
+"        <img t-att-src=\"'%s/logo.png?company=%s' % (object.get_base_url(), object.company_id.id)\" t-att-alt=\"object.company_id.name\" height=\"40\" style=\"height:40px; max-width:200px; border:0; display:block;\"/>\n"
+"    </td></tr>\n"
+"    <tr><td style=\"padding:24px 24px 8px 24px; font-size:15px; line-height:22px;\">\n"
+"        <p style=\"margin:0 0 16px 0;\">Hola <t t-out=\"ctx.get('insurance_recipient_name') or ''\">Marc Demo</t>,</p>\n"
+"        <p style=\"margin:0 0 16px 0; font-size:17px; line-height:24px; font-weight:bold; color:#b45309;\" t-out=\"object._get_alert_subject('expiry_notice', days_left)\">La póliza POL-001 (Automotor) vence en 15 días</p>\n"
+"        <p style=\"margin:0 0 16px 0;\">La siguiente póliza está por vencer y requiere una decisión.</p>\n"
+"    </td></tr>\n"
+"    <tr><td style=\"padding:0 24px 8px 24px;\">\n"
+"        <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"font-size:14px; line-height:20px; border-collapse:collapse;\">\n"
+"            <tr t-if=\"object.policy_number\">\n"
+"                <td style=\"padding:8px; width:38%; color:#4b5563; border-bottom:1px solid #e5e7eb;\">Número de póliza</td>\n"
+"                <td style=\"padding:8px; font-weight:bold; border-bottom:1px solid #e5e7eb;\" t-out=\"object.policy_number\">POL-001</td>\n"
+"            </tr>\n"
+"            <tr>\n"
+"                <td style=\"padding:8px; width:38%; color:#4b5563; border-bottom:1px solid #e5e7eb;\">Referencia</td>\n"
+"                <td style=\"padding:8px; border-bottom:1px solid #e5e7eb;\" t-out=\"object.name\">SEG/2026/0001</td>\n"
+"            </tr>\n"
+"            <tr t-if=\"object.branch_id\">\n"
+"                <td style=\"padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;\">Ramo</td>\n"
+"                <td style=\"padding:8px; border-bottom:1px solid #e5e7eb;\" t-out=\"object.branch_id.name\">Automotor</td>\n"
+"            </tr>\n"
+"            <tr t-if=\"object.insurer_id\">\n"
+"                <td style=\"padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;\">Aseguradora</td>\n"
+"                <td style=\"padding:8px; border-bottom:1px solid #e5e7eb;\" t-out=\"object.insurer_id.name\">Aseguradora</td>\n"
+"            </tr>\n"
+"            <tr t-if=\"object.producer_id\">\n"
+"                <td style=\"padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;\">Productor</td>\n"
+"                <td style=\"padding:8px; border-bottom:1px solid #e5e7eb;\" t-out=\"object.producer_id.name\">Productor</td>\n"
+"            </tr>\n"
+"            <tr t-if=\"object.date_from and object.date_to\">\n"
+"                <td style=\"padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;\">Vigencia</td>\n"
+"                <td style=\"padding:8px; border-bottom:1px solid #e5e7eb;\" t-out=\"object._get_mail_validity()\">desde el 01/03/2026 hasta las 12:00 del 28/02/2027</td>\n"
+"            </tr>\n"
+"            <tr t-if=\"days_left is not None and days_left &gt;= 0\">\n"
+"                <td style=\"padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;\">Días restantes</td>\n"
+"                <td style=\"padding:8px; font-weight:bold; border-bottom:1px solid #e5e7eb;\" t-out=\"days_left\">15</td>\n"
+"            </tr>\n"
+"            <tr>\n"
+"                <td style=\"padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;\">Tipo de renovación</td>\n"
+"                <td style=\"padding:8px; border-bottom:1px solid #e5e7eb;\" t-out=\"object._get_renewal_type_label()\">A definir</td>\n"
+"            </tr>\n"
+"            <tr t-if=\"insured_objects\">\n"
+"                <td style=\"padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb; vertical-align:top;\">Objetos asegurados</td>\n"
+"                <td style=\"padding:8px; border-bottom:1px solid #e5e7eb;\">\n"
+"                    <t t-out=\"len(insured_objects)\">2</t>: <t t-foreach=\"insured_objects[:3]\" t-as=\"insured_object\"><t t-out=\"object._get_mail_object_label(insured_object)\">Camión (AB123CD)</t><t t-if=\"not insured_object_last\">, </t></t><t t-if=\"len(insured_objects) &gt; 3\"> (+<t t-out=\"len(insured_objects) - 3\">5</t>)</t>\n"
+"                </td>\n"
+"            </tr>\n"
+"        </table>\n"
+"    </td></tr>\n"
+"    <tr><td style=\"padding:16px 24px 8px 24px; font-size:15px; line-height:22px;\">\n"
+"        <p style=\"margin:0; padding:12px 14px; border-left:4px solid #b45309; background-color:#f9fafb;\">Qué hacer: decida si la renueva. Desde la póliza puede renovarla, marcarla para no renovar (se avisa al productor) o pedirle al productor una propuesta de renovación.</p>\n"
+"    </td></tr>\n"
+"    <tr><td style=\"padding:16px 24px 8px 24px;\">\n"
+"        <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\">\n"
+"            <tr><td bgcolor=\"#1f4e79\" style=\"border-radius:4px; background-color:#1f4e79;\">\n"
+"                <a t-att-href=\"object._get_record_url()\" target=\"_blank\" style=\"display:inline-block; padding:12px 24px; font-family:Arial, Helvetica, sans-serif; font-size:15px; font-weight:bold; color:#ffffff; text-decoration:none; border-radius:4px;\">Ver póliza</a>\n"
+"            </td></tr>\n"
+"        </table>\n"
+"    </td></tr>\n"
+"    <tr><td style=\"padding:16px 24px 24px 24px; font-size:12px; line-height:18px; color:#6b7280;\">\n"
+"        Recibe este correo porque es un usuario a notificar de esta póliza en <t t-out=\"object.company_id.name or ''\">Mi compañía</t>.\n"
+"    </td></tr>\n"
+"</table>\n"
+"</td></tr>\n"
+"</table>\n"
+"</div>\n"
+"            "
+
+#. module: insurance_management
+#: model:mail.template,body_html:insurance_management.mail_template_policy_renewal_request
+msgid ""
+"<div style=\"margin:0; padding:0; background-color:#f3f4f6;\">\n"
+"<t t-set=\"insured_objects\" t-value=\"object._get_mail_objects()\"/>\n"
+"<table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"background-color:#f3f4f6;\">\n"
+"<tr><td align=\"center\" style=\"padding:24px 12px;\">\n"
+"<table role=\"presentation\" width=\"600\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"width:100%; max-width:600px; background-color:#ffffff; border:1px solid #d1d5db; border-radius:6px; font-family:Arial, Helvetica, sans-serif; color:#1f2937;\">\n"
+"    <tr><td style=\"padding:20px 24px; border-bottom:3px solid #1f4e79;\">\n"
+"        <img t-att-src=\"'%s/logo.png?company=%s' % (object.get_base_url(), object.company_id.id)\" t-att-alt=\"object.company_id.name\" height=\"40\" style=\"height:40px; max-width:200px; border:0; display:block;\"/>\n"
+"    </td></tr>\n"
+"    <tr><td style=\"padding:24px 24px 8px 24px; font-size:15px; line-height:22px;\">\n"
+"        <p style=\"margin:0 0 16px 0;\">Hello <t t-out=\"object.producer_id.name or ''\">Producer</t>,</p>\n"
+"        <p style=\"margin:0 0 16px 0; font-size:17px; line-height:24px; font-weight:bold; color:#1f4e79;\">We would like to renew the following policy.</p>\n"
+"        <p style=\"margin:0 0 16px 0;\">Please send us a renewal proposal with its coverages, premium and deductible for the insured objects listed below.</p>\n"
+"    </td></tr>\n"
+"    <tr><td style=\"padding:0 24px 8px 24px;\">\n"
+"        <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"font-size:14px; line-height:20px; border-collapse:collapse;\">\n"
+"            <tr t-if=\"object.policy_number\">\n"
+"                <td style=\"padding:8px; width:38%; color:#4b5563; border-bottom:1px solid #e5e7eb;\">Policy number</td>\n"
+"                <td style=\"padding:8px; font-weight:bold; border-bottom:1px solid #e5e7eb;\" t-out=\"object.policy_number\">POL-001</td>\n"
+"            </tr>\n"
+"            <tr t-if=\"object.branch_id\">\n"
+"                <td style=\"padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;\">Branch</td>\n"
+"                <td style=\"padding:8px; border-bottom:1px solid #e5e7eb;\" t-out=\"object.branch_id.name\">Motor</td>\n"
+"            </tr>\n"
+"            <tr t-if=\"object.insurer_id\">\n"
+"                <td style=\"padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;\">Current insurer</td>\n"
+"                <td style=\"padding:8px; border-bottom:1px solid #e5e7eb;\" t-out=\"object.insurer_id.name\">Insurer</td>\n"
+"            </tr>\n"
+"            <tr t-if=\"object.date_from and object.date_to\">\n"
+"                <td style=\"padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;\">Current validity</td>\n"
+"                <td style=\"padding:8px; border-bottom:1px solid #e5e7eb;\" t-out=\"object._get_mail_validity()\">from 01/03/2026 until 12:00 on 28/02/2027</td>\n"
+"            </tr>\n"
+"        </table>\n"
+"    </td></tr>\n"
+"    <tr t-if=\"insured_objects\"><td style=\"padding:16px 24px 0 24px; font-size:14px; line-height:20px;\">\n"
+"        <p style=\"margin:0 0 8px 0; font-weight:bold;\">Insured objects (<t t-out=\"len(insured_objects)\">2</t>)</p>\n"
+"        <ul style=\"margin:0; padding:0 0 0 20px;\">\n"
+"            <li t-foreach=\"insured_objects\" t-as=\"insured_object\" style=\"margin:0 0 4px 0;\">\n"
+"                <t t-out=\"object._get_mail_object_label(insured_object)\">Truck (AB123CD)</t><t t-if=\"insured_object.coverage\"> - <t t-out=\"insured_object.coverage\">All risks</t></t>\n"
+"            </li>\n"
+"        </ul>\n"
+"    </td></tr>\n"
+"    <tr><td style=\"padding:20px 24px 24px 24px; font-size:15px; line-height:22px;\">\n"
+"        <p style=\"margin:0 0 16px 0;\">Thank you in advance.</p>\n"
+"        <p style=\"margin:0;\">Kind regards,<br/>\n"
+"            <strong t-out=\"object.company_id.name or ''\">My Company</strong>\n"
+"            <t t-if=\"object.company_id.email\"><br/><t t-out=\"object.company_id.email\">info@example.com</t></t>\n"
+"            <t t-if=\"object.company_id.phone\"><br/><t t-out=\"object.company_id.phone\">+54 11 0000-0000</t></t>\n"
+"        </p>\n"
+"    </td></tr>\n"
+"</table>\n"
+"</td></tr>\n"
+"</table>\n"
+"</div>\n"
+"            "
+msgstr ""
+"<div style=\"margin:0; padding:0; background-color:#f3f4f6;\">\n"
+"<t t-set=\"insured_objects\" t-value=\"object._get_mail_objects()\"/>\n"
+"<table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"background-color:#f3f4f6;\">\n"
+"<tr><td align=\"center\" style=\"padding:24px 12px;\">\n"
+"<table role=\"presentation\" width=\"600\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"width:100%; max-width:600px; background-color:#ffffff; border:1px solid #d1d5db; border-radius:6px; font-family:Arial, Helvetica, sans-serif; color:#1f2937;\">\n"
+"    <tr><td style=\"padding:20px 24px; border-bottom:3px solid #1f4e79;\">\n"
+"        <img t-att-src=\"'%s/logo.png?company=%s' % (object.get_base_url(), object.company_id.id)\" t-att-alt=\"object.company_id.name\" height=\"40\" style=\"height:40px; max-width:200px; border:0; display:block;\"/>\n"
+"    </td></tr>\n"
+"    <tr><td style=\"padding:24px 24px 8px 24px; font-size:15px; line-height:22px;\">\n"
+"        <p style=\"margin:0 0 16px 0;\">Hola <t t-out=\"object.producer_id.name or ''\">Productor</t>,</p>\n"
+"        <p style=\"margin:0 0 16px 0; font-size:17px; line-height:24px; font-weight:bold; color:#1f4e79;\">Queremos renovar la siguiente póliza.</p>\n"
+"        <p style=\"margin:0 0 16px 0;\">Por favor, envíenos una propuesta de renovación con sus coberturas, premio y franquicia para los objetos asegurados que figuran abajo.</p>\n"
+"    </td></tr>\n"
+"    <tr><td style=\"padding:0 24px 8px 24px;\">\n"
+"        <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"font-size:14px; line-height:20px; border-collapse:collapse;\">\n"
+"            <tr t-if=\"object.policy_number\">\n"
+"                <td style=\"padding:8px; width:38%; color:#4b5563; border-bottom:1px solid #e5e7eb;\">Número de póliza</td>\n"
+"                <td style=\"padding:8px; font-weight:bold; border-bottom:1px solid #e5e7eb;\" t-out=\"object.policy_number\">POL-001</td>\n"
+"            </tr>\n"
+"            <tr t-if=\"object.branch_id\">\n"
+"                <td style=\"padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;\">Ramo</td>\n"
+"                <td style=\"padding:8px; border-bottom:1px solid #e5e7eb;\" t-out=\"object.branch_id.name\">Automotor</td>\n"
+"            </tr>\n"
+"            <tr t-if=\"object.insurer_id\">\n"
+"                <td style=\"padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;\">Aseguradora actual</td>\n"
+"                <td style=\"padding:8px; border-bottom:1px solid #e5e7eb;\" t-out=\"object.insurer_id.name\">Aseguradora</td>\n"
+"            </tr>\n"
+"            <tr t-if=\"object.date_from and object.date_to\">\n"
+"                <td style=\"padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;\">Vigencia actual</td>\n"
+"                <td style=\"padding:8px; border-bottom:1px solid #e5e7eb;\" t-out=\"object._get_mail_validity()\">desde el 01/03/2026 hasta las 12:00 del 28/02/2027</td>\n"
+"            </tr>\n"
+"        </table>\n"
+"    </td></tr>\n"
+"    <tr t-if=\"insured_objects\"><td style=\"padding:16px 24px 0 24px; font-size:14px; line-height:20px;\">\n"
+"        <p style=\"margin:0 0 8px 0; font-weight:bold;\">Objetos asegurados (<t t-out=\"len(insured_objects)\">2</t>)</p>\n"
+"        <ul style=\"margin:0; padding:0 0 0 20px;\">\n"
+"            <li t-foreach=\"insured_objects\" t-as=\"insured_object\" style=\"margin:0 0 4px 0;\">\n"
+"                <t t-out=\"object._get_mail_object_label(insured_object)\">Camión (AB123CD)</t><t t-if=\"insured_object.coverage\"> - <t t-out=\"insured_object.coverage\">Todo riesgo</t></t>\n"
+"            </li>\n"
+"        </ul>\n"
+"    </td></tr>\n"
+"    <tr><td style=\"padding:20px 24px 24px 24px; font-size:15px; line-height:22px;\">\n"
+"        <p style=\"margin:0 0 16px 0;\">Desde ya, muchas gracias.</p>\n"
+"        <p style=\"margin:0;\">Saludos cordiales,<br/>\n"
+"            <strong t-out=\"object.company_id.name or ''\">Mi compañía</strong>\n"
+"            <t t-if=\"object.company_id.email\"><br/><t t-out=\"object.company_id.email\">info@example.com</t></t>\n"
+"            <t t-if=\"object.company_id.phone\"><br/><t t-out=\"object.company_id.phone\">+54 11 0000-0000</t></t>\n"
+"        </p>\n"
+"    </td></tr>\n"
+"</table>\n"
+"</td></tr>\n"
+"</table>\n"
+"</div>\n"
+"            "
+
+#. module: insurance_management
+#: model:mail.template,body_html:insurance_management.mail_template_policy_non_renewal
+msgid ""
+"<div style=\"margin:0; padding:0; background-color:#f3f4f6;\">\n"
+"<t t-set=\"insured_objects\" t-value=\"object._get_mail_objects()\"/>\n"
+"<table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"background-color:#f3f4f6;\">\n"
+"<tr><td align=\"center\" style=\"padding:24px 12px;\">\n"
+"<table role=\"presentation\" width=\"600\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"width:100%; max-width:600px; background-color:#ffffff; border:1px solid #d1d5db; border-radius:6px; font-family:Arial, Helvetica, sans-serif; color:#1f2937;\">\n"
+"    <tr><td style=\"padding:20px 24px; border-bottom:3px solid #b42318;\">\n"
+"        <img t-att-src=\"'%s/logo.png?company=%s' % (object.get_base_url(), object.company_id.id)\" t-att-alt=\"object.company_id.name\" height=\"40\" style=\"height:40px; max-width:200px; border:0; display:block;\"/>\n"
+"    </td></tr>\n"
+"    <tr><td style=\"padding:24px 24px 8px 24px; font-size:15px; line-height:22px;\">\n"
+"        <p style=\"margin:0 0 16px 0;\">Hello <t t-out=\"object.producer_id.name or ''\">Producer</t>,</p>\n"
+"        <p style=\"margin:0 0 16px 0; font-size:17px; line-height:24px; font-weight:bold; color:#b42318;\">Please do not renew the following policy.</p>\n"
+"        <p style=\"margin:0 0 16px 0;\">On behalf of <t t-out=\"object.company_id.name or ''\">My Company</t>, we instruct you not to renew this policy when its validity ends. Please inform the insurer, so that it is neither renewed nor invoiced again.</p>\n"
+"    </td></tr>\n"
+"    <tr><td style=\"padding:0 24px 8px 24px;\">\n"
+"        <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"font-size:14px; line-height:20px; border-collapse:collapse;\">\n"
+"            <tr t-if=\"object.policy_number\">\n"
+"                <td style=\"padding:8px; width:38%; color:#4b5563; border-bottom:1px solid #e5e7eb;\">Policy number</td>\n"
+"                <td style=\"padding:8px; font-weight:bold; border-bottom:1px solid #e5e7eb;\" t-out=\"object.policy_number\">POL-001</td>\n"
+"            </tr>\n"
+"            <tr t-if=\"object.branch_id\">\n"
+"                <td style=\"padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;\">Branch</td>\n"
+"                <td style=\"padding:8px; border-bottom:1px solid #e5e7eb;\" t-out=\"object.branch_id.name\">Motor</td>\n"
+"            </tr>\n"
+"            <tr t-if=\"object.insurer_id\">\n"
+"                <td style=\"padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;\">Insurer</td>\n"
+"                <td style=\"padding:8px; border-bottom:1px solid #e5e7eb;\" t-out=\"object.insurer_id.name\">Insurer</td>\n"
+"            </tr>\n"
+"            <tr t-if=\"object.date_from and object.date_to\">\n"
+"                <td style=\"padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;\">Validity</td>\n"
+"                <td style=\"padding:8px; border-bottom:1px solid #e5e7eb;\" t-out=\"object._get_mail_validity()\">from 01/03/2026 until 12:00 on 28/02/2027</td>\n"
+"            </tr>\n"
+"        </table>\n"
+"    </td></tr>\n"
+"    <tr t-if=\"insured_objects\"><td style=\"padding:16px 24px 0 24px; font-size:14px; line-height:20px;\">\n"
+"        <p style=\"margin:0 0 8px 0; font-weight:bold;\">Insured objects (<t t-out=\"len(insured_objects)\">2</t>)</p>\n"
+"        <ul style=\"margin:0; padding:0 0 0 20px;\">\n"
+"            <li t-foreach=\"insured_objects\" t-as=\"insured_object\" style=\"margin:0 0 4px 0;\" t-out=\"object._get_mail_object_label(insured_object)\">Truck (AB123CD)</li>\n"
+"        </ul>\n"
+"    </td></tr>\n"
+"    <tr><td style=\"padding:20px 24px 24px 24px; font-size:15px; line-height:22px;\">\n"
+"        <p style=\"margin:0 0 16px 0;\">Please confirm that you have received this instruction.</p>\n"
+"        <p style=\"margin:0;\">Kind regards,<br/>\n"
+"            <strong t-out=\"object.company_id.name or ''\">My Company</strong>\n"
+"            <t t-if=\"object.company_id.email\"><br/><t t-out=\"object.company_id.email\">info@example.com</t></t>\n"
+"            <t t-if=\"object.company_id.phone\"><br/><t t-out=\"object.company_id.phone\">+54 11 0000-0000</t></t>\n"
+"        </p>\n"
+"    </td></tr>\n"
+"</table>\n"
+"</td></tr>\n"
+"</table>\n"
+"</div>\n"
+"            "
+msgstr ""
+"<div style=\"margin:0; padding:0; background-color:#f3f4f6;\">\n"
+"<t t-set=\"insured_objects\" t-value=\"object._get_mail_objects()\"/>\n"
+"<table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"background-color:#f3f4f6;\">\n"
+"<tr><td align=\"center\" style=\"padding:24px 12px;\">\n"
+"<table role=\"presentation\" width=\"600\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"width:100%; max-width:600px; background-color:#ffffff; border:1px solid #d1d5db; border-radius:6px; font-family:Arial, Helvetica, sans-serif; color:#1f2937;\">\n"
+"    <tr><td style=\"padding:20px 24px; border-bottom:3px solid #b42318;\">\n"
+"        <img t-att-src=\"'%s/logo.png?company=%s' % (object.get_base_url(), object.company_id.id)\" t-att-alt=\"object.company_id.name\" height=\"40\" style=\"height:40px; max-width:200px; border:0; display:block;\"/>\n"
+"    </td></tr>\n"
+"    <tr><td style=\"padding:24px 24px 8px 24px; font-size:15px; line-height:22px;\">\n"
+"        <p style=\"margin:0 0 16px 0;\">Hola <t t-out=\"object.producer_id.name or ''\">Productor</t>,</p>\n"
+"        <p style=\"margin:0 0 16px 0; font-size:17px; line-height:24px; font-weight:bold; color:#b42318;\">Le pedimos que no renueve la siguiente póliza.</p>\n"
+"        <p style=\"margin:0 0 16px 0;\">En nombre de <t t-out=\"object.company_id.name or ''\">Mi compañía</t>, le indicamos que no renueve esta póliza al finalizar su vigencia. Por favor, informe a la aseguradora para que no se renueve ni se vuelva a facturar.</p>\n"
+"    </td></tr>\n"
+"    <tr><td style=\"padding:0 24px 8px 24px;\">\n"
+"        <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"font-size:14px; line-height:20px; border-collapse:collapse;\">\n"
+"            <tr t-if=\"object.policy_number\">\n"
+"                <td style=\"padding:8px; width:38%; color:#4b5563; border-bottom:1px solid #e5e7eb;\">Número de póliza</td>\n"
+"                <td style=\"padding:8px; font-weight:bold; border-bottom:1px solid #e5e7eb;\" t-out=\"object.policy_number\">POL-001</td>\n"
+"            </tr>\n"
+"            <tr t-if=\"object.branch_id\">\n"
+"                <td style=\"padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;\">Ramo</td>\n"
+"                <td style=\"padding:8px; border-bottom:1px solid #e5e7eb;\" t-out=\"object.branch_id.name\">Automotor</td>\n"
+"            </tr>\n"
+"            <tr t-if=\"object.insurer_id\">\n"
+"                <td style=\"padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;\">Aseguradora</td>\n"
+"                <td style=\"padding:8px; border-bottom:1px solid #e5e7eb;\" t-out=\"object.insurer_id.name\">Aseguradora</td>\n"
+"            </tr>\n"
+"            <tr t-if=\"object.date_from and object.date_to\">\n"
+"                <td style=\"padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;\">Vigencia</td>\n"
+"                <td style=\"padding:8px; border-bottom:1px solid #e5e7eb;\" t-out=\"object._get_mail_validity()\">desde el 01/03/2026 hasta las 12:00 del 28/02/2027</td>\n"
+"            </tr>\n"
+"        </table>\n"
+"    </td></tr>\n"
+"    <tr t-if=\"insured_objects\"><td style=\"padding:16px 24px 0 24px; font-size:14px; line-height:20px;\">\n"
+"        <p style=\"margin:0 0 8px 0; font-weight:bold;\">Objetos asegurados (<t t-out=\"len(insured_objects)\">2</t>)</p>\n"
+"        <ul style=\"margin:0; padding:0 0 0 20px;\">\n"
+"            <li t-foreach=\"insured_objects\" t-as=\"insured_object\" style=\"margin:0 0 4px 0;\" t-out=\"object._get_mail_object_label(insured_object)\">Camión (AB123CD)</li>\n"
+"        </ul>\n"
+"    </td></tr>\n"
+"    <tr><td style=\"padding:20px 24px 24px 24px; font-size:15px; line-height:22px;\">\n"
+"        <p style=\"margin:0 0 16px 0;\">Por favor, confirme la recepción de esta instrucción.</p>\n"
+"        <p style=\"margin:0;\">Saludos cordiales,<br/>\n"
+"            <strong t-out=\"object.company_id.name or ''\">Mi compañía</strong>\n"
+"            <t t-if=\"object.company_id.email\"><br/><t t-out=\"object.company_id.email\">info@example.com</t></t>\n"
+"            <t t-if=\"object.company_id.phone\"><br/><t t-out=\"object.company_id.phone\">+54 11 0000-0000</t></t>\n"
+"        </p>\n"
+"    </td></tr>\n"
+"</table>\n"
+"</td></tr>\n"
+"</table>\n"
+"</div>\n"
+"            "
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.report_insurance_policy_document
+msgid "<span>Insurance policy</span>"
+msgstr "<span>Póliza de seguro</span>"
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy.py:0
+msgid "A policy is always created as a draft."
+msgstr "Una póliza siempre se crea en borrador."
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy.py:0
+msgid ""
+"A renewal can only be requested for a policy in force that is not renewed "
+"yet."
+msgstr ""
+"Solo se puede solicitar la renovación de una póliza vigente que todavía no "
+"fue renovada."
+
+#. module: insurance_management
+#: model:ir.model.constraint,message:insurance_management.constraint_insurance_policy_tag_name_uniq
+msgid "A tag with this name already exists."
+msgstr "Ya existe una etiqueta con este nombre."
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_branch__message_needaction
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_document_type__message_needaction
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_insured_item__message_needaction
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__message_needaction
+msgid "Action Needed"
+msgstr "Acción requerida"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_branch__active
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_document_type__active
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_insured_item__active
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_policy_object__state__active
+msgid "Active"
+msgstr "Activo"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__object_count
+#: model_terms:ir.ui.view,arch_db:insurance_management.report_insurance_policy_list
+msgid "Active objects"
+msgstr "Objetos activos"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_branch__activity_ids
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_document_type__activity_ids
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_insured_item__activity_ids
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__activity_ids
+msgid "Activities"
+msgstr "Actividades"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_branch__activity_exception_decoration
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_document_type__activity_exception_decoration
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_insured_item__activity_exception_decoration
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__activity_exception_decoration
+msgid "Activity Exception Decoration"
+msgstr "Decoración de la actividad de excepción"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_branch__activity_state
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_document_type__activity_state
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_insured_item__activity_state
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__activity_state
+msgid "Activity State"
+msgstr "Estado de la actividad"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_branch__activity_type_icon
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_document_type__activity_type_icon
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_insured_item__activity_type_icon
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__activity_type_icon
+msgid "Activity Type Icon"
+msgstr "Ícono del tipo de actividad"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_object__date_start
+#: model_terms:ir.ui.view,arch_db:insurance_management.report_insurance_policy_document
+msgid "Added on"
+msgstr "Fecha de alta"
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_policy__notify_user_ids
+msgid ""
+"Added to the users of the insurance settings, of the branch and to the "
+"responsible."
+msgstr ""
+"Se suman a los usuarios de los ajustes de seguros, a los del ramo y al "
+"responsable."
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_branch__notify_user_ids
+msgid ""
+"Additional users notified about policies of this branch. They are added to "
+"the users of the insurance settings and of the policy."
+msgstr ""
+"Usuarios adicionales a notificar sobre las pólizas de este ramo. Se suman a "
+"los usuarios de los ajustes de seguros y a los de la póliza."
+
+#. module: insurance_management
+#: model:res.groups,name:insurance_management.group_insurance_manager
+msgid "Administrator"
+msgstr "Administrador"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_alert__alert_type
+msgid "Alert"
+msgstr "Aviso"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_branch__alert_days
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__alert_days
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_settings__alert_days
+#: model:ir.model.fields,field_description:insurance_management.field_res_company__insurance_alert_days
+msgid "Alert days"
+msgstr "Días de aviso"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__effective_alert_days
+msgid "Alert days applied"
+msgstr "Días de aviso aplicados"
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_tools.py:0
+msgid ""
+"Alert days must be a comma-separated list of positive whole numbers, for "
+"example 30,15,7. Invalid value: %(value)s"
+msgstr ""
+"Los días de aviso deben ser una lista de números enteros positivos separados"
+" por comas, por ejemplo 30,15,7. Valor no válido: %(value)s"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__alert_ids
+msgid "Alerts sent"
+msgstr "Avisos enviados"
+
+#. module: insurance_management
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_policy__deductible_type__amount
+msgid "Amount"
+msgstr "Monto"
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_policy__premium_total
+msgid ""
+"Amount the company actually pays: net premium plus taxes and surcharges."
+msgstr ""
+"Importe que efectivamente paga la empresa: prima más impuestos y recargos."
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_settings_view_form
+msgid "Amounts and processing"
+msgstr "Importes y procesamiento"
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_insured_item__reference_value
+msgid "Approximate value of the item, as a reference for the sum insured."
+msgstr "Valor aproximado del bien, como referencia para la suma asegurada."
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_branch_view_form
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_branch_view_search
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_document_type_view_form
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_document_type_view_search
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_insured_item_view_form
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_insured_item_view_search
+msgid "Archived"
+msgstr "Archivado"
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.report_insurance_policy_list
+msgid "As of"
+msgstr "Al"
+
+#. module: insurance_management
+#: model:ir.model,name:insurance_management.model_ir_attachment
+msgid "Attachment"
+msgstr "Adjunto"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_branch__message_attachment_count
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_document_type__message_attachment_count
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_insured_item__message_attachment_count
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__message_attachment_count
+msgid "Attachment Count"
+msgstr "Cantidad de adjuntos"
+
+#. module: insurance_management
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_policy__non_renewal_send_mode__automatic
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_settings__non_renewal_send_mode__automatic
+#: model:ir.model.fields.selection,name:insurance_management.selection__res_company__insurance_non_renewal_send_mode__automatic
+msgid "Automatic"
+msgstr "Automático"
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_non_renewal_view_form
+msgid "Automatic sending: the instruction will be emailed"
+msgstr "Envío automático: la instrucción se enviará por correo"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_settings__batch_size
+msgid "Batch size of the daily process"
+msgstr "Tamaño de lote del proceso diario"
+
+#. module: insurance_management
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_settings__duration_check__block
+#: model:ir.model.fields.selection,name:insurance_management.selection__res_company__insurance_duration_check__block
+msgid "Block"
+msgstr "Bloquear"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__branch_id
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_search
+#: model_terms:ir.ui.view,arch_db:insurance_management.report_insurance_policy_document
+#: model_terms:ir.ui.view,arch_db:insurance_management.report_insurance_policy_list
+msgid "Branch"
+msgstr "Ramo"
+
+#. module: insurance_management
+#: model:ir.actions.act_window,name:insurance_management.insurance_branch_action
+#: model:ir.ui.menu,name:insurance_management.menu_insurance_branch
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_settings_view_form
+msgid "Branches"
+msgstr "Ramos"
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_settings_view_form
+msgid ""
+"Branches and policies can set their own alert days (the most specific wins) "
+"and add users to notify (they are added up, together with the policy "
+"responsible)."
+msgstr ""
+"Los ramos y las pólizas pueden definir sus propios días de aviso (gana el "
+"más específico) y sumar usuarios a notificar (se suman todos, junto con el "
+"responsable de la póliza)."
+
+#. module: insurance_management
+#: model_terms:ir.actions.act_window,help:insurance_management.insurance_branch_action
+msgid ""
+"Branches classify policies (motor, fire, surety bond...) and set their "
+"default alert days and users to notify."
+msgstr ""
+"Los ramos clasifican las pólizas (automotor, incendio, caución...) y definen"
+" sus días de aviso y usuarios a notificar por defecto."
+
+#. module: insurance_management
+#: model:res.groups,comment:insurance_management.group_insurance_see_amounts
+msgid ""
+"Can see and edit the amounts of insurance policies (premiums, sums insured, "
+"deductibles)."
+msgstr ""
+"Puede ver y editar los importes de las pólizas de seguro (primas, premios, "
+"sumas aseguradas y franquicias)."
+
+#. module: insurance_management
+#: model:res.groups,comment:insurance_management.group_insurance_user
+msgid ""
+"Can view, create and edit insurance policies, renew them and mark them as "
+"not to be renewed."
+msgstr ""
+"Puede ver, crear y editar pólizas de seguro, renovarlas y marcarlas para no "
+"renovar."
+
+#. module: insurance_management
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_policy__state__cancelled
+msgid "Cancelled"
+msgstr "Anulada"
+
+#. module: insurance_management
+#: model:insurance.branch,name:insurance_management.insurance_branch_cargo
+msgid "Cargo transport"
+msgstr "Transporte de mercaderías"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_object__chassis_number
+msgid "Chassis number"
+msgstr "Número de chasis"
+
+#. module: insurance_management
+#: model:insurance.branch,name:insurance_management.insurance_branch_civil_liability
+msgid "Civil liability"
+msgstr "Responsabilidad civil"
+
+#. module: insurance_management
+#: model:insurance.document.type,name:insurance_management.insurance_document_type_claim_report
+msgid "Claim report"
+msgstr "Denuncia de siniestro"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_branch__code
+msgid "Code"
+msgstr "Código"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_tag__color
+msgid "Color"
+msgstr "Color"
+
+#. module: insurance_management
+#: model:insurance.branch,name:insurance_management.insurance_branch_commercial_comprehensive
+msgid "Commercial comprehensive"
+msgstr "Integral de comercio"
+
+#. module: insurance_management
+#: model:ir.model,name:insurance_management.model_res_company
+msgid "Companies"
+msgstr "Compañías"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_branch__company_id
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_insured_item__company_id
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__company_id
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_alert__company_id
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_object__company_id
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_settings__company_id
+msgid "Company"
+msgstr "Compañía"
+
+#. module: insurance_management
+#: model:ir.ui.menu,name:insurance_management.menu_insurance_configuration
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_settings_view_form
+msgid "Configuration"
+msgstr "Configuración"
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_non_renewal_view_form
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_form
+msgid "Confirm"
+msgstr "Confirmar"
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy.py:0
+msgid "Confirmed with a duration warning: %(issue)s"
+msgstr "Confirmada con advertencia de duración: %(issue)s"
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_policy__covered_today
+msgid ""
+"Confirmed, not cancelled, and today is within its validity dates (both "
+"included)."
+msgstr ""
+"Confirmada, no anulada, y hoy está dentro de su vigencia (ambas fechas "
+"incluidas)."
+
+#. module: insurance_management
+#: model:ir.model,name:insurance_management.model_res_partner
+msgid "Contact"
+msgstr "Contacto"
+
+#. module: insurance_management
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_branch__object_type__contract
+msgid "Contract"
+msgstr "Contrato"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_non_renewal__cc_insurer
+msgid "Copy the insurer"
+msgstr "Copiar a la aseguradora"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_non_renewal__cc_responsible
+msgid "Copy the responsible"
+msgstr "Copiar al responsable"
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_form
+msgid "Cost"
+msgstr "Costo"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_object__coverage
+#: model_terms:ir.ui.view,arch_db:insurance_management.report_insurance_policy_document
+msgid "Coverage"
+msgstr "Cobertura"
+
+#. module: insurance_management
+#: model:insurance.document.type,name:insurance_management.insurance_document_type_certificate
+msgid "Coverage certificate"
+msgstr "Certificado de cobertura"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_settings__coverage_time
+#: model:ir.model.fields,field_description:insurance_management.field_res_company__insurance_coverage_time
+msgid "Coverage start and end time"
+msgstr "Hora de inicio y fin de la cobertura"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__coverage
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_form
+#: model_terms:ir.ui.view,arch_db:insurance_management.report_insurance_policy_document
+msgid "Coverages"
+msgstr "Coberturas"
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_policy__coverage
+msgid "Coverages and clauses of the policy."
+msgstr "Coberturas y cláusulas de la póliza."
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_form
+msgid "Coverages and clauses of the policy..."
+msgstr "Coberturas y cláusulas de la póliza..."
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_alert__skipped
+msgid "Covered by a later notice"
+msgstr "Cubierto por un aviso posterior"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__covered_today
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_search
+msgid "Covered today"
+msgstr "Cubierta hoy"
+
+#. module: insurance_management
+#: model_terms:ir.actions.act_window,help:insurance_management.insurance_document_type_action
+msgid "Create a document type"
+msgstr "Crear un tipo de documento"
+
+#. module: insurance_management
+#: model_terms:ir.actions.act_window,help:insurance_management.insurance_insured_item_action
+msgid "Create an insurable item"
+msgstr "Crear un bien asegurable"
+
+#. module: insurance_management
+#: model_terms:ir.actions.act_window,help:insurance_management.insurance_branch_action
+msgid "Create an insurance branch"
+msgstr "Crear un ramo de seguro"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_branch__create_uid
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_document_type__create_uid
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_insured_item__create_uid
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__create_uid
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_alert__create_uid
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_document_upload__create_uid
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_non_renewal__create_uid
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_object__create_uid
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_object_exclude__create_uid
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_tag__create_uid
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_settings__create_uid
+msgid "Created by"
+msgstr "Creado por"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_branch__create_date
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_document_type__create_date
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_insured_item__create_date
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__create_date
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_alert__create_date
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_document_upload__create_date
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_non_renewal__create_date
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_object__create_date
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_object_exclude__create_date
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_tag__create_date
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_settings__create_date
+msgid "Created on"
+msgstr "Creado el"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_insured_item__currency_id
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__currency_id
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_object__currency_id
+msgid "Currency"
+msgstr "Moneda"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_alert__sent_on
+msgid "Date"
+msgstr "Fecha"
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_policy__alert_days
+msgid ""
+"Days before the end date on which an expiry notice is sent, as a comma-"
+"separated list (e.g. 30,15,7). Leave empty to use the value of the branch "
+"or, if empty too, of the insurance settings."
+msgstr ""
+"Días antes de la fecha hasta en los que se envía un aviso de vencimiento, "
+"como lista separada por comas (por ejemplo 30,15,7). Dejar vacío para usar "
+"el valor del ramo o, si también está vacío, el de los ajustes de seguros."
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_res_company__insurance_non_renewal_days
+msgid ""
+"Days before the end date on which the automatic non-renewal instruction is "
+"sent."
+msgstr ""
+"Días antes de la fecha hasta en los que se envía la instrucción automática "
+"de no renovación."
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_res_company__insurance_alert_days
+msgid ""
+"Days before the policy end date on which an expiry notice is sent, as a "
+"comma-separated list (e.g. 30,15,7). A branch or a policy can set its own "
+"value, which takes precedence."
+msgstr ""
+"Días antes de la fecha hasta de la póliza en los que se envía un aviso de "
+"vencimiento, como lista separada por comas (por ejemplo 30,15,7). Un ramo o "
+"una póliza pueden definir su propio valor, que tiene prioridad."
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_branch__alert_days
+msgid ""
+"Days before the policy end date on which an expiry notice is sent, as a "
+"comma-separated list (e.g. 30,15,7). Leave empty to use the value of the "
+"insurance settings. A value set on the policy takes precedence over this "
+"one."
+msgstr ""
+"Días antes de la fecha hasta de la póliza en los que se envía un aviso de "
+"vencimiento, como lista separada por comas (por ejemplo 30,15,7). Dejar "
+"vacío para usar el valor de los ajustes de seguros. Un valor definido en la "
+"póliza tiene prioridad sobre este."
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_policy__days_left
+msgid "Days from today to the end date (0 = it expires today)."
+msgstr "Días desde hoy hasta la fecha hasta (0 = vence hoy)."
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__days_left
+msgid "Days left"
+msgstr "Días restantes"
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_policy__duration_days
+msgid "Days left over after the whole months of the duration."
+msgstr "Días que quedan después de los meses completos de la duración."
+
+#. module: insurance_management
+#: model:mail.activity.type,summary:insurance_management.mail_activity_type_policy_expiry
+msgid "Decide on the policy renewal"
+msgstr "Decidir la renovación de la póliza"
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_form
+#: model_terms:ir.ui.view,arch_db:insurance_management.report_insurance_policy_document
+msgid "Deductible"
+msgstr "Franquicia"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__deductible_percent
+msgid "Deductible (%)"
+msgstr "Franquicia (%)"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__deductible_amount
+msgid "Deductible amount"
+msgstr "Monto de franquicia"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__deductible_type
+msgid "Deductible type"
+msgstr "Tipo de franquicia"
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_settings_view_form
+msgid "Default values for new policies; each policy can change them."
+msgstr ""
+"Valores por defecto para las pólizas nuevas; cada póliza los puede cambiar."
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_document_type__description
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_document_upload__description
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_object__name
+#: model_terms:ir.ui.view,arch_db:insurance_management.report_insurance_policy_document
+msgid "Description"
+msgstr "Descripción"
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_document_upload_view_form
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_non_renewal_view_form
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_object_exclude_view_form
+msgid "Discard"
+msgstr "Descartar"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_branch__display_name
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_document_type__display_name
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_insured_item__display_name
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__display_name
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_alert__display_name
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_document_upload__display_name
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_non_renewal__display_name
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_object__display_name
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_object_exclude__display_name
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_tag__display_name
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_settings__display_name
+#: model:ir.model.fields,field_description:insurance_management.field_ir_attachment__display_name
+#: model:ir.model.fields,field_description:insurance_management.field_report_insurance_management_report_insurance_policy__display_name
+#: model:ir.model.fields,field_description:insurance_management.field_report_insurance_management_report_insurance_policy_list__display_name
+#: model:ir.model.fields,field_description:insurance_management.field_res_company__display_name
+#: model:ir.model.fields,field_description:insurance_management.field_res_partner__display_name
+msgid "Display Name"
+msgstr "Nombre para mostrar"
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy.py:0
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_policy__renewal_type__no_renew
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_non_renewal_view_form
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_form
+msgid "Do not renew"
+msgstr "No renovar"
+
+#. module: insurance_management
+#: model:ir.model,name:insurance_management.model_insurance_policy_non_renewal
+msgid "Do not renew a policy"
+msgstr "No renovar una póliza"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_document_upload__document_type_id
+#: model:ir.model.fields,field_description:insurance_management.field_ir_attachment__insurance_document_type_id
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_document_type_view_form
+#: model_terms:ir.ui.view,arch_db:insurance_management.ir_attachment_view_search_insurance
+msgid "Document type"
+msgstr "Tipo de documento"
+
+#. module: insurance_management
+#: model:ir.actions.act_window,name:insurance_management.insurance_document_type_action
+#: model:ir.ui.menu,name:insurance_management.menu_insurance_document_type
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_document_type_view_list
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_document_type_view_search
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_settings_view_form
+msgid "Document types"
+msgstr "Tipos de documento"
+
+#. module: insurance_management
+#: model_terms:ir.actions.act_window,help:insurance_management.insurance_document_type_action
+msgid ""
+"Document types classify the files attached to policies (policy, coverage "
+"certificate, payment receipt...)."
+msgstr ""
+"Los tipos de documento clasifican los archivos adjuntos a las pólizas "
+"(póliza, certificado de cobertura, comprobante de pago...)."
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/wizard/insurance_policy_document_upload.py:0
+msgid "Document uploaded: %(name)s (%(type)s)"
+msgstr "Documento cargado: %(name)s (%(type)s)"
+
+#. module: insurance_management
+#: model:ir.actions.act_window,name:insurance_management.insurance_policy_document_action
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__attachment_ids
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_form
+#: model_terms:ir.ui.view,arch_db:insurance_management.ir_attachment_view_list_insurance
+#: model_terms:ir.ui.view,arch_db:insurance_management.ir_attachment_view_search_insurance
+msgid "Documents"
+msgstr "Documentos"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__document_count
+msgid "Documents count"
+msgstr "Cantidad de documentos"
+
+#. module: insurance_management
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_policy__state__draft
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_search
+msgid "Draft"
+msgstr "Borrador"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__duration_months
+#: model_terms:ir.ui.view,arch_db:insurance_management.report_insurance_policy_document
+msgid "Duration (months)"
+msgstr "Duración (meses)"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__duration_warning
+msgid "Duration warning"
+msgstr "Advertencia de duración"
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_policy_object__coverage
+msgid "E.g. third party, all risks with deductible."
+msgstr "Por ejemplo: terceros completo, todo riesgo con franquicia."
+
+#. module: insurance_management
+#: model:insurance.branch,name:insurance_management.insurance_branch_electronic_equipment
+msgid "Electronic equipment"
+msgstr "Equipos electrónicos"
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_settings_view_form
+msgid "Email templates"
+msgstr "Plantillas de correo"
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_policy_non_renewal__send_instruction
+msgid ""
+"Email the non-renewal instruction to the producer now. It is kept in the "
+"policy chatter and the sending date is recorded."
+msgstr ""
+"Enviar ahora por correo la instrucción de no renovación al productor. Queda "
+"en el chatter de la póliza y se registra la fecha de envío."
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_form
+msgid "Empty: branch or settings value"
+msgstr "Vacío: valor del ramo o de los ajustes"
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_search
+msgid "End date"
+msgstr "Fecha hasta"
+
+#. module: insurance_management
+#: model:insurance.document.type,name:insurance_management.insurance_document_type_endorsement
+msgid "Endorsement"
+msgstr "Endoso"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_object__engine_number
+msgid "Engine number"
+msgstr "Número de motor"
+
+#. module: insurance_management
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_insured_item__item_type__equipment
+msgid "Equipment"
+msgstr "Equipo"
+
+#. module: insurance_management
+#: model:res.groups,comment:insurance_management.group_insurance_manager
+msgid ""
+"Everything a user can do, plus the insurance configuration and settings."
+msgstr ""
+"Todo lo que puede hacer un usuario, más la configuración y los ajustes de "
+"seguros."
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_search
+msgid "Expire in 30 days"
+msgstr "Vencen en 30 días"
+
+#. module: insurance_management
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_policy__state__expired
+msgid "Expired"
+msgstr "Vencida"
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_search
+msgid "Expired without renewal"
+msgstr "Vencidas sin renovar"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__expires_today
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_form
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_kanban
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_search
+msgid "Expires today"
+msgstr "Vence hoy"
+
+#. module: insurance_management
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_policy__state__expiring
+msgid "Expiring"
+msgstr "Por vencer"
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_form
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_settings_view_form
+msgid "Expiry alerts"
+msgstr "Avisos de vencimiento"
+
+#. module: insurance_management
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_policy_alert__alert_type__expiry_notice
+msgid "Expiry notice"
+msgstr "Aviso de vencimiento"
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy.py:0
+msgid ""
+"Expiry notice not emailed: no user to notify has an email address. Check the"
+" users to notify of the settings, the branch and the policy."
+msgstr ""
+"El aviso no se envió por correo: ningún usuario a notificar tiene dirección "
+"de correo. Revise los usuarios a notificar de los ajustes, del ramo y de la "
+"póliza."
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy.py:0
+msgid "Expiry notice sent to: %(users)s"
+msgstr "Aviso enviado a: %(users)s"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__duration_days
+msgid "Extra days"
+msgstr "Días adicionales"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_document_upload__file
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_form
+#: model_terms:ir.ui.view,arch_db:insurance_management.ir_attachment_view_list_insurance
+msgid "File"
+msgstr "Archivo"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_document_upload__filename
+msgid "File name"
+msgstr "Nombre del archivo"
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_form
+msgid ""
+"Files attached from the chatter also appear here; set their document type."
+msgstr ""
+"Los archivos adjuntados desde el chatter también aparecen aquí; complete su "
+"tipo de documento."
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_policy__document_count
+msgid "Files attached to the policy, from the Documents tab or the chatter."
+msgstr ""
+"Archivos adjuntos a la póliza, desde la pestaña Documentos o desde el "
+"chatter."
+
+#. module: insurance_management
+#: model:insurance.branch,name:insurance_management.insurance_branch_fire
+msgid "Fire"
+msgstr "Incendio"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_branch__message_follower_ids
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_document_type__message_follower_ids
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_insured_item__message_follower_ids
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__message_follower_ids
+msgid "Followers"
+msgstr "Seguidores"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_branch__message_partner_ids
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_document_type__message_partner_ids
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_insured_item__message_partner_ids
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__message_partner_ids
+msgid "Followers (Partners)"
+msgstr "Seguidores (contactos)"
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_branch__activity_type_icon
+#: model:ir.model.fields,help:insurance_management.field_insurance_document_type__activity_type_icon
+#: model:ir.model.fields,help:insurance_management.field_insurance_insured_item__activity_type_icon
+#: model:ir.model.fields,help:insurance_management.field_insurance_policy__activity_type_icon
+msgid "Font awesome icon e.g. fa-tasks"
+msgstr "Ícono de Font Awesome, por ejemplo fa-tasks"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_alert__date_to
+msgid "For end date"
+msgstr "Para la fecha hasta"
+
+#. module: insurance_management
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_branch__object_type__generic
+msgid "Generic"
+msgstr "Genérico"
+
+#. module: insurance_management
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_insured_item__item_type__goods
+msgid "Goods"
+msgstr "Mercadería"
+
+#. module: insurance_management
+#: model:insurance.branch,name:insurance_management.insurance_branch_group_life
+msgid "Group life"
+msgstr "Vida colectivo"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_branch__has_message
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_document_type__has_message
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_insured_item__has_message
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__has_message
+msgid "Has Message"
+msgstr "Tiene mensaje"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_settings__hide_costs
+msgid "Hide costs from users"
+msgstr "Ocultar costos a los usuarios"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_branch__id
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_document_type__id
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_insured_item__id
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__id
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_alert__id
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_document_upload__id
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_non_renewal__id
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_object__id
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_object_exclude__id
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_tag__id
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_settings__id
+#: model:ir.model.fields,field_description:insurance_management.field_ir_attachment__id
+#: model:ir.model.fields,field_description:insurance_management.field_report_insurance_management_report_insurance_policy__id
+#: model:ir.model.fields,field_description:insurance_management.field_report_insurance_management_report_insurance_policy_list__id
+#: model:ir.model.fields,field_description:insurance_management.field_res_company__id
+#: model:ir.model.fields,field_description:insurance_management.field_res_partner__id
+msgid "ID"
+msgstr "ID"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_branch__activity_exception_icon
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_document_type__activity_exception_icon
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_insured_item__activity_exception_icon
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__activity_exception_icon
+msgid "Icon"
+msgstr "Ícono"
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_branch__activity_exception_icon
+#: model:ir.model.fields,help:insurance_management.field_insurance_document_type__activity_exception_icon
+#: model:ir.model.fields,help:insurance_management.field_insurance_insured_item__activity_exception_icon
+#: model:ir.model.fields,help:insurance_management.field_insurance_policy__activity_exception_icon
+msgid "Icon to indicate an exception activity."
+msgstr "Ícono que indica una actividad de excepción."
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_insured_item__identification
+msgid "Identification"
+msgstr "Identificación"
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_branch__message_needaction
+#: model:ir.model.fields,help:insurance_management.field_insurance_document_type__message_needaction
+#: model:ir.model.fields,help:insurance_management.field_insurance_insured_item__message_needaction
+#: model:ir.model.fields,help:insurance_management.field_insurance_policy__message_needaction
+msgid "If checked, new messages require your attention."
+msgstr "Si está marcado, hay mensajes nuevos que requieren su atención."
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_branch__message_has_error
+#: model:ir.model.fields,help:insurance_management.field_insurance_document_type__message_has_error
+#: model:ir.model.fields,help:insurance_management.field_insurance_insured_item__message_has_error
+#: model:ir.model.fields,help:insurance_management.field_insurance_policy__message_has_error
+msgid "If checked, some messages have a delivery error."
+msgstr "Si está marcado, algunos mensajes tienen un error de entrega."
+
+#. module: insurance_management
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_policy__state__in_force
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_search
+msgid "In force"
+msgstr "Vigente"
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_non_renewal_view_form
+msgid "Instruction to the producer"
+msgstr "Instrucción al productor"
+
+#. module: insurance_management
+#: model:ir.model,name:insurance_management.model_insurance_insured_item
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_object__insured_item_id
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_insured_item_view_form
+msgid "Insurable item"
+msgstr "Bien asegurable"
+
+#. module: insurance_management
+#: model:ir.actions.act_window,name:insurance_management.insurance_insured_item_action
+#: model:ir.ui.menu,name:insurance_management.menu_insurance_insured_item
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_insured_item_view_list
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_insured_item_view_search
+msgid "Insurable items"
+msgstr "Bienes asegurables"
+
+#. module: insurance_management
+#: model:ir.ui.menu,name:insurance_management.menu_insurance_root
+#: model:res.groups.privilege,name:insurance_management.res_groups_privilege_insurance
+#: model_terms:ir.ui.view,arch_db:insurance_management.res_partner_view_form_insurance
+msgid "Insurance"
+msgstr "Seguros"
+
+#. module: insurance_management
+#: model:ir.model,name:insurance_management.model_insurance_branch
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_branch_view_form
+msgid "Insurance branch"
+msgstr "Ramo de seguro"
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_branch_view_list
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_branch_view_search
+msgid "Insurance branches"
+msgstr "Ramos de seguro"
+
+#. module: insurance_management
+#: model:ir.model,name:insurance_management.model_insurance_document_type
+msgid "Insurance document type"
+msgstr "Tipo de documento de seguro"
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/wizard/insurance_settings.py:0
+msgid "Insurance email templates"
+msgstr "Plantillas de correo de seguros"
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_list
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_search
+msgid "Insurance policies"
+msgstr "Pólizas de seguro"
+
+#. module: insurance_management
+#: model:ir.model,name:insurance_management.model_report_insurance_management_report_insurance_policy_list
+msgid "Insurance policies in force list"
+msgstr "Listado de pólizas de seguro vigentes"
+
+#. module: insurance_management
+#: model:ir.model,name:insurance_management.model_insurance_policy
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_form
+msgid "Insurance policy"
+msgstr "Póliza de seguro"
+
+#. module: insurance_management
+#: model:ir.model,name:insurance_management.model_insurance_policy_alert
+msgid "Insurance policy alert"
+msgstr "Aviso de póliza de seguro"
+
+#. module: insurance_management
+#: model:ir.model,name:insurance_management.model_report_insurance_management_report_insurance_policy
+msgid "Insurance policy sheet"
+msgstr "Ficha de póliza de seguro"
+
+#. module: insurance_management
+#: model:ir.model,name:insurance_management.model_insurance_policy_tag
+msgid "Insurance policy tag"
+msgstr "Etiqueta de póliza de seguro"
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/wizard/insurance_settings.py:0
+#: model:ir.model,name:insurance_management.model_insurance_settings
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_settings_view_form
+msgid "Insurance settings"
+msgstr "Ajustes de seguros"
+
+#. module: insurance_management
+#: model:mail.template,name:insurance_management.mail_template_policy_expiry_notice
+msgid "Insurance: expiry notice"
+msgstr "Seguros: aviso de vencimiento"
+
+#. module: insurance_management
+#: model:mail.template,name:insurance_management.mail_template_policy_non_renewal
+msgid "Insurance: non-renewal instruction"
+msgstr "Seguros: instrucción de no renovación"
+
+#. module: insurance_management
+#: model:mail.template,name:insurance_management.mail_template_policy_expired
+msgid "Insurance: policy expired"
+msgstr "Seguros: póliza vencida"
+
+#. module: insurance_management
+#: model:ir.actions.server,name:insurance_management.ir_cron_insurance_policy_expiry_ir_actions_server
+msgid "Insurance: policy expiry process"
+msgstr "Seguros: proceso de vencimiento de pólizas"
+
+#. module: insurance_management
+#: model:mail.template,name:insurance_management.mail_template_policy_renewal_request
+msgid "Insurance: renewal request"
+msgstr "Seguros: solicitud de renovación"
+
+#. module: insurance_management
+#: model:res.groups,name:insurance_management.group_insurance_see_amounts
+msgid "Insurance: see amounts"
+msgstr "Seguros: ver importes"
+
+#. module: insurance_management
+#: model:ir.model,name:insurance_management.model_insurance_policy_object
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_object_exclude__object_id
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_search
+msgid "Insured object"
+msgstr "Objeto asegurado"
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy_object.py:0
+msgid "Insured object added:"
+msgstr "Objeto asegurado agregado:"
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy_object.py:0
+msgid "Insured object modified:"
+msgstr "Objeto asegurado modificado:"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__object_ids
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_form
+#: model_terms:ir.ui.view,arch_db:insurance_management.report_insurance_policy_document
+msgid "Insured objects"
+msgstr "Objetos asegurados"
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy_object.py:0
+msgid ""
+"Insured objects of a confirmed policy cannot be deleted; remove them from "
+"the policy instead, so their history is kept."
+msgstr ""
+"Los objetos asegurados de una póliza confirmada no se pueden eliminar; deles"
+" de baja de la póliza, así se conserva su historial."
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__insurer_id
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_search
+#: model_terms:ir.ui.view,arch_db:insurance_management.report_insurance_policy_document
+#: model_terms:ir.ui.view,arch_db:insurance_management.report_insurance_policy_list
+msgid "Insurer"
+msgstr "Aseguradora"
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.res_partner_view_search_insurance
+msgid "Insurers"
+msgstr "Aseguradoras"
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_branch_view_form
+msgid "Internal notes about this branch..."
+msgstr "Notas internas sobre este ramo..."
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_insured_item_view_form
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_form
+msgid "Internal notes..."
+msgstr "Notas internas..."
+
+#. module: insurance_management
+#: model:insurance.document.type,name:insurance_management.insurance_document_type_invoice
+msgid "Invoice"
+msgstr "Factura"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_branch__message_is_follower
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_document_type__message_is_follower
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_insured_item__message_is_follower
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__message_is_follower
+msgid "Is Follower"
+msgstr "Es seguidor"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_res_partner__is_insurance_producer
+#: model:ir.model.fields,field_description:insurance_management.field_res_users__is_insurance_producer
+msgid "Is an insurance producer"
+msgstr "Es productor de seguros"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_res_partner__is_insurer
+#: model:ir.model.fields,field_description:insurance_management.field_res_users__is_insurer
+msgid "Is an insurer"
+msgstr "Es aseguradora"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_insured_item__item_type
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_insured_item_view_search
+msgid "Item type"
+msgstr "Tipo de bien"
+
+#. module: insurance_management
+#: model_terms:ir.actions.act_window,help:insurance_management.insurance_insured_item_action
+msgid ""
+"Items such as a warehouse, a shop or a piece of equipment, which keep their "
+"insurance history across policies."
+msgstr ""
+"Bienes como un depósito, un local o un equipo, que conservan su historial de"
+" seguros entre pólizas."
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__keep_number_on_renewal
+msgid "Keep number on renewal"
+msgstr "Mantiene el número al renovar"
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_ir_attachment__insurance_document_type_id
+msgid ""
+"Kind of insurance document. Documents uploaded from the policy Documents tab"
+" always have one; files attached from the chatter can get it later."
+msgstr ""
+"Tipo de documento de seguro. Los documentos cargados desde la pestaña "
+"Documentos de la póliza siempre lo tienen; a los adjuntados desde el chatter"
+" se les puede asignar después."
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_branch__object_type
+#: model:ir.model.fields,help:insurance_management.field_insurance_policy__object_type
+#: model:ir.model.fields,help:insurance_management.field_insurance_policy_object__object_type
+msgid ""
+"Kind of object insured by policies of this branch. It defines which specific"
+" fields are shown on the policy's insured objects."
+msgstr ""
+"Tipo de objeto que aseguran las pólizas de este ramo. Define qué campos "
+"específicos se muestran en los objetos asegurados de la póliza."
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_branch__write_uid
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_document_type__write_uid
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_insured_item__write_uid
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__write_uid
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_alert__write_uid
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_document_upload__write_uid
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_non_renewal__write_uid
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_object__write_uid
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_object_exclude__write_uid
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_tag__write_uid
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_settings__write_uid
+msgid "Last Updated by"
+msgstr "Última actualización por"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_branch__write_date
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_document_type__write_date
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_insured_item__write_date
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__write_date
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_alert__write_date
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_document_upload__write_date
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_non_renewal__write_date
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_object__write_date
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_object_exclude__write_date
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_tag__write_date
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_settings__write_date
+msgid "Last Updated on"
+msgstr "Última actualización el"
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_policy__date_to
+msgid "Last day covered by the policy (inclusive)."
+msgstr "Último día cubierto por la póliza (inclusive)."
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_branch__company_id
+msgid "Leave empty to share this branch across all companies."
+msgstr "Dejar vacío para compartir este ramo entre todas las compañías."
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_object__license_plate
+#: model_terms:ir.ui.view,arch_db:insurance_management.report_insurance_policy_document
+msgid "License plate"
+msgstr "Patente"
+
+#. module: insurance_management
+#: model_terms:ir.actions.act_window,help:insurance_management.insurance_policy_action
+msgid ""
+"Load the policies the company contracts, with their validity, insurer, "
+"producer and insured objects."
+msgstr ""
+"Cargue las pólizas que contrata la empresa, con su vigencia, aseguradora, "
+"productor y objetos asegurados."
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_insured_item__location
+msgid "Location"
+msgstr "Ubicación"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__is_locked
+msgid "Locked"
+msgstr "Bloqueada"
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_res_company__insurance_max_duration_months
+msgid "Longest validity period accepted for an insurance policy."
+msgstr "Vigencia más larga aceptada para una póliza de seguro."
+
+#. module: insurance_management
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_policy__non_renewal_send_mode__manual
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_settings__non_renewal_send_mode__manual
+#: model:ir.model.fields.selection,name:insurance_management.selection__res_company__insurance_non_renewal_send_mode__manual
+msgid "Manual"
+msgstr "Manual"
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_res_company__insurance_non_renewal_send_mode
+msgid ""
+"Manual: sent from the Do not renew button. Automatic: sent by the daily "
+"process the configured days before the end date, for policies marked not to "
+"renew."
+msgstr ""
+"Manual: se envía desde el botón No renovar. Automático: lo envía el proceso "
+"diario los días configurados antes de la fecha hasta, en las pólizas "
+"marcadas para no renovar."
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_policy__non_renewal_send_mode
+#: model:ir.model.fields,help:insurance_management.field_insurance_policy_non_renewal__send_mode
+msgid ""
+"Manual: sent from the Do not renew button. Automatic: sent by the daily "
+"process the configured days before the end date, if the renewal type is Do "
+"not renew."
+msgstr ""
+"Manual: se envía desde el botón No renovar. Automático: lo envía el proceso "
+"diario los días configurados antes de la fecha hasta, si el tipo de "
+"renovación es No renovar."
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_res_partner__is_insurer
+#: model:ir.model.fields,help:insurance_management.field_res_users__is_insurer
+msgid ""
+"Mark this contact as an insurance company, so it can be selected as the "
+"insurer of a policy."
+msgstr ""
+"Marca este contacto como compañía aseguradora, para poder elegirlo como "
+"aseguradora de una póliza."
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_res_partner__is_insurance_producer
+#: model:ir.model.fields,help:insurance_management.field_res_users__is_insurance_producer
+msgid ""
+"Mark this contact as an insurance producer (broker), so it can be selected "
+"as the producer of a policy."
+msgstr ""
+"Marca este contacto como productor asesor de seguros, para poder elegirlo "
+"como productor de una póliza."
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__non_renewal_date
+msgid "Marked not to renew on"
+msgstr "Marcada para no renovar el"
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_policy_object__insured_item_id
+msgid ""
+"Master record of the insured item, which keeps its insurance history across "
+"policies and renewals."
+msgstr ""
+"Registro maestro del bien asegurado, que conserva su historial de seguros "
+"entre pólizas y renovaciones."
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_settings__max_duration_months
+#: model:ir.model.fields,field_description:insurance_management.field_res_company__insurance_max_duration_months
+msgid "Maximum policy duration (months)"
+msgstr "Duración máxima de la póliza (meses)"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_branch__message_has_error
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_document_type__message_has_error
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_insured_item__message_has_error
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__message_has_error
+msgid "Message Delivery error"
+msgstr "Error de entrega del mensaje"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_branch__message_ids
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_document_type__message_ids
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_insured_item__message_ids
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__message_ids
+msgid "Messages"
+msgstr "Mensajes"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_settings__min_duration_months
+#: model:ir.model.fields,field_description:insurance_management.field_res_company__insurance_min_duration_months
+msgid "Minimum policy duration (months)"
+msgstr "Duración mínima de la póliza (meses)"
+
+#. module: insurance_management
+#: model:insurance.branch,name:insurance_management.insurance_branch_motor
+msgid "Motor"
+msgstr "Automotor"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_branch__my_activity_date_deadline
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_document_type__my_activity_date_deadline
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_insured_item__my_activity_date_deadline
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__my_activity_date_deadline
+msgid "My Activity Deadline"
+msgstr "Fecha límite de mi actividad"
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_search
+msgid "My policies"
+msgstr "Mis pólizas"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_branch__name
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_document_type__name
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_insured_item__name
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_tag__name
+msgid "Name"
+msgstr "Nombre"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__premium
+#: model_terms:ir.ui.view,arch_db:insurance_management.report_insurance_policy_document
+msgid "Net premium"
+msgstr "Prima"
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy.py:0
+msgid "New"
+msgstr "Nueva"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_branch__activity_date_deadline
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_document_type__activity_date_deadline
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_insured_item__activity_date_deadline
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__activity_date_deadline
+msgid "Next Activity Deadline"
+msgstr "Fecha límite de la próxima actividad"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_branch__activity_summary
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_document_type__activity_summary
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_insured_item__activity_summary
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__activity_summary
+msgid "Next Activity Summary"
+msgstr "Resumen de la próxima actividad"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_branch__activity_type_id
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_document_type__activity_type_id
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_insured_item__activity_type_id
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__activity_type_id
+msgid "Next Activity Type"
+msgstr "Tipo de la próxima actividad"
+
+#. module: insurance_management
+#: model_terms:ir.actions.act_window,help:insurance_management.insurance_policy_expiration_action
+msgid "No policy expires in this period"
+msgstr "Ninguna póliza vence en este período"
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_form
+msgid "Non-renewal"
+msgstr "No renovación"
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_form
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_settings_view_form
+msgid "Non-renewal instruction"
+msgstr "Instrucción de no renovación"
+
+#. module: insurance_management
+#: model:mail.template,subject:insurance_management.mail_template_policy_non_renewal
+msgid ""
+"Non-renewal instruction - policy {{ object.policy_number or object.name }}"
+msgstr ""
+"Instrucción de no renovación - póliza {{ object.policy_number or object.name"
+" }}"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__non_renewal_send_mode
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_non_renewal__send_mode
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_settings__non_renewal_send_mode
+#: model:ir.model.fields,field_description:insurance_management.field_res_company__insurance_non_renewal_send_mode
+msgid "Non-renewal instruction sending"
+msgstr "Envío de la instrucción de no renovación"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__non_renewal_sent_date
+msgid "Non-renewal instruction sent on"
+msgstr "Instrucción de no renovación enviada el"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__non_renewal_reason
+msgid "Non-renewal reason"
+msgstr "Motivo de no renovación"
+
+#. module: insurance_management
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_policy__state__not_renewed
+msgid "Not renewed"
+msgstr "No renovada"
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_search
+msgid "Not to be renewed"
+msgstr "Para no renovar"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_branch__note
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_insured_item__note
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__note
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_branch_view_form
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_insured_item_view_form
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_form
+msgid "Notes"
+msgstr "Notas"
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_branch_view_form
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_form
+msgid "Notifications"
+msgstr "Notificaciones"
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_form
+msgid "Number assigned by the insurer"
+msgstr "Número asignado por la aseguradora"
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_policy__policy_number
+msgid "Number assigned by the insurer. Required to confirm the policy."
+msgstr ""
+"Número asignado por la aseguradora. Es obligatorio para confirmar la póliza."
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_branch__message_needaction_counter
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_document_type__message_needaction_counter
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_insured_item__message_needaction_counter
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__message_needaction_counter
+msgid "Number of Actions"
+msgstr "Cantidad de acciones"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_branch__message_has_error_counter
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_document_type__message_has_error_counter
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_insured_item__message_has_error_counter
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__message_has_error_counter
+msgid "Number of errors"
+msgstr "Cantidad de errores"
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_branch__message_needaction_counter
+#: model:ir.model.fields,help:insurance_management.field_insurance_document_type__message_needaction_counter
+#: model:ir.model.fields,help:insurance_management.field_insurance_insured_item__message_needaction_counter
+#: model:ir.model.fields,help:insurance_management.field_insurance_policy__message_needaction_counter
+msgid "Number of messages requiring action"
+msgstr "Cantidad de mensajes que requieren una acción"
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_branch__message_has_error_counter
+#: model:ir.model.fields,help:insurance_management.field_insurance_document_type__message_has_error_counter
+#: model:ir.model.fields,help:insurance_management.field_insurance_insured_item__message_has_error_counter
+#: model:ir.model.fields,help:insurance_management.field_insurance_policy__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr "Cantidad de mensajes con error de entrega"
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_settings__batch_size
+msgid ""
+"Number of policies processed and committed together by the daily expiry "
+"process. Applies to all companies."
+msgstr ""
+"Cantidad de pólizas que el proceso diario de vencimientos procesa y confirma"
+" juntas. Aplica a todas las compañías."
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_branch__object_type
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__object_type
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_object__object_type
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_branch_view_search
+msgid "Object type"
+msgstr "Tipo de objeto"
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy_object.py:0
+msgid "Only active insured objects can be removed."
+msgstr "Solo se pueden dar de baja objetos asegurados activos."
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/wizard/insurance_settings.py:0
+msgid "Only an insurance administrator can change the insurance settings."
+msgstr ""
+"Solo un administrador de seguros puede cambiar los ajustes de seguros."
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy.py:0
+msgid "Only an insurance administrator can reset a policy to draft."
+msgstr "Solo un administrador de seguros puede volver una póliza a borrador."
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy.py:0
+msgid "Only draft policies can be deleted."
+msgstr "Solo se pueden eliminar pólizas en borrador."
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_policy_document_upload__description
+msgid "Optional name of the document; the file name is used if empty."
+msgstr ""
+"Nombre opcional del documento; si está vacío se usa el nombre del archivo."
+
+#. module: insurance_management
+#: model:insurance.document.type,name:insurance_management.insurance_document_type_other
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_insured_item__item_type__other
+msgid "Other"
+msgstr "Otro"
+
+#. module: insurance_management
+#: model:insurance.document.type,name:insurance_management.insurance_document_type_payment_receipt
+msgid "Payment receipt"
+msgstr "Comprobante de pago"
+
+#. module: insurance_management
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_policy__deductible_type__percentage
+msgid "Percentage"
+msgstr "Porcentaje"
+
+#. module: insurance_management
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_branch__object_type__person
+msgid "Person"
+msgstr "Persona"
+
+#. module: insurance_management
+#: model:insurance.branch,name:insurance_management.insurance_branch_personal_accident
+msgid "Personal accident"
+msgstr "Accidentes personales"
+
+#. module: insurance_management
+#: model:ir.actions.act_window,name:insurance_management.insurance_policy_action
+#: model:ir.ui.menu,name:insurance_management.menu_insurance_policies
+#: model:ir.ui.menu,name:insurance_management.menu_insurance_policy
+msgid "Policies"
+msgstr "Pólizas"
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_graph
+msgid "Policies by branch"
+msgstr "Pólizas por ramo"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_res_partner__insurance_policy_count
+#: model:ir.model.fields,field_description:insurance_management.field_res_users__insurance_policy_count
+#: model_terms:ir.ui.view,arch_db:insurance_management.report_insurance_policy_list
+#: model_terms:ir.ui.view,arch_db:insurance_management.res_partner_view_form_insurance
+msgid "Policies in force"
+msgstr "Pólizas vigentes"
+
+#. module: insurance_management
+#: model:ir.actions.server,name:insurance_management.action_server_print_policies_in_force
+#: model:ir.ui.menu,name:insurance_management.menu_insurance_report_in_force_pdf
+msgid "Policies in force (PDF)"
+msgstr "Pólizas vigentes (PDF)"
+
+#. module: insurance_management
+#: model:ir.actions.report,name:insurance_management.action_report_insurance_policy_list
+msgid "Policies in force list"
+msgstr "Listado de pólizas vigentes"
+
+#. module: insurance_management
+#: model_terms:ir.actions.act_window,help:insurance_management.insurance_policy_expiration_action
+msgid ""
+"Policies in force ordered by end date. Remove the filter to see every policy"
+" in force."
+msgstr ""
+"Pólizas vigentes ordenadas por fecha hasta. Quite el filtro para ver todas "
+"las pólizas vigentes."
+
+#. module: insurance_management
+#: model:insurance.document.type,name:insurance_management.insurance_document_type_policy
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_alert__policy_id
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_document_upload__policy_id
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_non_renewal__policy_id
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_object__policy_id
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_search
+msgid "Policy"
+msgstr "Póliza"
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy.py:0
+msgid "Policy %(number)s (%(branch)s) expired"
+msgstr "La póliza %(number)s (%(branch)s) venció"
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy.py:0
+msgid "Policy %(number)s (%(branch)s) expires in %(days)s days"
+msgstr "La póliza %(number)s (%(branch)s) vence en %(days)s días"
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy.py:0
+msgid "Policy %(number)s (%(branch)s) expires today"
+msgstr "La póliza %(number)s (%(branch)s) vence hoy"
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy.py:0
+msgid "Policy %(number)s (%(branch)s) expires tomorrow"
+msgstr "La póliza %(number)s (%(branch)s) vence mañana"
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy.py:0
+msgid ""
+"Policy %(policy)s can only be marked not to renew while it is in force and "
+"not renewed yet."
+msgstr ""
+"La póliza %(policy)s solo se puede marcar para no renovar mientras está "
+"vigente y todavía no fue renovada."
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy.py:0
+msgid "Policy %(policy)s can only be renewed when it is expiring or expired."
+msgstr ""
+"La póliza %(policy)s solo se puede renovar cuando está por vencer o vencida."
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy.py:0
+msgid "Policy %(policy)s cannot be reset to draft from its current status."
+msgstr ""
+"La póliza %(policy)s no puede volver a borrador desde su estado actual."
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy.py:0
+msgid "Policy %(policy)s is %(state)s and can no longer be modified."
+msgstr "La póliza %(policy)s está %(state)s y ya no se puede modificar."
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy.py:0
+msgid "Policy %(policy)s is already renewed by %(renewal)s."
+msgstr "La póliza %(policy)s ya fue renovada por %(renewal)s."
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy.py:0
+msgid "Policy %(policy)s is not a draft."
+msgstr "La póliza %(policy)s no está en borrador."
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy.py:0
+msgid "Policy %(policy)s: %(issue)s"
+msgstr "Póliza %(policy)s: %(issue)s"
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy.py:0
+msgid "Policy %(policy)s: the end date must be after the start date."
+msgstr ""
+"Póliza %(policy)s: la fecha hasta debe ser posterior a la fecha desde."
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_pivot
+msgid "Policy analysis"
+msgstr "Análisis de pólizas"
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_policy__renewed_by_id
+msgid "Policy created when this one was renewed."
+msgstr "Póliza creada al renovar esta."
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy.py:0
+msgid "Policy duration"
+msgstr "Duración de la póliza"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_settings__duration_check
+#: model:ir.model.fields,field_description:insurance_management.field_res_company__insurance_duration_check
+msgid "Policy duration check"
+msgstr "Control de duración de la póliza"
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_calendar
+msgid "Policy expirations"
+msgstr "Vencimientos de pólizas"
+
+#. module: insurance_management
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_policy_alert__alert_type__expired
+msgid "Policy expired"
+msgstr "Póliza vencida"
+
+#. module: insurance_management
+#: model:mail.activity.type,name:insurance_management.mail_activity_type_policy_expiry
+msgid "Policy expiry"
+msgstr "Vencimiento de póliza"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__policy_number
+#: model_terms:ir.ui.view,arch_db:insurance_management.report_insurance_policy_list
+msgid "Policy number"
+msgstr "Número de póliza"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_insured_item__object_ids
+msgid "Policy objects"
+msgstr "Objetos en pólizas"
+
+#. module: insurance_management
+#: model:ir.actions.report,name:insurance_management.action_report_insurance_policy
+msgid "Policy sheet"
+msgstr "Ficha de póliza"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_object__policy_state
+msgid "Policy status"
+msgstr "Estado de la póliza"
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_policy__previous_policy_id
+msgid "Policy this one renews."
+msgstr "Póliza que esta renueva."
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__previous_policy_id
+#: model_terms:ir.ui.view,arch_db:insurance_management.report_insurance_policy_document
+msgid "Previous policy"
+msgstr "Póliza anterior"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__producer_id
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_non_renewal__producer_id
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_search
+#: model_terms:ir.ui.view,arch_db:insurance_management.report_insurance_policy_document
+#: model_terms:ir.ui.view,arch_db:insurance_management.report_insurance_policy_list
+msgid "Producer"
+msgstr "Productor"
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.res_partner_view_search_insurance
+msgid "Producers"
+msgstr "Productores"
+
+#. module: insurance_management
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_branch__object_type__property
+msgid "Property"
+msgstr "Bien"
+
+#. module: insurance_management
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_insured_item__item_type__real_estate
+msgid "Real estate"
+msgstr "Inmueble"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_non_renewal__reason
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_object_exclude__reason
+msgid "Reason"
+msgstr "Motivo"
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_policy__user_id
+msgid "Receives the expiry alerts and activities of this policy."
+msgstr "Recibe las alertas de vencimiento y las actividades de esta póliza."
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_alert__recipient_ids
+msgid "Recipients"
+msgstr "Destinatarios"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__name
+msgid "Reference"
+msgstr "Referencia"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_insured_item__reference_value
+msgid "Reference value"
+msgstr "Valor de referencia"
+
+#. module: insurance_management
+#: model_terms:ir.actions.act_window,help:insurance_management.insurance_policy_action
+msgid "Register an insurance policy"
+msgstr "Registrar una póliza de seguro"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_object__exclusion_reason
+msgid "Removal reason"
+msgstr "Motivo de baja"
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_object_exclude_view_form
+msgid "Remove"
+msgstr "Dar de baja"
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_form
+msgid "Remove from policy"
+msgstr "Dar de baja de la póliza"
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy_object.py:0
+#: model:ir.model,name:insurance_management.model_insurance_policy_object_exclude
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_object_exclude_view_form
+msgid "Remove insured object"
+msgstr "Dar de baja el objeto asegurado"
+
+#. module: insurance_management
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_policy_object__state__excluded
+msgid "Removed"
+msgstr "Dado de baja"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_object__date_end
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_object_exclude__date_end
+#: model_terms:ir.ui.view,arch_db:insurance_management.report_insurance_policy_document
+msgid "Removed on"
+msgstr "Fecha de baja"
+
+#. module: insurance_management
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_policy__renewal_type__renew
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_form
+msgid "Renew"
+msgstr "Renovar"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__renewal_count
+msgid "Renewal history"
+msgstr "Historial de renovaciones"
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy.py:0
+msgid "Renewal of policy %(policy)s."
+msgstr "Renovación de la póliza %(policy)s."
+
+#. module: insurance_management
+#: model:mail.template,subject:insurance_management.mail_template_policy_renewal_request
+msgid "Renewal request - policy {{ object.policy_number or object.name }}"
+msgstr ""
+"Solicitud de renovación - póliza {{ object.policy_number or object.name }}"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__renewal_request_sent_date
+msgid "Renewal request sent on"
+msgstr "Solicitud de renovación enviada el"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__renewal_type
+#: model_terms:ir.ui.view,arch_db:insurance_management.report_insurance_policy_document
+msgid "Renewal type"
+msgstr "Tipo de renovación"
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_form
+msgid "Renewals"
+msgstr "Renovaciones"
+
+#. module: insurance_management
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_policy__state__renewed
+msgid "Renewed"
+msgstr "Renovada"
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy.py:0
+msgid "Renewed although it had been marked not to renew."
+msgstr "Renovada aunque se había marcado para no renovar."
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy.py:0
+msgid ""
+"Renewed although it had been marked not to renew; the non-renewal "
+"instruction was already sent to the producer on %(date)s."
+msgstr ""
+"Renovada aunque se había marcado para no renovar; la instrucción de no "
+"renovación ya se había enviado al productor el %(date)s."
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__renewed_by_id
+#: model_terms:ir.ui.view,arch_db:insurance_management.report_insurance_policy_document
+msgid "Renewed by"
+msgstr "Renovada por"
+
+#. module: insurance_management
+#: model:ir.ui.menu,name:insurance_management.menu_insurance_reporting
+msgid "Reporting"
+msgstr "Reportes"
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_form
+msgid "Request renewal"
+msgstr "Solicitar renovación"
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_form
+msgid "Reset this policy to draft?"
+msgstr "¿Volver esta póliza a borrador?"
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_form
+msgid "Reset to draft"
+msgstr "Volver a borrador"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__user_id
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_search
+#: model_terms:ir.ui.view,arch_db:insurance_management.report_insurance_policy_document
+msgid "Responsible"
+msgstr "Responsable"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_branch__activity_user_id
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_document_type__activity_user_id
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_insured_item__activity_user_id
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__activity_user_id
+msgid "Responsible User"
+msgstr "Usuario responsable"
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_settings_view_form
+msgid "Run the expiry process now"
+msgstr "Ejecutar ahora el proceso de vencimientos"
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_settings_view_form
+msgid "Save"
+msgstr "Guardar"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__non_renewal_days
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_non_renewal__non_renewal_days
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_settings__non_renewal_days
+#: model:ir.model.fields,field_description:insurance_management.field_res_company__insurance_non_renewal_days
+msgid "Send non-renewal instruction (days before)"
+msgstr "Enviar la instrucción de no renovación (días antes)"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_non_renewal__send_instruction
+msgid "Send the instruction to the producer"
+msgstr "Enviar la instrucción al productor"
+
+#. module: insurance_management
+#: model:mail.template,description:insurance_management.mail_template_policy_renewal_request
+msgid "Sent to the producer to ask for a renewal proposal."
+msgstr "Se envía al productor para pedir una propuesta de renovación."
+
+#. module: insurance_management
+#: model:mail.template,description:insurance_management.mail_template_policy_non_renewal
+msgid "Sent to the producer when a policy is marked not to renew."
+msgstr "Se envía al productor cuando una póliza se marca para no renovar."
+
+#. module: insurance_management
+#: model:mail.template,description:insurance_management.mail_template_policy_expired
+msgid ""
+"Sent to the users to notify the day after a policy ends without renewal."
+msgstr ""
+"Se envía a los usuarios a notificar el día siguiente a que una póliza "
+"termina sin renovarse."
+
+#. module: insurance_management
+#: model:mail.template,description:insurance_management.mail_template_policy_expiry_notice
+msgid "Sent to the users to notify when a policy reaches an alert threshold."
+msgstr ""
+"Se envía a los usuarios a notificar cuando una póliza llega a un umbral de "
+"aviso."
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_branch__sequence
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_document_type__sequence
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_object__sequence
+msgid "Sequence"
+msgstr "Secuencia"
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_insured_item__identification
+msgid "Serial number, cadastral reference or any other identification."
+msgstr "Número de serie, partida catastral u otra identificación."
+
+#. module: insurance_management
+#: model:ir.actions.act_window,name:insurance_management.insurance_settings_action
+#: model:ir.ui.menu,name:insurance_management.menu_insurance_settings
+msgid "Settings"
+msgstr "Ajustes"
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_policy_alert__skipped
+msgid ""
+"Several thresholds were crossed at once: only the one closest to the end "
+"date was sent and this one was marked as covered."
+msgstr ""
+"Se cruzaron varios umbrales a la vez: solo se envió el más cercano a la "
+"fecha hasta y este se marcó como cubierto."
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_branch_view_form
+msgid "Shared by all companies"
+msgstr "Compartido por todas las compañías"
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_res_company__insurance_min_duration_months
+msgid "Shortest validity period accepted for an insurance policy."
+msgstr "Vigencia más corta aceptada para una póliza de seguro."
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__state
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_object__state
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_search
+#: model_terms:ir.ui.view,arch_db:insurance_management.report_insurance_policy_list
+msgid "Status"
+msgstr "Estado"
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_branch__activity_state
+#: model:ir.model.fields,help:insurance_management.field_insurance_document_type__activity_state
+#: model:ir.model.fields,help:insurance_management.field_insurance_insured_item__activity_state
+#: model:ir.model.fields,help:insurance_management.field_insurance_policy__activity_state
+msgid ""
+"Status based on activities\n"
+"Overdue: Due date is already passed\n"
+"Today: Activity date is today\n"
+"Planned: Future activities."
+msgstr ""
+"Estado según las actividades\n"
+"Vencida: la fecha límite ya pasó\n"
+"Hoy: la actividad es para hoy\n"
+"Planificada: actividades futuras."
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_object__sum_insured
+#: model_terms:ir.ui.view,arch_db:insurance_management.report_insurance_policy_document
+msgid "Sum insured"
+msgstr "Suma asegurada"
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_policy__sum_insured_total
+msgid "Sum of the sums insured of the active insured objects."
+msgstr "Suma de las sumas aseguradas de los objetos asegurados activos."
+
+#. module: insurance_management
+#: model:insurance.branch,name:insurance_management.insurance_branch_surety
+msgid "Surety bond"
+msgstr "Caución"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__tag_ids
+msgid "Tags"
+msgstr "Etiquetas"
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_policy__premium
+msgid "Technical cost of the insurance, without taxes or surcharges."
+msgstr "Costo técnico del seguro, sin impuestos ni recargos."
+
+#. module: insurance_management
+#: model:ir.model.constraint,message:insurance_management.constraint_insurance_branch_code_company_uniq
+msgid "The branch code must be unique per company."
+msgstr "El código del ramo debe ser único por compañía."
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy.py:0
+#: code:addons/insurance_management/models/res_company.py:0
+msgid ""
+"The days before sending the non-renewal instruction cannot be negative."
+msgstr ""
+"Los días antes de enviar la instrucción de no renovación no pueden ser "
+"negativos."
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/wizard/insurance_settings.py:0
+msgid "The expiry process has been run."
+msgstr "Se ejecutó el proceso de vencimientos."
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy_object.py:0
+msgid "The insured objects of policy %(policy)s can no longer be modified."
+msgstr ""
+"Los objetos asegurados de la póliza %(policy)s ya no se pueden modificar."
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_policy__keep_number_on_renewal
+msgid ""
+"The insurer keeps the same policy number on renewals: the renewal draft is "
+"created with this number already filled in."
+msgstr ""
+"La aseguradora mantiene el mismo número de póliza al renovar: el borrador de"
+" la renovación se crea con este número ya cargado."
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/res_company.py:0
+msgid ""
+"The maximum policy duration cannot be shorter than the minimum duration."
+msgstr ""
+"La duración máxima de la póliza no puede ser menor que la duración mínima."
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/res_company.py:0
+msgid "The minimum policy duration must be at least 1 month."
+msgstr "La duración mínima de la póliza debe ser de al menos 1 mes."
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_object_exclude_view_form
+msgid "The object stays in the policy as history, marked as removed."
+msgstr ""
+"El objeto queda en la póliza como historial, marcado como dado de baja."
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy.py:0
+msgid "The policy lasts less than the minimum of %(months)s month(s)."
+msgstr "La póliza dura menos que el mínimo de %(months)s mes(es)."
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy.py:0
+msgid "The policy lasts more than the maximum of %(months)s month(s)."
+msgstr "La póliza dura más que el máximo de %(months)s mes(es)."
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy.py:0
+msgid "The policy status can only be changed with its action buttons."
+msgstr ""
+"El estado de la póliza solo se puede cambiar con sus botones de acción."
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_non_renewal_view_form
+msgid ""
+"The policy stays in force until its end date and then moves to \"Not "
+"renewed\"."
+msgstr ""
+"La póliza sigue vigente hasta su fecha hasta y después pasa a \"No "
+"renovada\"."
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy.py:0
+msgid "The producer %(producer)s has no email address."
+msgstr "El productor %(producer)s no tiene dirección de correo."
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy_object.py:0
+msgid "The removal date cannot be before the date the object was added."
+msgstr "La fecha de baja no puede ser anterior a la fecha de alta del objeto."
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy.py:0
+msgid "The renewal draft of this policy was deleted."
+msgstr "Se eliminó el borrador de renovación de esta póliza."
+
+#. module: insurance_management
+#: model:insurance.branch,name:insurance_management.insurance_branch_theft
+msgid "Theft"
+msgstr "Robo"
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy.py:0
+msgid "There are no policies in force to print."
+msgstr "No hay pólizas vigentes para imprimir."
+
+#. module: insurance_management
+#: model:ir.model.constraint,message:insurance_management.constraint_insurance_policy_number_uniq
+msgid ""
+"There is already a policy with this number for this insurer, company and "
+"start date."
+msgstr ""
+"Ya existe una póliza con este número para esta aseguradora, compañía y fecha"
+" desde."
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_settings_view_form
+msgid "These two settings apply to all companies."
+msgstr "Estos dos ajustes aplican a todas las compañías."
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_settings_view_form
+msgid "This sends the expiry notices that are due today. Continue?"
+msgstr ""
+"Esto envía los avisos de vencimiento que correspondan hoy. ¿Continuar?"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_alert__threshold_days
+msgid "Threshold (days)"
+msgstr "Umbral (días)"
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_policy__effective_alert_days
+msgid ""
+"Thresholds actually used for this policy: the policy value, else the branch "
+"value, else the insurance settings value."
+msgstr ""
+"Umbrales que se usan realmente en esta póliza: el valor de la póliza; si no,"
+" el del ramo; si no, el de los ajustes de seguros."
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_res_company__insurance_coverage_time
+msgid ""
+"Time at which policies start and end, shown in the emails. 12:00: the policy"
+" ends at noon of its end date. 0:00: it ends at midnight, at 0:00 of the day"
+" after its end date."
+msgstr ""
+"Hora a la que comienzan y terminan las pólizas, que se muestra en los "
+"correos. 12:00: la póliza termina al mediodía de su fecha hasta. 0:00: "
+"termina a la medianoche, a las 0:00 del día siguiente a su fecha hasta."
+
+#. module: insurance_management
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_policy__renewal_type__undefined
+msgid "To be defined"
+msgstr "A definir"
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy.py:0
+msgid "To confirm policy %(policy)s, fill in: %(fields)s."
+msgstr "Para confirmar la póliza %(policy)s, complete: %(fields)s."
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_form
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_list
+msgid "Total"
+msgstr "Total"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__premium_total
+#: model_terms:ir.ui.view,arch_db:insurance_management.report_insurance_policy_document
+msgid "Total premium"
+msgstr "Premio"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__sum_insured_total
+#: model_terms:ir.ui.view,arch_db:insurance_management.report_insurance_policy_document
+#: model_terms:ir.ui.view,arch_db:insurance_management.report_insurance_policy_list
+msgid "Total sum insured"
+msgstr "Suma asegurada total"
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_branch__activity_exception_decoration
+#: model:ir.model.fields,help:insurance_management.field_insurance_document_type__activity_exception_decoration
+#: model:ir.model.fields,help:insurance_management.field_insurance_insured_item__activity_exception_decoration
+#: model:ir.model.fields,help:insurance_management.field_insurance_policy__activity_exception_decoration
+msgid "Type of the exception activity on record."
+msgstr "Tipo de la actividad de excepción en el registro."
+
+#. module: insurance_management
+#: model:ir.actions.act_window,name:insurance_management.insurance_policy_expiration_action
+#: model:ir.ui.menu,name:insurance_management.menu_insurance_report_expiration
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_list_expiration
+msgid "Upcoming expirations"
+msgstr "Vencimientos próximos"
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_document_upload_view_form
+msgid "Upload"
+msgstr "Cargar"
+
+#. module: insurance_management
+#: model:ir.model,name:insurance_management.model_insurance_policy_document_upload
+msgid "Upload a policy document"
+msgstr "Cargar un documento de póliza"
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy.py:0
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_document_upload_view_form
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_form
+msgid "Upload document"
+msgstr "Cargar documento"
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_form
+#: model_terms:ir.ui.view,arch_db:insurance_management.ir_attachment_view_list_insurance
+msgid "Uploaded by"
+msgstr "Cargado por"
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_form
+#: model_terms:ir.ui.view,arch_db:insurance_management.ir_attachment_view_list_insurance
+msgid "Uploaded on"
+msgstr "Cargado el"
+
+#. module: insurance_management
+#: model:res.groups,name:insurance_management.group_insurance_user
+msgid "User"
+msgstr "Usuario"
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_res_company__insurance_notify_user_ids
+msgid ""
+"Users notified about every policy of the company, in addition to the users "
+"of the branch, of the policy and its responsible."
+msgstr ""
+"Usuarios notificados sobre todas las pólizas de la compañía, además de los "
+"usuarios del ramo, de la póliza y su responsable."
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_branch__notify_user_ids
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__notify_user_ids
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_settings__notify_user_ids
+#: model:ir.model.fields,field_description:insurance_management.field_res_company__insurance_notify_user_ids
+msgid "Users to notify"
+msgstr "Usuarios a notificar"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__date_from
+#: model_terms:ir.ui.view,arch_db:insurance_management.report_insurance_policy_list
+msgid "Valid from"
+msgstr "Vigencia desde"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__date_to
+#: model_terms:ir.ui.view,arch_db:insurance_management.report_insurance_policy_list
+msgid "Valid to"
+msgstr "Vigencia hasta"
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_settings_view_form
+#: model_terms:ir.ui.view,arch_db:insurance_management.report_insurance_policy_document
+msgid "Validity"
+msgstr "Vigencia"
+
+#. module: insurance_management
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_branch__object_type__vehicle
+msgid "Vehicle"
+msgstr "Vehículo"
+
+#. module: insurance_management
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_settings__duration_check__warning
+#: model:ir.model.fields.selection,name:insurance_management.selection__res_company__insurance_duration_check__warning
+msgid "Warning"
+msgstr "Advertencia"
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_res_company__insurance_duration_check
+msgid ""
+"What happens when a policy duration is outside the minimum and maximum: show"
+" a warning and let it be confirmed, or block it."
+msgstr ""
+"Qué pasa cuando la duración de una póliza está fuera del mínimo y el máximo:"
+" mostrar una advertencia y permitir confirmarla, o bloquearla."
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_settings__hide_costs
+msgid ""
+"When checked, insurance users only see policy amounts (premiums, sums "
+"insured, deductibles) if they have the \"Insurance: see amounts\" access. "
+"Administrators always see them. Applies to all companies."
+msgstr ""
+"Si está marcado, los usuarios de seguros solo ven los importes de las "
+"pólizas (primas, premios, sumas aseguradas y franquicias) si tienen el "
+"acceso \"Seguros: ver importes\". Los administradores siempre los ven. "
+"Aplica a todas las compañías."
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_policy__duration_months
+msgid "Whole months between the start date and the day after the end date."
+msgstr ""
+"Meses completos entre la fecha desde y el día siguiente a la fecha hasta."
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_non_renewal_view_form
+msgid "Why is this policy not renewed?"
+msgstr "¿Por qué no se renueva esta póliza?"
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.ir_attachment_view_search_insurance
+msgid "Without document type"
+msgstr "Sin tipo de documento"
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_form
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_kanban
+#: model_terms:ir.ui.view,arch_db:insurance_management.report_insurance_policy_document
+msgid "days"
+msgstr "días"
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_non_renewal_view_form
+msgid "days before the end date."
+msgstr "días antes de la fecha hasta."
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_branch_view_form
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_settings_view_form
+msgid "e.g. 30,15,7"
+msgstr "p. ej. 30,15,7"
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_document_type_view_form
+msgid "e.g. Coverage certificate"
+msgstr "p. ej. Certificado de cobertura"
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_insured_item_view_form
+msgid "e.g. Main warehouse"
+msgstr "p. ej. Depósito central"
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_branch_view_form
+msgid "e.g. Motor"
+msgstr "p. ej. Automotor"
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_document_upload_view_form
+msgid "e.g. Policy 2026 signed"
+msgstr "p. ej. Póliza 2026 firmada"
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy.py:0
+msgid "from %(start)s %(end)s"
+msgstr "desde el %(start)s %(end)s"
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/wizard/insurance_settings.py:0
+msgid "model"
+msgstr "modelo"
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.report_insurance_policy_list
+msgid "policies"
+msgstr "pólizas"
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy.py:0
+msgid "policy number"
+msgstr "número de póliza"
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy.py:0
+msgid "until 0:00 on %(date)s"
+msgstr "hasta las 0:00 del %(date)s"
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy.py:0
+msgid "until 12:00 on %(date)s"
+msgstr "hasta las 12:00 del %(date)s"
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy.py:0
+msgid "valid from"
+msgstr "vigencia desde"
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy.py:0
+msgid "valid to"
+msgstr "vigencia hasta"
+
+#. module: insurance_management
+#: model:mail.template,subject:insurance_management.mail_template_policy_expired
+msgid ""
+"{{ object._get_alert_subject('expired', ctx.get('insurance_days_left')) }}"
+msgstr ""
+"{{ object._get_alert_subject('expired', ctx.get('insurance_days_left')) }}"
+
+#. module: insurance_management
+#: model:mail.template,subject:insurance_management.mail_template_policy_expiry_notice
+msgid ""
+"{{ object._get_alert_subject('expiry_notice', "
+"ctx.get('insurance_days_left')) }}"
+msgstr ""
+"{{ object._get_alert_subject('expiry_notice', "
+"ctx.get('insurance_days_left')) }}"

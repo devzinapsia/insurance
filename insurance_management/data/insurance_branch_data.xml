@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- Initial branches (requirements section 4.2). Editable: noupdate keeps
+         user changes when the module is updated. Alert days are a proposal. -->
+    <record id="insurance_branch_motor" model="insurance.branch">
+        <field name="name">Motor</field>
+        <field name="code">AUTO</field>
+        <field name="sequence">10</field>
+        <field name="object_type">vehicle</field>
+        <field name="alert_days">30</field>
+    </record>
+    <record id="insurance_branch_surety" model="insurance.branch">
+        <field name="name">Surety bond</field>
+        <field name="code">CAUC</field>
+        <field name="sequence">20</field>
+        <field name="object_type">contract</field>
+        <field name="alert_days">60</field>
+    </record>
+    <record id="insurance_branch_personal_accident" model="insurance.branch">
+        <field name="name">Personal accident</field>
+        <field name="code">AP</field>
+        <field name="sequence">30</field>
+        <field name="object_type">person</field>
+        <field name="alert_days">30</field>
+    </record>
+    <record id="insurance_branch_group_life" model="insurance.branch">
+        <field name="name">Group life</field>
+        <field name="code">VIDA</field>
+        <field name="sequence">40</field>
+        <field name="object_type">person</field>
+        <field name="alert_days">30</field>
+    </record>
+    <record id="insurance_branch_fire" model="insurance.branch">
+        <field name="name">Fire</field>
+        <field name="code">INC</field>
+        <field name="sequence">50</field>
+        <field name="object_type">property</field>
+        <field name="alert_days">30</field>
+    </record>
+    <record id="insurance_branch_commercial_comprehensive" model="insurance.branch">
+        <field name="name">Commercial comprehensive</field>
+        <field name="code">IC</field>
+        <field name="sequence">60</field>
+        <field name="object_type">property</field>
+        <field name="alert_days">30</field>
+    </record>
+    <record id="insurance_branch_theft" model="insurance.branch">
+        <field name="name">Theft</field>
+        <field name="code">ROBO</field>
+        <field name="sequence">70</field>
+        <field name="object_type">property</field>
+        <field name="alert_days">30</field>
+    </record>
+    <record id="insurance_branch_electronic_equipment" model="insurance.branch">
+        <field name="name">Electronic equipment</field>
+        <field name="code">EE</field>
+        <field name="sequence">80</field>
+        <field name="object_type">property</field>
+        <field name="alert_days">30</field>
+    </record>
+    <record id="insurance_branch_cargo" model="insurance.branch">
+        <field name="name">Cargo transport</field>
+        <field name="code">TM</field>
+        <field name="sequence">90</field>
+        <field name="object_type">property</field>
+        <field name="alert_days">30</field>
+    </record>
+    <record id="insurance_branch_civil_liability" model="insurance.branch">
+        <field name="name">Civil liability</field>
+        <field name="code">RC</field>
+        <field name="sequence">100</field>
+        <field name="object_type">generic</field>
+        <field name="alert_days">30</field>
+    </record>
+</odoo>

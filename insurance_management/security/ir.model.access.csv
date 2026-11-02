@@ -1,0 +1,17 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_insurance_branch_user,insurance.branch user,model_insurance_branch,group_insurance_user,1,0,0,0
+access_insurance_branch_manager,insurance.branch manager,model_insurance_branch,group_insurance_manager,1,1,1,1
+access_insurance_policy_user,insurance.policy user,model_insurance_policy,group_insurance_user,1,1,1,1
+access_insurance_policy_object_user,insurance.policy.object user,model_insurance_policy_object,group_insurance_user,1,1,1,1
+access_insurance_insured_item_user,insurance.insured.item user,model_insurance_insured_item,group_insurance_user,1,1,1,0
+access_insurance_insured_item_manager,insurance.insured.item manager,model_insurance_insured_item,group_insurance_manager,1,1,1,1
+access_insurance_policy_tag_user,insurance.policy.tag user,model_insurance_policy_tag,group_insurance_user,1,1,1,0
+access_insurance_policy_tag_manager,insurance.policy.tag manager,model_insurance_policy_tag,group_insurance_manager,1,1,1,1
+access_insurance_policy_object_exclude_user,insurance.policy.object.exclude user,model_insurance_policy_object_exclude,group_insurance_user,1,1,1,0
+access_insurance_policy_non_renewal_user,insurance.policy.non.renewal user,model_insurance_policy_non_renewal,group_insurance_user,1,1,1,0
+access_insurance_settings_manager,insurance.settings manager,model_insurance_settings,group_insurance_manager,1,1,1,0
+access_insurance_policy_alert_user,insurance.policy.alert user,model_insurance_policy_alert,group_insurance_user,1,0,0,0
+access_insurance_policy_alert_manager,insurance.policy.alert manager,model_insurance_policy_alert,group_insurance_manager,1,0,0,1
+access_insurance_document_type_user,insurance.document.type user,model_insurance_document_type,group_insurance_user,1,0,0,0
+access_insurance_document_type_manager,insurance.document.type manager,model_insurance_document_type,group_insurance_manager,1,1,1,1
+access_insurance_policy_document_upload_user,insurance.policy.document.upload user,model_insurance_policy_document_upload,group_insurance_user,1,1,1,0

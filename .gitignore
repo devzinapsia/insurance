@@ -1,4 +1,3 @@
-cat <<EOF > .gitignore
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -189,6 +188,7 @@ Desktop.ini
 
 # Compiled translations
 i18n/*.pot
+!*/i18n/*.pot
 
 # Node modules (if using npm/yarn for frontend assets)
 node_modules/

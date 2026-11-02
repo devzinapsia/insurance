@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- Initial document types (requirements RF-10). Editable: noupdate. -->
+    <record id="insurance_document_type_policy" model="insurance.document.type">
+        <field name="name">Policy</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="insurance_document_type_endorsement" model="insurance.document.type">
+        <field name="name">Endorsement</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="insurance_document_type_certificate" model="insurance.document.type">
+        <field name="name">Coverage certificate</field>
+        <field name="sequence">30</field>
+    </record>
+    <record id="insurance_document_type_payment_receipt" model="insurance.document.type">
+        <field name="name">Payment receipt</field>
+        <field name="sequence">40</field>
+    </record>
+    <record id="insurance_document_type_invoice" model="insurance.document.type">
+        <field name="name">Invoice</field>
+        <field name="sequence">50</field>
+    </record>
+    <record id="insurance_document_type_claim_report" model="insurance.document.type">
+        <field name="name">Claim report</field>
+        <field name="sequence">60</field>
+    </record>
+    <record id="insurance_document_type_other" model="insurance.document.type">
+        <field name="name">Other</field>
+        <field name="sequence">100</field>
+    </record>
+</odoo>

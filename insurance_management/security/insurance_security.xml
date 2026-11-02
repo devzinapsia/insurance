@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_groups_privilege_insurance" model="res.groups.privilege">
+        <field name="name">Insurance</field>
+        <field name="sequence">40</field>
+        <field name="category_id" ref="base.module_category_services"/>
+    </record>
+
+    <!-- Implicit group, no privilege: holders see and edit policy amounts.
+         Implied by Administrator always, and by User unless the insurance
+         setting "Hide costs from users" is on (User gets it at install).
+         Can also be given per user. -->
+    <record id="group_insurance_see_amounts" model="res.groups">
+        <field name="name">Insurance: see amounts</field>
+        <field name="comment">Can see and edit the amounts of insurance policies (premiums, sums insured, deductibles).</field>
+    </record>
+
+    <record id="group_insurance_user" model="res.groups">
+        <field name="name">User</field>
+        <field name="sequence">10</field>
+        <field name="privilege_id" ref="res_groups_privilege_insurance"/>
+        <!-- "See amounts" is implied once by the post_init_hook, not here:
+             re-linking it on every module update would undo "hide costs". -->
+        <field name="implied_ids" eval="[Command.link(ref('base.group_user'))]"/>
+        <field name="comment">Can view, create and edit insurance policies, renew them and mark them as not to be renewed.</field>
+    </record>
+
+    <record id="group_insurance_manager" model="res.groups">
+        <field name="name">Administrator</field>
+        <field name="sequence">20</field>
+        <field name="privilege_id" ref="res_groups_privilege_insurance"/>
+        <field name="implied_ids" eval="[Command.link(ref('group_insurance_user')), Command.link(ref('group_insurance_see_amounts'))]"/>
+        <field name="user_ids" eval="[Command.link(ref('base.user_root')), Command.link(ref('base.user_admin'))]"/>
+        <field name="comment">Everything a user can do, plus the insurance configuration and settings.</field>
+    </record>
+
+    <data noupdate="1">
+        <record id="insurance_branch_company_rule" model="ir.rule">
+            <field name="name">Insurance branch: multi-company</field>
+            <field name="model_id" ref="model_insurance_branch"/>
+            <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+        </record>
+        <record id="insurance_policy_company_rule" model="ir.rule">
+            <field name="name">Insurance policy: multi-company</field>
+            <field name="model_id" ref="model_insurance_policy"/>
+            <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+        </record>
+        <record id="insurance_policy_object_company_rule" model="ir.rule">
+            <field name="name">Insured object: multi-company</field>
+            <field name="model_id" ref="model_insurance_policy_object"/>
+            <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+        </record>
+        <record id="insurance_policy_alert_company_rule" model="ir.rule">
+            <field name="name">Insurance policy alert: multi-company</field>
+            <field name="model_id" ref="model_insurance_policy_alert"/>
+            <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+        </record>
+        <record id="insurance_insured_item_company_rule" model="ir.rule">
+            <field name="name">Insurable item: multi-company</field>
+            <field name="model_id" ref="model_insurance_insured_item"/>
+            <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+        </record>
+    </data>
+</odoo>
