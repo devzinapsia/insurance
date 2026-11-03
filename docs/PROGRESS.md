@@ -14,7 +14,7 @@ Branch: `19.0` (never touch `main` or `20.0`). Odoo source: `ODOO_19_SRC` from
 
 | Phase | Status |
 | --- | --- |
-| Fase 1 — Control de vencimientos | Complete on branch 19.0 — Hito 1 pending (the user confirms production use) |
+| Fase 1 — Control de vencimientos | Complete on branch 19.0, deployed to grupolara staging2 for testing — Hito 1 pending (the user confirms production use) |
 | Fase 2 — Gestión económica y contable | Not started (needs "arrancá la Fase 2" + Hito 1) |
 | Fase 3 — Siniestros, cauciones e integraciones | Not started (needs "arrancá la Fase 3" + Hito 2) |
 
@@ -360,6 +360,21 @@ Implemented as designed (see models for details):
   button).
 - Next: Hito 1 (the user confirms production use). Fase 2 only when the user
   writes "arrancá la Fase 2".
+
+## Deployments
+
+| Date | Client repo / branch | Client commit | insurance commit | Notes |
+| --- | --- | --- | --- | --- |
+| 2026-11-03 | grupolara / staging2 | a6bd5ef | 32b5ce7 (Fase 1) | New submodule `zinapsia/insurance` (branch 19.0, public repo, no deploy key needed). Module `insurance_management` 19.0.1.0.0 is NOT auto-installed: install "Gestión de seguros" from Apps. main and staging untouched. |
+
+- Later commits on insurance 19.0 (e.g. 4bff8b7, CLAUDE.md lessons) do not
+  change the module; grupolara keeps pointing at 32b5ce7 until the next
+  `git submodule update --remote --merge -- zinapsia/insurance`.
+- To check on odoo.sh staging2: real PDF output (wkhtmltopdf), emails in
+  Outlook/Gmail (incl. dark mode), and that the staging database does not
+  send real emails to producers before running the expiry process.
+- Production (grupolara main) only after the user confirms staging2 testing
+  passed (Section B branch caution).
 
 ## Open ambiguities (Paso 0, Fase 1)
 
