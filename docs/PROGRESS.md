@@ -361,10 +361,26 @@ Implemented as designed (see models for details):
 - Next: Hito 1 (the user confirms production use). Fase 2 only when the user
   writes "arrancá la Fase 2".
 
+## User guide (Knowledge)
+
+- `docs/guia_usuario/`: end-user implementation guide in Spanish, one HTML
+  file per article in `articulos/`, packed by `build_knowledge_zip.py` into
+  `guia_gestion_seguros_knowledge.zip` in the format of Zinapsia's
+  `knowledge_transfer` (repo devzinapsia/knowledge, format_version 1:
+  manifest.json + articles/<key>/body.html). Import: Knowledge › Transfer ›
+  Import. Verified on 2026-11-03: imported in a scratch Odoo 19 Enterprise DB
+  (12 articles, no warnings), tables and alert boxes render natively.
+- **Working rule**: update the guide with every phase and every module
+  version that changes something visible to users (edit the article, add the
+  entry in `articulos/11_novedades.html`, rebuild the ZIP, commit both).
+- Pending: screenshots (the format supports attachments) once the UI is
+  stable on staging.
+
 ## Deployments
 
 | Date | Client repo / branch | Client commit | insurance commit | Notes |
 | --- | --- | --- | --- | --- |
+| 2026-11-03 | grupolara / staging2 | 0c62ef0 | 40cdbed (19.0.1.0.1: staging bugs 1-2) | Submodule update only (`git submodule update --remote --merge -- zinapsia/insurance`). |
 | 2026-11-03 | grupolara / staging2 | a6bd5ef | 32b5ce7 (Fase 1) | New submodule `zinapsia/insurance` (branch 19.0, public repo, no deploy key needed). Module `insurance_management` 19.0.1.0.0 is NOT auto-installed: install "Gestión de seguros" from Apps. main and staging untouched. |
 
 - Later commits on insurance 19.0 (e.g. 4bff8b7, CLAUDE.md lessons) do not

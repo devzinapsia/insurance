@@ -1,0 +1,22 @@
+<h1>Estados de la póliza</h1>
+<table class="table table-bordered">
+<thead><tr><th>Estado</th><th>Significado</th><th>Cómo llega</th></tr></thead>
+<tbody>
+<tr><td>Borrador</td><td>En carga, todavía no cuenta.</td><td>Al crearla o al renovar otra.</td></tr>
+<tr><td>Vigente</td><td>Confirmada y lejos del vencimiento.</td><td>Botón Confirmar.</td></tr>
+<tr><td>Por vencer</td><td>Llegó al primer aviso de vencimiento (y siempre el día de la fecha hasta).</td><td>Proceso diario o al confirmar.</td></tr>
+<tr><td>Vencida</td><td>Terminó sin renovarse ni marcarse para no renovar.</td><td>Día siguiente a la fecha hasta.</td></tr>
+<tr><td>Renovada</td><td>Terminó y tiene una renovación cargada.</td><td>Día siguiente a la fecha hasta, o en el momento si se renueva una póliza ya vencida.</td></tr>
+<tr><td>No renovada</td><td>Terminó y estaba marcada para no renovar.</td><td>Día siguiente a la fecha hasta.</td></tr>
+<tr><td>Anulada</td><td>Reservado para la Fase 2 (anulación por endoso).</td><td>—</td></tr>
+</tbody>
+</table>
+<h2>Reglas importantes</h2>
+<ul>
+<li><strong>Cubierta hoy</strong>: indica si hoy la póliza está confirmada, no anulada y dentro de su vigencia. El día de la fecha hasta sigue cubierta (con la cinta <em>Vence hoy</em>).</li>
+<li>Una póliza <em>Por vencer</em> con renovación cargada sigue cubierta hasta su fecha hasta; recién al día siguiente pasa a <em>Renovada</em>.</li>
+<li><em>Vencida</em>, <em>Renovada</em>, <em>No renovada</em> y <em>Anulada</em> quedan <strong>en solo lectura</strong>. Se pueden seguir agregando documentos y mensajes.</li>
+<li>Si se corre la fecha hasta hacia adelante, una póliza <em>Por vencer</em> vuelve a <em>Vigente</em> y los avisos empiezan de nuevo.</li>
+<li><strong>Volver a borrador</strong>: solo el Administrador de Seguros.</li>
+<li>Solo se pueden <strong>eliminar</strong> pólizas en borrador.</li>
+</ul>

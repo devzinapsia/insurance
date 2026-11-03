@@ -1,0 +1,40 @@
+<h1>Cargar una póliza</h1>
+<p>Menú <strong>Seguros › Pólizas › Pólizas</strong>, botón <strong>Nuevo</strong>.</p>
+<h2>1. Datos principales</h2>
+<table class="table table-bordered">
+<thead><tr><th>Campo</th><th>Qué cargar</th></tr></thead>
+<tbody>
+<tr><td>Número de póliza</td><td>El número que asigna la aseguradora. Puede quedar vacío mientras la póliza está en borrador; es obligatorio para confirmarla.</td></tr>
+<tr><td>Ramo</td><td>Automotor, Incendio, etc. En ramos de vehículos aparecen las columnas de patente, chasis y motor.</td></tr>
+<tr><td>Aseguradora / Productor</td><td>Solo se listan contactos marcados (ver <em>Puesta en marcha</em>, paso 7).</td></tr>
+<tr><td>Responsable</td><td>Quien recibe los avisos y la actividad de vencimiento. Por defecto, quien carga la póliza.</td></tr>
+<tr><td>Tipo de renovación</td><td>A definir, Renovar o No renovar.</td></tr>
+<tr><td>Mantiene el número al renovar</td><td>Marcar si la aseguradora conserva el mismo número en cada renovación.</td></tr>
+<tr><td>Vigencia desde / hasta</td><td>La fecha hasta es el último día cubierto. La duración en meses se calcula sola.</td></tr>
+<tr><td>Etiquetas</td><td>Clasificación libre. Al crear una etiqueta se elige su color de la paleta.</td></tr>
+</tbody>
+</table>
+<p>La referencia interna (<code>SEG/AAAA/NNNN</code>) se asigna sola, por compañía, con el año de la fecha desde.</p>
+<h2>2. Costo y franquicia</h2>
+<p>Cargue la <strong>Prima</strong> y el <strong>Premio</strong>, la moneda si no es la de la compañía, y la <strong>franquicia</strong> como monto o porcentaje. La <strong>Suma asegurada total</strong> se calcula sola con los objetos activos.</p>
+<h2>3. Objetos asegurados</h2>
+<p>En la pestaña <strong>Objetos asegurados</strong>, agregue una línea por cada cosa o persona cubierta: descripción, bien asegurable (opcional), patente/chasis/motor en vehículos, cobertura y suma asegurada.</p>
+<ul>
+<li>El <strong>bien asegurable</strong> se elige o se crea en el momento. Úselo para depósitos, locales o equipos: así el bien conserva su historial entre pólizas.</li>
+<li>En una póliza confirmada, los objetos <strong>no se borran</strong>: se dan de baja con el botón de la línea, indicando fecha y motivo. Quedan en la lista como historial y dejan de sumar en la suma asegurada total.</li>
+</ul>
+<h2>4. Coberturas, documentos y notas</h2>
+<p>En <strong>Coberturas</strong> escriba coberturas y cláusulas. En <strong>Documentos</strong> adjunte la póliza escaneada (ver <em>Documentos</em>). En <strong>Notas</strong>, comentarios internos.</p>
+<h2>5. Notificaciones de la póliza</h2>
+<p>La pestaña <strong>Notificaciones</strong> permite, solo para esta póliza: definir <strong>días de aviso</strong> propios, sumar <strong>usuarios a notificar</strong> y elegir el <strong>envío de la instrucción de no renovación</strong>. Si deja los días vacíos, se usan los del ramo o de los ajustes; el campo <em>Días de aviso aplicados</em> muestra cuáles valen.</p>
+<h2>6. Confirmar</h2>
+<p>Pulse <strong>Confirmar</strong>. La aplicación controla:</p>
+<ul>
+<li>Que haya número de póliza, fecha desde y fecha hasta.</li>
+<li>Que la fecha hasta sea posterior a la fecha desde.</li>
+<li>Que la duración esté entre el mínimo y el máximo de los ajustes (si el control está en <em>Advertencia</em>, confirma igual y deja una nota en el historial).</li>
+<li>Que no exista otra póliza con el mismo número, aseguradora, compañía y fecha desde (una renovación puede repetir el número porque cambia la fecha desde).</li>
+</ul>
+<p>Al confirmar, la póliza toma el estado que corresponde a sus fechas. No se envía ningún correo en ese momento: los avisos los manda el proceso diario.</p>
+<h2>Corregir una póliza confirmada</h2>
+<p>Hasta que existan los endosos (Fase 2), una póliza <em>Vigente</em> o <em>Por vencer</em> se puede corregir. Cada cambio en datos clave y en los objetos queda registrado en el historial (chatter) con el valor anterior y el nuevo.</p>

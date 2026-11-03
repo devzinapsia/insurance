@@ -1,0 +1,36 @@
+<h1>Puesta en marcha</h1>
+<p>Lista de pasos para el <strong>Administrador de Seguros</strong> (o el administrador de Odoo en los pasos 1 a 3). Hágalos en este orden.</p>
+<h2>1. Instalar la aplicación</h2>
+<p>En <strong>Aplicaciones</strong>, quite el filtro <em>Aplicaciones</em> si hace falta, busque <strong>Gestión de seguros</strong> e instálela. Aparece el menú <strong>Seguros</strong>.</p>
+<h2>2. Dar permisos</h2>
+<p>En <strong>Ajustes › Usuarios</strong>, abra cada usuario y en la sección de permisos elija <strong>Seguros</strong>:</p>
+<ul>
+<li><strong>Usuario</strong>: ve, crea y edita pólizas, renueva, marca para no renovar y carga documentos.</li>
+<li><strong>Administrador</strong>: todo lo anterior, más la configuración (ajustes, ramos, tipos de documento) y <em>Volver a borrador</em>.</li>
+</ul>
+<h2>3. Datos de la compañía</h2>
+<p>En <strong>Ajustes › Compañías</strong>, complete el <strong>correo electrónico</strong> (es el remitente de los avisos y de los correos al productor), el <strong>teléfono</strong> (aparece en la firma) y el <strong>logo</strong> (encabeza los correos y los PDF).</p>
+<h2>4. Ajustes de Seguros</h2>
+<p>En <strong>Seguros › Configuración › Ajustes</strong> revise y pulse <strong>Guardar</strong>:</p>
+<table class="table table-bordered">
+<thead><tr><th>Ajuste</th><th>Valor inicial</th><th>Para qué</th></tr></thead>
+<tbody>
+<tr><td>Días de aviso</td><td>30</td><td>Umbrales de aviso generales, separados por coma (ej. <code>30,15,7</code>).</td></tr>
+<tr><td>Usuarios a notificar</td><td>—</td><td>Reciben los avisos de todas las pólizas de la compañía.</td></tr>
+<tr><td>Duración mínima / máxima de la póliza</td><td>1 / 12 meses</td><td>Control de la vigencia al confirmar.</td></tr>
+<tr><td>Control de duración de la póliza</td><td>Bloquear</td><td><em>Bloquear</em> impide confirmar fuera de rango; <em>Advertencia</em> permite confirmar y deja constancia.</td></tr>
+<tr><td>Hora de inicio y fin de la cobertura</td><td>12:00</td><td>Se muestra en los correos (12:00 o 0:00).</td></tr>
+<tr><td>Envío de la instrucción de no renovación</td><td>Manual</td><td>Valor por defecto de las pólizas nuevas (ver <em>Renovar o no renovar</em>).</td></tr>
+<tr><td>Ocultar costos a los usuarios</td><td>No</td><td>Ver <em>Permisos y costos ocultos</em>. Aplica a todas las compañías.</td></tr>
+<tr><td>Tamaño de lote del proceso diario</td><td>200</td><td>Técnico: no hace falta cambiarlo.</td></tr>
+</tbody>
+</table>
+<h2>5. Ramos</h2>
+<p>En <strong>Seguros › Configuración › Ramos</strong> vienen cargados diez ramos (Automotor, Caución, Accidentes personales, Vida colectivo, Incendio, Integral de comercio, Robo, Equipos electrónicos, Transporte de mercaderías y Responsabilidad civil). Puede renombrarlos, archivarlos o crear otros. En cada ramo se pueden definir <strong>días de aviso</strong> propios (Caución viene con 60) y <strong>usuarios a notificar</strong> adicionales.</p>
+<h2>6. Tipos de documento</h2>
+<p>En <strong>Seguros › Configuración › Tipos de documento</strong> vienen: Póliza, Endoso, Certificado de cobertura, Comprobante de pago, Factura, Denuncia de siniestro y Otro. Ajústelos si hace falta.</p>
+<h2>7. Aseguradoras y productores</h2>
+<p>Los selectores de la póliza <strong>solo muestran contactos marcados</strong>. En <strong>Contactos</strong>, abra cada aseguradora y productor, pestaña <strong>Ventas y compras</strong>, grupo <strong>Seguros</strong>, y marque <strong>Es aseguradora</strong> o <strong>Es productor de seguros</strong>. Cargue también su <strong>correo electrónico</strong>: el productor lo necesita para recibir instrucciones.</p>
+<div class="alert alert-info" role="status"><p><strong>Atajo:</strong> también puede crearlos directamente desde el campo de la póliza; el contacto queda marcado solo.</p></div>
+<h2>8. Correo saliente</h2>
+<p>Los avisos se envían por correo. Verifique con el administrador de Odoo que el servidor de correo saliente esté configurado. <strong>En una base de prueba</strong>, asegúrese de que no envíe correos reales a los productores antes de probar.</p>
