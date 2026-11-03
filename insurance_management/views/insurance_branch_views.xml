@@ -40,6 +40,18 @@
                         </group>
                     </group>
                     <notebook>
+                        <page name="accounting" string="Accounting">
+                            <group>
+                                <group>
+                                    <field name="product_id" options="{'no_create': True}" placeholder="Insurance settings product"/>
+                                    <field name="billing_mode" placeholder="Insurance settings value"/>
+                                </group>
+                                <group>
+                                    <field name="expense_account_id" options="{'no_create': True}" placeholder="Insurance product account"/>
+                                    <field name="analytic_distribution" widget="analytic_distribution" groups="analytic.group_analytic_accounting"/>
+                                </group>
+                            </group>
+                        </page>
                         <page name="notes" string="Notes">
                             <field name="note" placeholder="Internal notes about this branch..."/>
                         </page>

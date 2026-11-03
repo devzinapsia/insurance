@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="insurance_import_view_list" model="ir.ui.view">
+        <field name="name">insurance.import.list</field>
+        <field name="model">insurance.import</field>
+        <field name="arch" type="xml">
+            <list string="Policy imports">
+                <field name="name"/>
+                <field name="filename"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <field name="line_count"/>
+                <field name="done_count"/>
+                <field name="error_count"/>
+                <field name="state" widget="badge" decoration-info="state == 'ready'" decoration-success="state == 'done'"/>
+                <field name="create_date" string="Created on" optional="show"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="insurance_import_view_form" model="ir.ui.view">
+        <field name="name">insurance.import.form</field>
+        <field name="model">insurance.import</field>
+        <field name="arch" type="xml">
+            <form string="Policy import">
+                <header>
+                    <button name="action_download_template" type="object" string="Download template" icon="fa-download"/>
+                    <button name="action_read_file" type="object" string="Read file" class="btn-primary" invisible="not file or state == 'done'"/>
+                    <button name="action_process" type="object" string="Process now" class="btn-primary" invisible="state != 'ready'"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_policies" type="object" class="oe_stat_button" icon="fa-shield" invisible="done_count + skipped_count == 0">
+                            <field name="done_count" widget="statinfo" string="Imported"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="E.g. Go-live load"/></h1>
+                    </div>
+                    <div class="alert alert-info" role="alert">
+                        Download the template, fill in one row per policy in the Policies sheet, its insured objects in the Objects sheet and, only if an insurer bills uneven installments, their amounts in the Installments sheet. Policies are matched by number, insurer and start date: an already imported policy is never changed. Insurers, producers, branches and payment modes must exist beforehand.
+                    </div>
+                    <group>
+                        <group>
+                            <field name="file" filename="filename"/>
+                            <field name="filename" invisible="1"/>
+                            <field name="confirm_policies"/>
+                        </group>
+                        <group>
+                            <field name="company_id" groups="base.group_multi_company" options="{'no_create': True}"/>
+                            <field name="line_count"/>
+                            <field name="pending_count"/>
+                            <field name="error_count" decoration-danger="error_count &gt; 0"/>
+                            <field name="skipped_count"/>
+                        </group>
+                    </group>
+                    <field name="line_ids" readonly="1">
+                        <list decoration-danger="state == 'error'" decoration-muted="state == 'skipped'" decoration-success="state == 'done'">
+                            <field name="row"/>
+                            <field name="policy_number"/>
+                            <field name="insurer"/>
+                            <field name="object_count"/>
+                            <field name="state" widget="badge" decoration-danger="state == 'error'" decoration-success="state == 'done'"/>
+                            <field name="message"/>
+                            <field name="policy_id"/>
+                        </list>
+                    </field>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="insurance_import_action" model="ir.actions.act_window">
+        <field name="name">Policy imports</field>
+        <field name="res_model">insurance.import</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Load the running policies at go-live</p>
+            <p>Import policies, insured objects and installments from an Excel file. Large files are processed in batches by a scheduled action.</p>
+        </field>
+    </record>
+</odoo>

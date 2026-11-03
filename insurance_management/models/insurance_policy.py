@@ -6,8 +6,9 @@ from markupsafe import Markup
 from odoo import api, fields, models
 from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.fields import Domain
-from odoo.tools import format_date
+from odoo.tools import date_utils, format_amount, format_date
 
+from .insurance_endorsement import ENDORSEMENT_CTX
 from .insurance_tools import format_alert_days, parse_alert_days
 
 _logger = logging.getLogger(__name__)
@@ -26,6 +27,27 @@ LOCKED_STATES = ("expired", "renewed", "not_renewed", "cancelled")
 UNCOVERED_STATES = ("draft", "cancelled")
 # Context key allowing internal lifecycle writes (state changes, links).
 LIFECYCLE_CTX = "insurance_lifecycle_write"
+# Contract data of a confirmed policy: only an endorsement can change them
+# (RF-06; Fase 2 retired the Fase 1 transitional editing rule).
+CONTRACT_FIELDS = {
+    "policy_number",
+    "branch_id",
+    "insurer_id",
+    "producer_id",
+    "date_from",
+    "date_to",
+    "currency_id",
+    "premium",
+    "premium_total",
+    "deductible_type",
+    "deductible_amount",
+    "deductible_percent",
+    "coverage",
+    "company_id",
+    "object_ids",
+}
+BILLING_MODES = [("policy", "One bill per policy"), ("installment", "One bill per installment")]
+ACCRUAL_METHODS = [("module", "Module accrual"), ("none", "No accrual (direct expense)")]
 # Context key telling message_post which producer email is being sent, so the
 # matching "sent on" date is stamped on the policy.
 MAIL_KIND_CTX = "insurance_mail_kind"
@@ -38,7 +60,7 @@ MAIL_KIND_FIELDS = {
 class InsurancePolicy(models.Model):
     _name = "insurance.policy"
     _description = "Insurance policy"
-    _inherit = ["mail.thread", "mail.activity.mixin"]
+    _inherit = ["mail.thread", "mail.activity.mixin", "analytic.mixin"]
     _order = "date_to desc, id desc"
     _rec_names_search = ["name", "policy_number"]
     _check_company_auto = True
@@ -292,6 +314,165 @@ class InsurancePolicy(models.Model):
         help="Files attached to the policy, from the Documents tab or the chatter.",
     )
 
+    # Endorsements -------------------------------------------------------------
+    endorsement_ids = fields.One2many(
+        comodel_name="insurance.endorsement",
+        inverse_name="policy_id",
+        string="Endorsements",
+    )
+    endorsement_count = fields.Integer(string="Endorsement count", compute="_compute_endorsement_count")
+    endorsement_premium_total = fields.Monetary(
+        string="Endorsements premium",
+        currency_field="currency_id",
+        compute="_compute_endorsement_premium",
+        store=True,
+        groups=AMOUNTS_GROUP,
+        help="Sum of the premium differences of the confirmed endorsements.",
+    )
+    premium_with_endorsements = fields.Monetary(
+        string="Total premium with endorsements",
+        currency_field="currency_id",
+        compute="_compute_endorsement_premium",
+        store=True,
+        groups=AMOUNTS_GROUP,
+    )
+
+    # Accounting parameters (section 4.9) ----------------------------------------
+    billing_mode = fields.Selection(
+        selection=BILLING_MODES,
+        string="Billing mode",
+        compute="_compute_accounting_defaults",
+        store=True,
+        readonly=False,
+        precompute=True,
+        tracking=True,
+        help="One bill per policy (with one due date per installment) or one "
+        "bill per installment. Taken from the branch or the settings when the "
+        "policy is created.",
+    )
+    accrual_method = fields.Selection(
+        selection=ACCRUAL_METHODS,
+        string="Accrual method",
+        compute="_compute_accounting_defaults",
+        store=True,
+        readonly=False,
+        precompute=True,
+        tracking=True,
+        help="How the premium is spread as an expense over the policy months. "
+        "Taken from the settings when the policy is created.",
+    )
+    payment_mode_id = fields.Many2one(
+        comodel_name="insurance.payment.mode",
+        string="Payment mode",
+        compute="_compute_accounting_defaults",
+        store=True,
+        readonly=False,
+        precompute=True,
+        tracking=True,
+        check_company=True,
+        help="How the installments are paid by default; each installment can "
+        "use another one.",
+    )
+    expense_account_id = fields.Many2one(
+        comodel_name="account.account",
+        string="Expense account",
+        check_company=True,
+        tracking=True,
+        groups="account.group_account_invoice,account.group_account_readonly",
+        help="Leave empty to use the branch account or, if empty too, the one "
+        "of the insurance product of the settings.",
+    )
+    prepaid_account_id = fields.Many2one(
+        comodel_name="account.account",
+        string="Prepaid insurance account",
+        check_company=True,
+        tracking=True,
+        groups="account.group_account_invoice,account.group_account_readonly",
+        help="Asset account of the premium still to accrue (module accrual). "
+        "Leave empty to use the one of the settings.",
+    )
+
+    # Installments, bills, accrual (Fase 2) ------------------------------------
+    installment_ids = fields.One2many(
+        comodel_name="insurance.installment",
+        inverse_name="policy_id",
+        string="Installments",
+    )
+    installment_count = fields.Integer(string="Installment count", compute="_compute_installment_totals")
+    installments_total = fields.Monetary(
+        string="Installments total",
+        currency_field="currency_id",
+        compute="_compute_installment_totals",
+        groups=AMOUNTS_GROUP,
+    )
+    installment_difference = fields.Monetary(
+        string="Difference with the installments",
+        currency_field="currency_id",
+        compute="_compute_installment_totals",
+        groups=AMOUNTS_GROUP,
+        help="Total premium with endorsements minus the installments: it must be zero.",
+    )
+    has_debt = fields.Boolean(
+        string="With debt",
+        compute="_compute_has_debt",
+        store=True,
+        index=True,
+        help="Some installment is overdue and unpaid: the insurer may suspend the coverage.",
+    )
+    invoice_ids = fields.One2many(
+        comodel_name="account.move",
+        inverse_name="insurance_policy_id",
+        string="Bills",
+        domain=[("move_type", "in", ("in_invoice", "in_refund"))],
+    )
+    invoice_count = fields.Integer(string="Bill count", compute="_compute_invoice_amounts")
+    amount_invoiced = fields.Monetary(
+        string="Billed",
+        currency_field="currency_id",
+        compute="_compute_invoice_amounts",
+        groups=AMOUNTS_GROUP,
+    )
+    amount_paid = fields.Monetary(
+        string="Amount paid",
+        currency_field="currency_id",
+        compute="_compute_invoice_amounts",
+        groups=AMOUNTS_GROUP,
+    )
+    amount_due = fields.Monetary(
+        string="Balance due",
+        currency_field="currency_id",
+        compute="_compute_invoice_amounts",
+        groups=AMOUNTS_GROUP,
+    )
+    accrual_line_ids = fields.One2many(
+        comodel_name="insurance.accrual.line",
+        inverse_name="policy_id",
+        string="Accrual plan",
+    )
+    company_currency_id = fields.Many2one(related="company_id.currency_id", string="Company currency")
+    in_progress = fields.Boolean(
+        string="Running policy",
+        tracking=True,
+        help="Policy already running at the go-live (initial load): its "
+        "installments before the one it continues from are historical, and "
+        "only the amount still to accrue is accrued.",
+    )
+    continue_from_installment = fields.Integer(
+        string="Continues from installment",
+        default=1,
+        tracking=True,
+        help="Running policy: first installment managed in Odoo (e.g. 4 of 12).",
+    )
+    unaccrued_amount = fields.Monetary(
+        string="Amount still to accrue at go-live",
+        currency_field="company_currency_id",
+        tracking=True,
+        groups=AMOUNTS_GROUP,
+        help="Running policy: premium not accrued yet at the go-live date, in "
+        "company currency. It must match its share of the opening balance of "
+        "the prepaid insurance account.",
+    )
+
     # Alerts -------------------------------------------------------------------
     alert_days = fields.Char(
         string="Alert days",
@@ -421,6 +602,60 @@ class InsurancePolicy(models.Model):
     def _compute_is_locked(self):
         for policy in self:
             policy.is_locked = policy.state in LOCKED_STATES
+
+    @api.depends("installment_ids.amount", "installment_ids.cancelled", "premium_with_endorsements")
+    def _compute_installment_totals(self):
+        for policy in self:
+            active = policy.installment_ids.filtered(lambda i: not i.cancelled)
+            policy.installment_count = len(active)
+            total = sum(active.sudo().mapped("amount"))
+            policy.installments_total = total
+            policy.installment_difference = policy.sudo().premium_with_endorsements - total if active else 0.0
+
+    @api.depends("installment_ids.state")
+    def _compute_has_debt(self):
+        for policy in self:
+            policy.has_debt = any(state == "overdue" for state in policy.installment_ids.mapped("state"))
+
+    def _compute_invoice_amounts(self):
+        # Insurance users without accounting rights still see the totals.
+        for policy in self:
+            moves = policy.sudo().invoice_ids.filtered(lambda m: m.state == "posted")
+            invoiced = paid = due = 0.0
+            for move in moves:
+                sign = -1 if move.move_type == "in_refund" else 1
+                invoiced += sign * move.amount_total
+                due += sign * move.amount_residual
+            paid = invoiced - due
+            policy.invoice_count = len(policy.sudo().invoice_ids)
+            policy.amount_invoiced = invoiced
+            policy.amount_paid = paid
+            policy.amount_due = due
+
+    def _compute_endorsement_count(self):
+        counts = dict(
+            self.env["insurance.endorsement"]._read_group(
+                [("policy_id", "in", self.ids)], groupby=["policy_id"], aggregates=["__count"]
+            )
+        )
+        for policy in self:
+            policy.endorsement_count = counts.get(policy, 0)
+
+    @api.depends("premium_total", "endorsement_ids.state", "endorsement_ids.premium_difference")
+    def _compute_endorsement_premium(self):
+        for policy in self:
+            confirmed = policy.endorsement_ids.filtered(lambda e: e.state == "confirmed")
+            policy.endorsement_premium_total = sum(confirmed.sudo().mapped("premium_difference"))
+            policy.premium_with_endorsements = policy.premium_total + policy.endorsement_premium_total
+
+    @api.depends("branch_id", "company_id")
+    def _compute_accounting_defaults(self):
+        for policy in self:
+            company = policy.company_id or self.env.company
+            policy.billing_mode = policy.branch_id.billing_mode or company.insurance_billing_mode or "policy"
+            policy.accrual_method = company.insurance_accrual_method or "module"
+            if not policy.payment_mode_id or policy.payment_mode_id.company_id != company:
+                policy.payment_mode_id = company.insurance_default_payment_mode_id
 
     @api.depends("alert_days", "branch_id.alert_days", "company_id.insurance_alert_days")
     def _compute_effective_alert_days(self):
@@ -553,6 +788,31 @@ class InsurancePolicy(models.Model):
         )
         return users.filtered(lambda user: user.active and not user.share)
 
+    def _get_insurance_product(self):
+        """Service product of the insurance bills: the branch one, else the
+        one of the settings (section 4.9)."""
+        self.ensure_one()
+        return self.branch_id.product_id or self.company_id.insurance_product_id
+
+    def _get_expense_account(self):
+        """Expense account: policy > branch > insurance product."""
+        self.ensure_one()
+        policy = self.sudo()
+        product = policy._get_insurance_product()
+        accounts = product.product_tmpl_id.with_company(policy.company_id).get_product_accounts() if product else {}
+        return policy.expense_account_id or policy.branch_id.expense_account_id or accounts.get("expense") or self.env["account.account"]
+
+    def _get_prepaid_account(self):
+        """Prepaid insurance account (module accrual): policy > settings."""
+        self.ensure_one()
+        policy = self.sudo()
+        return policy.prepaid_account_id or policy.company_id.insurance_prepaid_account_id
+
+    def _get_analytic_distribution(self):
+        """Analytic distribution: policy > branch."""
+        self.ensure_one()
+        return self.analytic_distribution or self.branch_id.analytic_distribution or {}
+
     def _get_renewal_chain(self):
         """Return every policy of this policy's renewal history (previous
         ones and renewals), this one included."""
@@ -619,7 +879,11 @@ class InsurancePolicy(models.Model):
     @api.constrains("date_from", "date_to", "state", "company_id")
     def _check_duration_block(self):
         for policy in self:
-            if policy.state == "draft" or policy.company_id.insurance_duration_check != "block":
+            if (
+                policy.state == "draft"
+                or policy.company_id.insurance_duration_check != "block"
+                or self.env.context.get("insurance_skip_duration_check")
+            ):
                 continue
             issue = policy._get_duration_issue()
             if issue:
@@ -673,6 +937,17 @@ class InsurancePolicy(models.Model):
             if "state" in vals:
                 raise UserError(
                     self.env._("The policy status can only be changed with its action buttons.")
+                )
+            confirmed = self.filtered(lambda p: p.state in ("in_force", "expiring"))
+            contract = CONTRACT_FIELDS.intersection(vals)
+            if confirmed and contract and not self.env.context.get(ENDORSEMENT_CTX):
+                raise UserError(
+                    self.env._(
+                        "Policy %(policy)s is confirmed: %(fields)s can only be changed with an "
+                        "endorsement (or, by an administrator, after resetting it to draft).",
+                        policy=confirmed[0].display_name,
+                        fields=", ".join(self._fields[fname].get_description(self.env)["string"] for fname in sorted(contract)),
+                    )
                 )
             locked = self.filtered("is_locked")
             if locked:
@@ -807,8 +1082,18 @@ class InsurancePolicy(models.Model):
         return True
 
     def _check_can_reset_to_draft(self):
-        """Hook for later phases (e.g. no linked invoices or payments)."""
+        """Only without posted bills nor payments (section 5)."""
         self.ensure_one()
+        policy = self.sudo()
+        if policy.invoice_ids.filtered(lambda m: m.state == "posted") or policy.installment_ids.payment_id.filtered(
+            lambda p: p.state not in ("draft", "canceled")
+        ):
+            raise UserError(
+                self.env._(
+                    "Policy %(policy)s has posted bills or payments: it cannot be reset to draft.",
+                    policy=self.display_name,
+                )
+            )
         if self.state in ("draft", "cancelled"):
             raise UserError(
                 self.env._(
@@ -880,6 +1165,12 @@ class InsurancePolicy(models.Model):
             "notify_user_ids": [fields.Command.set(self.notify_user_ids.ids)],
             "non_renewal_send_mode": self.non_renewal_send_mode,
             "non_renewal_days": self.non_renewal_days,
+            "billing_mode": self.billing_mode,
+            "accrual_method": self.accrual_method,
+            "payment_mode_id": self.payment_mode_id.id,
+            "expense_account_id": self.expense_account_id.id,
+            "prepaid_account_id": self.prepaid_account_id.id,
+            "analytic_distribution": self.analytic_distribution,
             "object_ids": [
                 fields.Command.create(
                     {
@@ -950,6 +1241,26 @@ class InsurancePolicy(models.Model):
         )
         action["domain"] = [("res_model", "=", self._name), ("res_id", "=", self.id)]
         action["context"] = {"default_res_model": self._name, "default_res_id": self.id}
+        return action
+
+    def action_new_endorsement(self):
+        self.ensure_one()
+        if self.state not in ("in_force", "expiring"):
+            raise UserError(self.env._("Endorsements can only be added to policies in force or expiring."))
+        return {
+            "type": "ir.actions.act_window",
+            "name": self.env._("New endorsement"),
+            "res_model": "insurance.endorsement",
+            "view_mode": "form",
+            "target": "current",
+            "context": {"default_policy_id": self.id, "default_effective_date": fields.Date.to_string(self._get_today())},
+        }
+
+    def action_view_endorsements(self):
+        self.ensure_one()
+        action = self.env["ir.actions.act_window"]._for_xml_id("insurance_management.insurance_endorsement_action")
+        action["domain"] = [("policy_id", "=", self.id)]
+        action["context"] = {"default_policy_id": self.id}
         return action
 
     def action_view_renewals(self):
@@ -1287,3 +1598,352 @@ class InsurancePolicy(models.Model):
         if not policies:
             raise UserError(self.env._("There are no policies in force to print."))
         return self.env.ref("insurance_management.action_report_insurance_policy_list").report_action(policies)
+
+    # -------------------------------------------------------------------------
+    # Installments (Fase 2, stage b)
+    # -------------------------------------------------------------------------
+
+    def action_open_installment_generator(self, endorsement=None):
+        self.ensure_one()
+        if self.state == "cancelled":
+            raise UserError(self.env._("Cancelled policies have no installments to generate."))
+        return {
+            "type": "ir.actions.act_window",
+            "name": self.env._("Generate installments"),
+            "res_model": "insurance.installment.generate",
+            "view_mode": "form",
+            "target": "new",
+            "context": {
+                "default_policy_id": self.id,
+                "default_endorsement_id": endorsement.id if endorsement else False,
+            },
+        }
+
+    def _generate_installments(self, count, first_due_date, total_amount, payment_mode=None, endorsement=None, continue_from=1):
+        """Create ``count`` monthly installments of equal amounts (the last
+        one absorbs the rounding), replacing the ones not billed yet.
+
+        Installments before ``continue_from`` (running policy) or due before
+        the go-live date are historical: paid, without payment nor entry.
+        """
+        self.ensure_one()
+        if count < 1:
+            raise UserError(self.env._("Generate at least one installment."))
+        if total_amount <= 0:
+            raise UserError(
+                self.env._("The total amount must be positive (refunds are handled with a credit note).")
+            )
+        Installment = self.env["insurance.installment"]
+        existing = self.installment_ids.filtered(lambda i: i.endorsement_id == (endorsement or Installment.endorsement_id))
+        if existing.filtered("is_locked"):
+            raise UserError(
+                self.env._("Some installments are already billed, paid or historical: they cannot be regenerated.")
+            )
+        existing.unlink()
+        currency = self.currency_id
+        base = currency.round(total_amount / count)
+        go_live = self.company_id.insurance_go_live_date
+        values = []
+        for index in range(count):
+            number = index + 1
+            amount = base if number < count else currency.round(total_amount - base * (count - 1))
+            due_date = first_due_date + relativedelta(months=index)
+            historical = number < (continue_from or 1) or bool(go_live and not endorsement and due_date < go_live and self.in_progress)
+            values.append(
+                {
+                    "policy_id": self.id,
+                    "endorsement_id": endorsement.id if endorsement else False,
+                    "number": number,
+                    "count": count,
+                    "due_date": due_date,
+                    "amount": amount,
+                    "payment_mode_id": (payment_mode or self.payment_mode_id).id,
+                    "historical": historical,
+                }
+            )
+        installments = Installment.sudo().create(values).sudo(False)
+        self._message_log(
+            body=self.env._(
+                "%(count)s installments generated%(endorsement)s.",
+                count=count,
+                endorsement=(" (" + endorsement.display_name + ")") if endorsement else "",
+            )
+        )
+        return installments
+
+    # -------------------------------------------------------------------------
+    # Bills and credit notes (Fase 2, stage c)
+    # -------------------------------------------------------------------------
+
+    def _get_bill_line_account(self):
+        """Account of the bill lines: the prepaid account with the module
+        accrual, else the expense account (direct expense, and Enterprise
+        deferred expenses, which keeps the expense account on the line)."""
+        self.ensure_one()
+        if self.accrual_method == "module":
+            return self._get_prepaid_account()
+        return self._get_expense_account()
+
+    def _prepare_bill_line_vals(self, amount, label, date_from, date_to):
+        """Values of the bill line: the insurance product (its taxes) on the
+        premium share net of taxes, and the account of the accrual method.
+        Hook for the bridge modules (e.g. Enterprise deferred dates)."""
+        self.ensure_one()
+        product = self._get_insurance_product()
+        account = self._get_bill_line_account()
+        if not account:
+            raise UserError(
+                self.env._(
+                    "Policy %(policy)s: configure the insurance product and its expense account, or "
+                    "the prepaid insurance account, in the insurance settings before creating bills.",
+                    policy=self.display_name,
+                )
+            )
+        policy = self.sudo()
+        ratio = policy.premium / policy.premium_total if policy.premium and policy.premium_total else 1.0
+        vals = {
+            "name": label,
+            "quantity": 1,
+            "price_unit": self.currency_id.round(amount * ratio),
+            "account_id": account.id,
+            "analytic_distribution": self._get_analytic_distribution() or False,
+        }
+        if product:
+            vals["product_id"] = product.id
+        return vals
+
+    def _prepare_bill_vals(self, move_type, amount, label, date_from, date_to, endorsement=None, installment=None):
+        self.ensure_one()
+        return {
+            "move_type": move_type,
+            "partner_id": self.insurer_id.id,
+            "currency_id": self.currency_id.id,
+            "company_id": self.company_id.id,
+            "ref": self.policy_number or self.name,
+            "insurance_policy_id": self.id,
+            "insurance_endorsement_id": endorsement.id if endorsement else False,
+            "insurance_installment_id": installment.id if installment else False,
+            "invoice_line_ids": [fields.Command.create(self._prepare_bill_line_vals(amount, label, date_from, date_to))],
+        }
+
+    def _create_bill(self, installments, endorsement=None):
+        """Draft vendor bill of ``installments`` (one bill for all of them, or
+        for a single one in billing mode per installment)."""
+        self.ensure_one()
+        installments = installments.filtered(lambda i: not i.historical and not i.cancelled and not i.move_id)
+        if not installments:
+            raise UserError(self.env._("There are no installments to bill."))
+        amount = sum(installments.sudo().mapped("amount"))
+        date_from = endorsement.effective_date if endorsement else self.date_from
+        label = self.env._(
+            "Insurance %(policy)s - %(branch)s %(period)s",
+            policy=self.policy_number or self.name,
+            branch=self.branch_id.name,
+            period=f"{format_date(self.env, date_from)} - {format_date(self.env, self.date_to)}",
+        )
+        if endorsement:
+            label = f"{label} ({endorsement.display_name})"
+        single = installments if len(installments) == 1 and self.billing_mode == "installment" else None
+        if single:
+            label = f"{label} {single.name}"
+        move = self.env["account.move"].create(
+            self._prepare_bill_vals("in_invoice", amount, label, date_from, self.date_to, endorsement, single)
+        )
+        installments.with_context(insurance_installment_system=True).write({"move_id": move.id})
+        return move
+
+    def _create_credit_note(self, endorsement):
+        self.ensure_one()
+        amount = abs(endorsement.sudo().premium_difference)
+        label = self.env._("Refund %(endorsement)s", endorsement=endorsement.display_name)
+        return self.env["account.move"].create(
+            self._prepare_bill_vals("in_refund", amount, label, endorsement.effective_date, self.date_to, endorsement)
+        )
+
+    def _action_view_moves(self, moves):
+        action = self.env["ir.actions.act_window"]._for_xml_id("account.action_move_in_invoice_type")
+        if len(moves) == 1:
+            action.update({"view_mode": "form", "views": [(False, "form")], "res_id": moves.id})
+        else:
+            action["domain"] = [("id", "in", moves.ids)]
+        return action
+
+    def action_create_bill(self):
+        """Bills of the policy installments, according to the billing mode."""
+        self.ensure_one()
+        installments = self.installment_ids.filtered(
+            lambda i: not i.endorsement_id and not i.move_id and not i.historical and not i.cancelled
+        )
+        if not installments:
+            raise UserError(self.env._("Generate the installments first: there are none to bill."))
+        moves = self.env["account.move"]
+        if self.billing_mode == "installment":
+            for installment in installments:
+                moves |= self._create_bill(installment)
+        else:
+            moves = self._create_bill(installments)
+        return self._action_view_moves(moves)
+
+    def action_view_invoices(self):
+        self.ensure_one()
+        action = self.env["ir.actions.act_window"]._for_xml_id("account.action_move_in_invoice_type")
+        action["domain"] = [("insurance_policy_id", "=", self.id), ("move_type", "in", ("in_invoice", "in_refund"))]
+        action["context"] = {"default_move_type": "in_invoice", "default_insurance_policy_id": self.id, "default_partner_id": self.insurer_id.id}
+        return action
+
+    def action_view_installments(self):
+        self.ensure_one()
+        action = self.env["ir.actions.act_window"]._for_xml_id("insurance_management.insurance_installment_action")
+        action["domain"] = [("policy_id", "=", self.id)]
+        action["context"] = {"default_policy_id": self.id}
+        return action
+
+    def action_generate_payments(self):
+        """(Re)generate the payments of the installments ready to be paid by
+        deferred check or scheduled transfer."""
+        self.ensure_one()
+        payments = self.env["insurance.installment"]._process_scheduled_payments(self.installment_ids)
+        if not payments:
+            raise UserError(self.env._("No payment to generate: they need a posted bill and a deferred check or scheduled transfer payment mode."))
+        return True
+
+    # -------------------------------------------------------------------------
+    # Accrual plan (Fase 2, stage d)
+    # -------------------------------------------------------------------------
+
+    @api.model
+    def _get_months(self, date_from, date_to):
+        """Last day of every month between both dates (both included)."""
+        months = []
+        current = date_utils.end_of(date_from, "month")
+        last = date_utils.end_of(date_to, "month")
+        while current <= last:
+            months.append(current)
+            current = date_utils.end_of(current + relativedelta(days=1), "month")
+        return months
+
+    def _create_accrual_lines(self, amount, date_from, date_to, endorsement=None, source_move=None):
+        """Equal monthly parts of ``amount`` (company currency), the last one
+        absorbing the rounding."""
+        self.ensure_one()
+        months = self._get_months(date_from, date_to)
+        if not months or self.company_currency_id.is_zero(amount):
+            return self.env["insurance.accrual.line"]
+        currency = self.company_currency_id
+        base = currency.round(amount / len(months))
+        values = [
+            {
+                "policy_id": self.id,
+                "endorsement_id": endorsement.id if endorsement else False,
+                "source_move_id": source_move.id if source_move else False,
+                "date": month,
+                "amount": base if index < len(months) - 1 else currency.round(amount - base * (len(months) - 1)),
+            }
+            for index, month in enumerate(months)
+        ]
+        return self.env["insurance.accrual.line"].sudo().create(values)
+
+    def _generate_accrual_plan(self, move):
+        """Accrual plan of a posted bill or credit note (module accrual): the
+        amount that went to the prepaid account, in company currency (at the
+        rate of the document, RF-14), spread over the remaining validity."""
+        self.ensure_one()
+        if self.accrual_method != "module" or move.state != "posted":
+            return self.env["insurance.accrual.line"]
+        endorsement = move.insurance_endorsement_id
+        if self.in_progress and not endorsement:
+            # Running policy: its premium is accrued from the amount informed at
+            # the go-live (action_generate_initial_accrual), never twice (RF-11).
+            return self.env["insurance.accrual.line"]
+        prepaid = self._get_prepaid_account()
+        amount = sum(move.line_ids.filtered(lambda l: l.account_id == prepaid).mapped("balance"))
+        existing = self.accrual_line_ids.filtered(lambda l: l.source_move_id == move)
+        if existing.filtered("move_id"):
+            # Posted again after a reset to draft with months already
+            # accrued: keep the plan (its open lines stay editable).
+            return self.env["insurance.accrual.line"]
+        if existing:
+            if not self.company_currency_id.compare_amounts(sum(existing.sudo().mapped("amount")), amount):
+                return existing
+            # Posted again with another amount: rebuild the plan.
+            existing.sudo().unlink()
+        date_from = endorsement.effective_date if endorsement else self.date_from
+        return self._create_accrual_lines(amount, date_from, self.date_to, endorsement, move)
+
+    def action_generate_initial_accrual(self):
+        """Running policy (initial load): accrual plan of the amount still to
+        accrue at the go-live, from the go-live month to the end date."""
+        self.ensure_one()
+        go_live = self.company_id.insurance_go_live_date
+        if not self.in_progress or not go_live:
+            raise UserError(self.env._("Only for running policies, with the go-live date set in the insurance settings."))
+        if self.accrual_line_ids.filtered(lambda l: not l.source_move_id and not l.endorsement_id):
+            raise UserError(self.env._("The initial accrual plan already exists."))
+        self._create_accrual_lines(self.sudo().unaccrued_amount, max(go_live, self.date_from), self.date_to)
+        return True
+
+    def _close_accrual_plan(self, date):
+        """Early end (cancellation): the months after ``date`` still to accrue
+        are moved into the month of ``date``, so the rest is expensed at once.
+        If the insurer refunds premium, the credit note reduces it."""
+        self.ensure_one()
+        period = date_utils.end_of(date, "month")
+        future = self.accrual_line_ids.filtered(lambda l: not l.move_id and l.date > period)
+        if not future:
+            return
+        amount = sum(future.sudo().mapped("amount"))
+        future.unlink()
+        self.env["insurance.accrual.line"].sudo().create(
+            {"policy_id": self.id, "date": period, "amount": amount}
+        )
+
+    # -------------------------------------------------------------------------
+    # Unpaid installments (Fase 2, stage f)
+    # -------------------------------------------------------------------------
+
+    def _get_mail_installment(self):
+        """Installment rendered by the "overdue unpaid" email (from context)."""
+        return self.env["insurance.installment"].sudo().browse(self.env.context.get("insurance_installment_id"))
+
+    def _get_mail_installment_amount(self):
+        """Formatted amount of that installment, only for recipients allowed
+        to see amounts (empty otherwise)."""
+        installment = self._get_mail_installment()
+        if not installment or not self.env.context.get("insurance_show_amounts"):
+            return ""
+        return format_amount(self.env, installment.amount, installment.currency_id)
+
+    def _get_unpaid_subject(self):
+        installment = self._get_mail_installment()
+        return self.env._(
+            "Installment %(installment)s of policy %(number)s (%(branch)s) is overdue and unpaid",
+            installment=installment.name,
+            number=self.policy_number or self.name,
+            branch=self.branch_id.name,
+        )
+
+    def _notify_unpaid_installment(self, installment):
+        """Email "Overdue unpaid installment" to the responsible and the
+        accounting users to notify, one email per user in their language."""
+        self.ensure_one()
+        template = self.env.ref("insurance_management.mail_template_installment_unpaid")
+        users = (self.user_id | self.company_id.insurance_unpaid_notify_user_ids).filtered(
+            lambda u: u.active and not u.share and u.email
+        )
+        for user in users:
+            template.with_context(
+                insurance_recipient_lang=user.lang,
+                insurance_recipient_name=user.name,
+                insurance_installment_id=installment.id,
+                insurance_show_amounts=user.has_group(AMOUNTS_GROUP),
+            ).send_mail(
+                self.id,
+                email_values={"recipient_ids": [fields.Command.set(user.partner_id.ids)], "email_to": False},
+            )
+        self.with_context(lang=self._get_chatter_lang())._message_log(
+            body=self.with_context(lang=self._get_chatter_lang()).env._(
+                "Installment %(installment)s is overdue and unpaid. Notified: %(users)s",
+                installment=installment.name,
+                users=", ".join(users.mapped("name")) or "-",
+            )
+        )

@@ -15,7 +15,7 @@ Branch: `19.0` (never touch `main` or `20.0`). Odoo source: `ODOO_19_SRC` from
 | Phase | Status |
 | --- | --- |
 | Fase 1 — Control de vencimientos | Complete on branch 19.0, deployed to grupolara staging2 for testing — Hito 1 pending (the user confirms production use) |
-| Fase 2 — Gestión económica y contable | Not started (needs "arrancá la Fase 2" + Hito 1) |
+| Fase 2 — Gestión económica y contable | All stages (a)-(i) done 2026-11-03 + Knowledge guide updated; awaiting the user's commit/push confirmation, then grupolara staging2 testing. Ran IN PARALLEL with Fase 1 testing (Hito 1 not confirmed yet) |
 | Fase 3 — Siniestros, cauciones e integraciones | Not started (needs "arrancá la Fase 3" + Hito 2) |
 
 ### Fase 1 stages
@@ -361,6 +361,227 @@ Implemented as designed (see models for details):
 - Next: Hito 1 (the user confirms production use). Fase 2 only when the user
   writes "arrancá la Fase 2".
 
+## Fase 2 — design drivers (user, 2026-11-03)
+
+- Started in parallel with Fase 1 staging tests ("arrancá la Fase 2 en
+  paralelo"); Hito 1 still pending.
+- Policy volume unknown but "mucha": every volume-dependent process
+  (installment generation, monthly accrual, automatic debits, import) must
+  work in batches, be resumable and idempotent.
+- The module will be reused by other clients: keep the base module generic
+  (no client-specific assumptions); Enterprise, Argentine localization and
+  checks only through bridge modules.
+- Fase 3 note: the Fleet bridge must auto-link the insured object lines
+  loaded in Fase 1/2 to `fleet.vehicle` by license plate (chassis as
+  fallback), so nothing is reloaded.
+
+## Fase 2 — Paso 0 findings (2026-11-03)
+
+VERIFIED in a scratch DB (community + l10n_ar ar_ri chart + account_accountant
++ l10n_latam_check, dropped afterwards):
+- Per-policy `account.payment.term` = N-1 `fixed` lines + 1 `percent` 100%
+  line (remainder), `delay_type=days_after`, `nb_days` = due - invoice date:
+  12 installments of 1,000,000.01 give exact payable lines (last absorbs
+  rounding), right dates, in ARS and USD (fixed amounts are in the move
+  currency). Percent lines must total 100 (`account_payment_term.py:156`).
+- `account.payment.register` with `active_model='account.move.line'` on one
+  payable line pays exactly that installment (skipping earlier ones);
+  partial payments keep the bill open (`payment_difference_handling` 'open').
+- AR chart bank journals have an outstanding account on their outbound
+  methods (manual, own_checks) -> payments get a journal entry. A NEW credit
+  card journal (type `credit`) has NO outstanding account -> payment without
+  entry, cannot reconcile with the bill: must be configured (clear error).
+- A draft `account.payment` linked with `invoice_ids` is NOT reconciled by
+  `action_post()` (`account_payment.py:1125`): if generated payments stay in
+  draft, the module must reconcile when they are posted.
+- l10n_ar vendor bills require exactly one VAT tax per line, and not "VAT Not
+  Applicable": "Create bill" must propose taxes (from the branch product).
+- Odoo 19 payments: states draft / in_process / paid / canceled / rejected;
+  no journal entry in draft (`_generate_journal_entry`, line 1068).
+- Enterprise deferral (`account_accountant/models/account_move.py:551`):
+  line fields deferred_start_date / deferred_end_date, ONE company-level
+  deferred expense account (line 294); the bill line keeps the expense
+  account.
+- `l10n_latam_check` is community (depends account, base_vat); own checks =
+  payment method `own_checks` with `l10n_latam.check` records (payment_date).
+- Tests: `AccountTestInvoicingCommon` (`account/tests/common.py:45`).
+RISKS / TO VERIFY:
+- grupolara has `ingadhoc/account-payment` (account_payment_pro overrides
+  `account.payment.action_post`, line 1262): test stage (e) against the
+  client's ingadhoc submodules (temporary --addons-path) and inspect the MRO
+  owner; glue module only if there is a conflict.
+- Upgrade path: Fase 2 arrives as `-u` (new dependency `account`) on DBs with
+  Fase 1 data (grupolara staging2): add an "upgrade from 19.0.1.0.1 with
+  data" step to every cycle; migration scripts if fields change.
+
+## Fase 2 — Paso 0 answers (user, 2026-11-03)
+
+- Payment modes: unified list OK (automatic debit bank/card, deferred
+  check/echeq, scheduled transfer, manual). User wants the possible payment
+  means defined in Settings and assigned from the policy -> proposed model
+  "insurance payment mode" (type, journal, payment method line, state of the
+  generated payment draft/posted), so the payment state is decided per means
+  (e.g. card -> posted).
+- Accounts: user proposes a SERVICE PRODUCT with the accounting setup,
+  selected in Settings (like the exchange difference setup) -> taxes and
+  expense account from the product (one VAT per line for l10n_ar), branch /
+  policy overrides per section 4.9 table; prepaid account + accrual journal
+  in Settings for the module's own accrual.
+- All clients use Enterprise. grupolara evidence (repo): Zinapsia glue modules
+  for account_payment_pro and l10n_ar_payment_bundle exist -> assume
+  account_payment_pro + l10n_latam_check + account_accountant in use.
+  account_payment_pro: `to_pay_move_line_ids` + `_reconcile_after_post()` in
+  `action_post` (reconciles the debts to pay when posting).
+- Installments generated automatically and editable; installments dated
+  before the go-live must NOT generate payments (historical).
+- Generated payment state: a Settings parameter (now per payment mode).
+- Parameter levels: section 4.9 table (confirmed).
+- Endorsements: can increase the premium (sum insured grows) -> endorsements
+  have their own installments (own bill, own installments, own accrual from
+  the endorsement date). A NEGATIVE endorsement: credit note applied by
+  default to the next pending installments (nearest first); the endorsement
+  can choose "refund by the insurer" instead.
+- Accrual: per-policy accrual plan in an editable GRID, generated
+  automatically in EQUAL monthly parts (section 8.4 example); editable while
+  not posted (e.g. when the insurer bills pro rata); months before the
+  go-live date are not generated.
+- Payment means: ABM "insurance payment mode" confirmed (type, journal,
+  payment method line, generated payment state draft/posted); the policy's
+  "payment journal" of section 4.1 becomes the policy's default payment
+  mode; each installment inherits it and can change it.
+- Go-live date in Settings: installments due before it are historical
+  (paid, no payments, no entries).
+
+### Fase 2 working agreement (user, 2026-11-03)
+"Seguí con la Fase 2": run stages (b) to (i) WITHOUT stopping for review
+between stages; when the whole phase AND the Knowledge user guide are done,
+notify the user, then commit and push only with their confirmation.
+
+### Fase 2 stages
+| Stage | Status |
+| --- | --- |
+| (a) dependency, parameters (product, accounts, payment modes...), endorsements | Done 2026-11-03 |
+| (b) installments | Done 2026-11-03 |
+| (c) bills | Done 2026-11-03 |
+| (d) accrual + Enterprise deferred bridge | Done 2026-11-03 |
+| (e) payments, card, checks bridge (+ test with client ingadhoc modules) | Done 2026-11-03 |
+| (f) unpaid installments | Done 2026-11-03 |
+| (g) foreign currency | Done 2026-11-03 |
+| (h) initial load and import | Done 2026-11-03 |
+| (i) reports | Done 2026-11-03 |
+
+### Fase 2 (a) — dependency, parameters, endorsements (2026-11-03)
+
+- Module 19.0.2.0.0, depends += account. New models:
+  `insurance.payment.mode` (ABM + chatter; type automatic_debit /
+  deferred_check / scheduled_transfer / manual, journal, payment method line
+  with REQUIRED outstanding account, generated payment state posted/draft),
+  `insurance.endorsement.type` (8 kinds, seed data noupdate),
+  `insurance.endorsement` (+ lines add/remove/change; reference
+  POLICY/Enn; unique insurer number per policy; premium_difference with the
+  amounts group; refund_mode; new_date_to / new_coverage / new_producer_id;
+  confirm applies it with context ENDORSEMENT_CTX; confirmed never deleted).
+- Policy: CONTRACT_FIELDS (number, branch, insurer, producer, dates,
+  currency, premiums, deductible, coverage, company, objects) locked once
+  In force/Expiring unless ENDORSEMENT_CTX (the Fase 1 transitional rule and
+  the "remove object" wizard are retired; migration
+  `migrations/19.0.2.0.0/post-migrate.py` drops the wizard's orphan table).
+  Objects of a non-draft policy only change via endorsement
+  (endorsement_in_id / endorsement_out_id). Extension skips the duration
+  check (context insurance_skip_duration_check). Cancellation -> state
+  cancelled.
+- Accounting parameters (section 4.9 levels): company insurance_product_id,
+  prepaid account, accrual journal, accrual_method (module/none; deferred
+  added by the bridge later), billing_mode, default payment mode, go-live
+  date, unpaid notify users; branch product / expense account / analytic /
+  billing mode; policy billing_mode / accrual_method / payment_mode_id
+  (stored computes with defaults, editable), expense / prepaid accounts,
+  analytic (analytic.mixin). Resolvers `_get_insurance_product`,
+  `_get_expense_account`, `_get_prepaid_account`,
+  `_get_analytic_distribution`. Accounting fields carry accounting groups;
+  in the insurance settings form they are only read/saved by
+  account.group_account_manager (insurance admins without accounting can
+  still save their part). Settings default_get/save handle m2o vs m2m.
+- Tests: 122 OK (Fase 1 tests adapted to endorsements; new
+  test_endorsements.py and test_accounting_parameters.py on
+  AccountTestInvoicingCommon). Cycle: fresh install/uninstall clean;
+  UPGRADE PATH verified: Fase 1 code (git worktree of 40cdbed) installed with
+  real data -> `-u` to 19.0.2.0.0: 0 warnings, data intact, orphan table
+  dropped, later uninstall clean.
+
+### Fase 2 (b)-(i) — installments to reports (2026-11-03)
+
+- Installments (`insurance.installment`): equal monthly parts, last one
+  absorbs rounding; editable (amount/due date) until billed, paid or
+  historical (`is_locked`); regenerating raises if any is locked. States
+  pending / scheduled / paid / overdue / cancelled (stored compute, sudo on
+  account lines). `amount_company` (stored, company currency: bill rate once
+  billed, due-date rate before) feeds the per-month pivot.
+- Bills: `_post` builds an archived per-bill payment term (percent lines +
+  remainder) so payable lines = installments; after post, payable lines are
+  linked to installments in due-date order. Credit notes of endorsements with
+  refund_mode installments are reconciled with the nearest pending
+  installments. `insurance_policy_id` on bills stays editable when posted
+  (link the opening bill, RF-11).
+- Payments: one path for every mode — `account.payment` created from
+  `_get_payment_values()` (bridge hook) and posted if the mode says so;
+  `account.payment.action_post` reconciles with the installment
+  (idempotent). Automatic debit by the daily cron on the due date;
+  deferred check / scheduled transfer when the bill is posted.
+- Bridges: `insurance_management_account_accountant` (accrual method
+  "Enterprise deferred expenses": deferred_start/end on the bill line;
+  running policies deferred from go-live; uninstall falls back to "none") and
+  `insurance_management_l10n_latam_check` (one own check per installment
+  payment). Both auto_install; the base 19.0.2.0.0 post-migrate marks them
+  for install on upgrade (Odoo never auto-installs a new auto_install module
+  on a plain `-u`: verified).
+- ingadhoc check (grupolara stack: account_payment_pro, l10n_ar_tax,
+  receiptbooks, l10n_latam_check_ux): MRO — our `action_post` sits under
+  ingadhoc's; all tests pass on that stack; plus a local-only probe on an
+  ar_ri company: FA-A bill with VAT, 2 due dates, automatic debit -> OP-X
+  with receiptbook, reconciled, installment paid. Withholdings were NOT
+  configured in the probe: verify on staging2 with grupolara's real setup.
+- Unpaid: overdue flag + `has_debt` + email template (once per
+  installment, responsible + accounting users to notify, recipient language,
+  amount only with see-amounts).
+- Accrual: `insurance.accrual.line` plan per source move, editable until
+  posted; cron posts one entry per policy and month (UniqueIndex), lock date
+  -> first open day; cancellation folds future months into its month.
+- Initial load/import: `insurance.import` + lines (JSON payload per policy,
+  objects and installment overrides), template with a hidden technical-key
+  row, per-row savepoint, key number + insurer + date_from, never updates an
+  existing policy, hourly cron + "Process now". Opening balance control in
+  settings (unaccrued of running policies vs prepaid balance before go-live).
+- Reports: Installments per month (company currency), Cost by branch and
+  insurer (SQL view over posted insurance bill product lines, company and
+  original currency, default current year), policy PDF with endorsements
+  and installments.
+- Bill reset to draft / cancel: draft unlinks the payable lines (relinked
+  on post, posted payments reconciled again, plan rebuilt only if the amount
+  changed and nothing was accrued); cancel releases the installments and
+  drops the open plan, and is refused when months were already accrued
+  (credit note instead).
+- Cron-written texts: accrual entries in the company language, import
+  messages in the language of the import creator (CLAUDE.md lesson).
+- RF-14 tested: EUR installment debited from the company-currency bank at
+  the payment-date rate, exchange difference booked on reconciliation. The
+  payment is created in the installment currency (amount editable while the
+  payment is a draft).
+- Tests: 163 (Community), 169 with both bridges (Enterprise) and 169 on the
+  grupolara stack, 0 failures. Fresh DB with no preloaded language: install
+  OK, uninstall with accounting data clean (only the archived per-bill
+  payment term remains, still used by the posted bill), reinstall OK.
+  Upgrade from Fase 1 with data (worktree 40cdbed + Enterprise +
+  l10n_latam_check): 0 warnings, data intact, bridges installed in the same
+  run. Bridge cycle install/uninstall (with a policy on "deferred")/reinstall
+  OK. UI reviewed in the browser (policy tabs, settings, import, reports,
+  bill).
+- Fixed along the way: settings form onchange crashed with many2many
+  defaults (now `Command.set`); insurance users without accounting rights
+  could not reset to draft / read totals (sudo on accounting reads, grouped
+  columns); Odoo's python term extractor took the technical keys after
+  `_lt()` inside tuples as terms (template columns now dicts).
+
 ## User guide (Knowledge)
 
 - `docs/guia_usuario/`: end-user implementation guide in Spanish, one HTML
@@ -370,6 +591,9 @@ Implemented as designed (see models for details):
   manifest.json + articles/<key>/body.html). Import: Knowledge › Transfer ›
   Import. Verified on 2026-11-03: imported in a scratch Odoo 19 Enterprise DB
   (12 articles, no warnings), tables and alert boxes render natively.
+  Fase 2 update (2026-11-03): 17 articles (new: Endosos, Cuotas y facturas,
+  Pagos y cuotas impagas, Devengamiento, Carga inicial e importación; the
+  others updated; novedades 19.0.2.0.0). Same format, not re-imported yet.
 - **Working rule**: update the guide with every phase and every module
   version that changes something visible to users (edit the article, add the
   entry in `articulos/11_novedades.html`, rebuild the ZIP, commit both).
@@ -406,3 +630,4 @@ None open for Fase 1. All Paso 0 items were resolved (see "Decisions taken").
 Possible follow-ups the user may ask for: reference year from the start date
 vs. creation year; default policy view kanban vs. list; copying premiums on
 renewal; allowing Renew from "In force".
+- Manual test plan: `docs/casos_prueba_manual.md` (levels 0-7, simple to complex, Fases 1-2).

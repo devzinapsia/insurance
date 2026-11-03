@@ -14,5 +14,42 @@
             <field name="user_id" ref="base.user_root"/>
             <field name="active" eval="True"/>
         </record>
+        <!-- Daily, after the expiry process: automatic debits due and overdue
+             unpaid installments (Fase 2). Idempotent. -->
+        <record id="ir_cron_insurance_installments" model="ir.cron">
+            <field name="name">Insurance: installments (automatic debits and unpaid)</field>
+            <field name="model_id" ref="model_insurance_installment"/>
+            <field name="state">code</field>
+            <field name="code">model._cron_process_installments()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="nextcall" eval="(DateTime.now().replace(hour=10, minute=15, second=0) + timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')"/>
+            <field name="user_id" ref="base.user_root"/>
+            <field name="active" eval="True"/>
+        </record>
+        <!-- Daily: posts the accrual lines whose month has ended (module
+             accrual). One entry per policy and month. -->
+        <record id="ir_cron_insurance_accrual" model="ir.cron">
+            <field name="name">Insurance: monthly accrual</field>
+            <field name="model_id" ref="model_insurance_accrual_line"/>
+            <field name="state">code</field>
+            <field name="code">model._cron_post_accruals()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="nextcall" eval="(DateTime.now().replace(hour=10, minute=30, second=0) + timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')"/>
+            <field name="user_id" ref="base.user_root"/>
+            <field name="active" eval="True"/>
+        </record>
+        <!-- Processes the pending rows of the policy imports in batches. -->
+        <record id="ir_cron_insurance_import" model="ir.cron">
+            <field name="name">Insurance: policy import</field>
+            <field name="model_id" ref="model_insurance_import"/>
+            <field name="state">code</field>
+            <field name="code">model._cron_process_imports()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">hours</field>
+            <field name="user_id" ref="base.user_root"/>
+            <field name="active" eval="True"/>
+        </record>
     </data>
 </odoo>

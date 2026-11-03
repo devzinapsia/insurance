@@ -34,6 +34,9 @@
                     <button name="action_renew" type="object" string="Renew" class="btn-primary" invisible="state not in ('expiring', 'expired') or renewed_by_id" data-hotkey="r"/>
                     <button name="action_open_non_renewal_wizard" type="object" string="Do not renew" invisible="state not in ('in_force', 'expiring') or renewed_by_id or renewal_type == 'no_renew'"/>
                     <button name="action_request_renewal" type="object" string="Request renewal" invisible="state not in ('in_force', 'expiring') or renewed_by_id or renewal_type == 'no_renew'"/>
+                    <button name="action_new_endorsement" type="object" string="New endorsement" invisible="state not in ('in_force', 'expiring')"/>
+                    <button name="action_open_installment_generator" type="object" string="Generate installments" invisible="state in ('cancelled', 'expired')"/>
+                    <button name="action_create_bill" type="object" string="Create bill" invisible="state not in ('in_force', 'expiring') or installment_count == 0" groups="account.group_account_invoice"/>
                     <button name="action_reset_to_draft" type="object" string="Reset to draft" invisible="state in ('draft', 'cancelled')" groups="insurance_management.group_insurance_manager" confirm="Reset this policy to draft?"/>
                     <field name="state" widget="statusbar" statusbar_visible="draft,in_force,expiring,expired"/>
                 </header>
@@ -42,11 +45,27 @@
                         <button name="action_view_documents" type="object" class="oe_stat_button" icon="fa-files-o">
                             <field name="document_count" widget="statinfo" string="Documents"/>
                         </button>
+                        <button name="action_view_endorsements" type="object" class="oe_stat_button" icon="fa-pencil-square-o" invisible="endorsement_count == 0">
+                            <field name="endorsement_count" widget="statinfo" string="Endorsements"/>
+                        </button>
+                        <button name="action_view_installments" type="object" class="oe_stat_button" icon="fa-calendar" invisible="installment_count == 0">
+                            <field name="installment_count" widget="statinfo" string="Installments"/>
+                        </button>
+                        <button name="action_view_invoices" type="object" class="oe_stat_button" icon="fa-pencil-square-o" invisible="invoice_count == 0" groups="account.group_account_invoice,account.group_account_readonly">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Bills <field name="invoice_count" class="d-inline"/></span>
+                                <span class="o_stat_value" groups="insurance_management.group_insurance_see_amounts">
+                                    <field name="amount_due" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                </span>
+                            </div>
+                        </button>
                         <button name="action_view_renewals" type="object" class="oe_stat_button" icon="fa-history" invisible="renewal_count &lt;= 1">
                             <field name="renewal_count" widget="statinfo" string="Renewals"/>
                         </button>
                     </div>
                     <widget name="web_ribbon" title="Expires today" bg_color="text-bg-warning" invisible="not expires_today"/>
+                    <widget name="web_ribbon" title="With debt" bg_color="text-bg-danger" invisible="not has_debt or expires_today"/>
+                    <field name="has_debt" invisible="1"/>
                     <field name="expires_today" invisible="1"/>
                     <div class="alert alert-warning mb-2" role="alert" invisible="not duration_warning">
                         <field name="duration_warning"/>
@@ -55,15 +74,15 @@
                         <h1><field name="name" readonly="1"/></h1>
                         <h3 class="d-flex gap-2">
                             <label for="policy_number" class="text-muted"/>
-                            <field name="policy_number" placeholder="Number assigned by the insurer" readonly="is_locked"/>
+                            <field name="policy_number" placeholder="Number assigned by the insurer" readonly="state != 'draft'"/>
                         </h3>
                     </div>
                     <field name="is_locked" invisible="1"/>
                     <group>
                         <group name="parties">
-                            <field name="branch_id" readonly="is_locked" options="{'no_create': True}"/>
-                            <field name="insurer_id" readonly="is_locked" context="{'default_is_insurer': True, 'default_is_company': True}" placeholder="Contacts marked as insurer"/>
-                            <field name="producer_id" readonly="is_locked" context="{'default_is_insurance_producer': True}" placeholder="Contacts marked as producer"/>
+                            <field name="branch_id" readonly="state != 'draft'" options="{'no_create': True}"/>
+                            <field name="insurer_id" readonly="state != 'draft'" context="{'default_is_insurer': True, 'default_is_company': True}" placeholder="Contacts marked as insurer"/>
+                            <field name="producer_id" readonly="state != 'draft'" context="{'default_is_insurance_producer': True}" placeholder="Contacts marked as producer"/>
                             <field name="user_id" widget="many2one_avatar_user" readonly="is_locked"/>
                             <field name="renewal_type" readonly="is_locked or renewed_by_id"/>
                             <field name="keep_number_on_renewal" readonly="is_locked"/>
@@ -71,8 +90,8 @@
                             <field name="renewed_by_id" invisible="not renewed_by_id"/>
                         </group>
                         <group name="validity">
-                            <field name="date_from" readonly="is_locked"/>
-                            <field name="date_to" readonly="is_locked"/>
+                            <field name="date_from" readonly="state != 'draft'"/>
+                            <field name="date_to" readonly="state != 'draft'"/>
                             <label for="duration_months"/>
                             <div class="o_row">
                                 <field name="duration_months" class="oe_inline"/>
@@ -99,20 +118,22 @@
                     </group>
                     <group name="amounts">
                         <group name="premiums" string="Cost" groups="insurance_management.group_insurance_see_amounts">
-                            <field name="currency_id" groups="base.group_multi_currency" readonly="is_locked"/>
-                            <field name="premium" readonly="is_locked"/>
-                            <field name="premium_total" readonly="is_locked"/>
+                            <field name="currency_id" groups="base.group_multi_currency" readonly="state != 'draft'"/>
+                            <field name="premium" readonly="state != 'draft'"/>
+                            <field name="premium_total" readonly="state != 'draft'"/>
+                            <field name="endorsement_premium_total" invisible="not endorsement_premium_total"/>
+                            <field name="premium_with_endorsements" invisible="not endorsement_premium_total"/>
                             <field name="sum_insured_total"/>
                         </group>
                         <group name="deductible" string="Deductible" groups="insurance_management.group_insurance_see_amounts">
-                            <field name="deductible_type" readonly="is_locked"/>
-                            <field name="deductible_amount" invisible="deductible_type != 'amount'" readonly="is_locked"/>
-                            <field name="deductible_percent" invisible="deductible_type != 'percentage'" readonly="is_locked"/>
+                            <field name="deductible_type" readonly="state != 'draft'"/>
+                            <field name="deductible_amount" invisible="deductible_type != 'amount'" readonly="state != 'draft'"/>
+                            <field name="deductible_percent" invisible="deductible_type != 'percentage'" readonly="state != 'draft'"/>
                         </group>
                     </group>
                     <notebook>
                         <page name="objects" string="Insured objects">
-                            <field name="object_ids" readonly="is_locked" context="{'default_policy_id': id}">
+                            <field name="object_ids" readonly="state != 'draft'" context="{'default_policy_id': id}">
                                 <list editable="bottom" decoration-muted="state == 'excluded'">
                                     <field name="sequence" widget="handle"/>
                                     <field name="name"/>
@@ -126,13 +147,91 @@
                                     <field name="date_start" optional="show"/>
                                     <field name="date_end" optional="show"/>
                                     <field name="exclusion_reason" optional="hide"/>
+                                    <field name="endorsement_in_id" optional="hide"/>
+                                    <field name="endorsement_out_id" optional="hide"/>
                                     <field name="state" widget="badge" decoration-success="state == 'active'" decoration-muted="state == 'excluded'"/>
-                                    <button name="action_open_exclude_wizard" type="object" icon="fa-ban" title="Remove from policy" invisible="state != 'active' or parent.state == 'draft' or not id"/>
                                 </list>
                             </field>
                         </page>
                         <page name="coverages" string="Coverages">
-                            <field name="coverage" readonly="is_locked" placeholder="Coverages and clauses of the policy..."/>
+                            <field name="coverage" readonly="state != 'draft'" placeholder="Coverages and clauses of the policy..."/>
+                        </page>
+                        <page name="endorsements" string="Endorsements" invisible="state == 'draft'">
+                            <div class="text-muted small mb-2">Once confirmed, the objects, validity, premium and other contract data of the policy only change through endorsements.</div>
+                            <field name="endorsement_ids" readonly="1">
+                                <list decoration-muted="state == 'cancelled'" decoration-info="state == 'draft'">
+                                    <field name="name"/>
+                                    <field name="endorsement_number"/>
+                                    <field name="type_id"/>
+                                    <field name="effective_date"/>
+                                    <field name="currency_id" column_invisible="True"/>
+                                    <field name="premium_difference"/>
+                                    <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-success="state == 'confirmed'"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page name="installments" string="Installments">
+                            <div class="d-flex gap-2 mb-2">
+                                <button name="action_open_installment_generator" type="object" string="Generate installments" icon="fa-calendar" class="btn-secondary" invisible="state in ('cancelled', 'expired')"/>
+                                <button name="action_generate_payments" type="object" string="Generate payments" icon="fa-money" class="btn-secondary" invisible="state not in ('in_force', 'expiring') or installment_count == 0" groups="account.group_account_invoice"/>
+                            </div>
+                            <field name="installment_ids" context="{'default_policy_id': id}">
+                                <list editable="bottom" create="0" default_order="due_date, number, id"
+                                      decoration-muted="state in ('cancelled', 'paid')" decoration-danger="state == 'overdue'" decoration-info="state == 'scheduled'">
+                                    <field name="is_locked" column_invisible="True"/>
+                                    <field name="name" readonly="1"/>
+                                    <field name="endorsement_id" optional="hide" readonly="1"/>
+                                    <field name="due_date" readonly="is_locked"/>
+                                    <field name="currency_id" column_invisible="True"/>
+                                    <field name="amount" sum="Total" readonly="is_locked"/>
+                                    <field name="amount_residual" optional="show"/>
+                                    <field name="payment_mode_id" options="{'no_create': True}" readonly="state in ('paid', 'cancelled', 'scheduled')"/>
+                                    <field name="move_id" optional="show" readonly="1" groups="account.group_account_invoice,account.group_account_readonly"/>
+                                    <field name="payment_id" optional="hide" readonly="1" groups="account.group_account_invoice,account.group_account_readonly"/>
+                                    <field name="historical" optional="hide" readonly="1"/>
+                                    <field name="state" widget="badge" decoration-success="state == 'paid'" decoration-info="state == 'scheduled'" decoration-danger="state == 'overdue'" decoration-muted="state == 'cancelled'"/>
+                                </list>
+                            </field>
+                            <group class="oe_subtotal_footer" groups="insurance_management.group_insurance_see_amounts" invisible="installment_count == 0">
+                                <field name="installments_total"/>
+                                <field name="installment_difference" decoration-danger="installment_difference != 0"/>
+                            </group>
+                        </page>
+                        <page name="accrual" string="Accrual" invisible="accrual_method != 'module'" groups="account.group_account_invoice,account.group_account_readonly">
+                            <div class="text-muted small mb-2">Monthly parts of the premium moved from the prepaid insurance account to expense. Lines can be edited until their journal entry is posted.</div>
+                            <field name="accrual_line_ids">
+                                <list editable="bottom" create="0" default_order="date, id" decoration-muted="state == 'posted'">
+                                    <field name="date" readonly="move_id"/>
+                                    <field name="endorsement_id" optional="show" readonly="1"/>
+                                    <field name="source_move_id" optional="hide" readonly="1"/>
+                                    <field name="company_currency_id" column_invisible="True"/>
+                                    <field name="amount" sum="Total" readonly="move_id"/>
+                                    <field name="move_id" string="Journal entry" readonly="1"/>
+                                    <field name="state" widget="badge" decoration-success="state == 'posted'"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page name="accounting" string="Accounting">
+                            <group>
+                                <group string="Billing and payment">
+                                    <field name="billing_mode" readonly="is_locked"/>
+                                    <field name="payment_mode_id" readonly="is_locked" options="{'no_create': True}"/>
+                                </group>
+                                <group string="Accrual">
+                                    <field name="accrual_method" readonly="is_locked"/>
+                                    <field name="expense_account_id" readonly="is_locked" options="{'no_create': True}" placeholder="Branch or insurance product account"/>
+                                    <field name="prepaid_account_id" readonly="is_locked" invisible="accrual_method != 'module'" options="{'no_create': True}" placeholder="Settings account"/>
+                                    <field name="analytic_distribution" widget="analytic_distribution" groups="analytic.group_analytic_accounting" readonly="is_locked"/>
+                                </group>
+                                <group string="Initial load">
+                                    <field name="in_progress" readonly="is_locked"/>
+                                    <field name="continue_from_installment" invisible="not in_progress" readonly="is_locked"/>
+                                    <field name="company_currency_id" invisible="1"/>
+                                    <field name="unaccrued_amount" invisible="not in_progress or accrual_method != 'module'" readonly="is_locked"/>
+                                    <button name="action_generate_initial_accrual" type="object" string="Generate initial accrual" class="btn-link ps-0" colspan="2"
+                                            invisible="not in_progress or accrual_method != 'module'" groups="account.group_account_invoice"/>
+                                </group>
+                            </group>
                         </page>
                         <page name="documents" string="Documents">
                             <button name="action_open_document_upload" type="object" string="Upload document" icon="fa-upload" class="btn-secondary mb-2"/>
@@ -299,6 +398,7 @@
                 <separator/>
                 <filter name="draft" string="Draft" domain="[('state', '=', 'draft')]"/>
                 <filter name="not_renewed" string="Not to be renewed" domain="[('renewal_type', '=', 'no_renew')]"/>
+                <filter name="with_debt" string="With unpaid installments" domain="[('has_debt', '=', True)]"/>
                 <separator/>
                 <filter name="my_policies" string="My policies" domain="[('user_id', '=', uid)]"/>
                 <separator/>

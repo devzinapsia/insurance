@@ -2,6 +2,11 @@ from . import insurance_tools
 from . import res_company
 from . import insurance_branch
 from . import insurance_policy_tag
+from . import insurance_payment_mode
+from . import insurance_endorsement
+from . import insurance_installment
+from . import insurance_accrual
+from . import account_move
 from . import insurance_document_type
 from . import ir_attachment
 from . import insurance_insured_item
@@ -9,3 +14,5 @@ from . import insurance_policy_alert
 from . import insurance_policy
 from . import insurance_policy_object
 from . import res_partner
+from . import insurance_import
+from . import insurance_cost_report

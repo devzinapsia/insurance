@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- Initial endorsement types (section 4.4). Editable: noupdate. -->
+    <record id="insurance_endorsement_type_add_object" model="insurance.endorsement.type">
+        <field name="name">Add object</field>
+        <field name="kind">add_object</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="insurance_endorsement_type_remove_object" model="insurance.endorsement.type">
+        <field name="name">Remove object</field>
+        <field name="kind">remove_object</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="insurance_endorsement_type_increase_sum" model="insurance.endorsement.type">
+        <field name="name">Sum insured increase</field>
+        <field name="kind">increase_sum</field>
+        <field name="sequence">30</field>
+    </record>
+    <record id="insurance_endorsement_type_decrease_sum" model="insurance.endorsement.type">
+        <field name="name">Sum insured reduction</field>
+        <field name="kind">decrease_sum</field>
+        <field name="sequence">40</field>
+    </record>
+    <record id="insurance_endorsement_type_coverage_change" model="insurance.endorsement.type">
+        <field name="name">Coverage change</field>
+        <field name="kind">coverage_change</field>
+        <field name="sequence">50</field>
+    </record>
+    <record id="insurance_endorsement_type_data_change" model="insurance.endorsement.type">
+        <field name="name">Data change</field>
+        <field name="kind">data_change</field>
+        <field name="sequence">60</field>
+    </record>
+    <record id="insurance_endorsement_type_extension" model="insurance.endorsement.type">
+        <field name="name">Validity extension</field>
+        <field name="kind">extension</field>
+        <field name="sequence">70</field>
+    </record>
+    <record id="insurance_endorsement_type_cancellation" model="insurance.endorsement.type">
+        <field name="name">Cancellation</field>
+        <field name="kind">cancellation</field>
+        <field name="sequence">80</field>
+    </record>
+</odoo>

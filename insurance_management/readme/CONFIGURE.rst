@@ -35,3 +35,20 @@
    and the renewal request.
 #. Review the document types in **Insurance ‣ Configuration ‣ Document
    types** (Administrator only); the initial ones can be renamed or archived.
+#. Accounting setup (phase 2), by an accounting administrator in
+   **Insurance ‣ Configuration ‣ Settings**, section *Accounting*:
+
+   * *Insurance product*: a service product with the purchase taxes and the
+     expense account of the premiums.
+   * *Billing mode* and *Accrual method* (defaults of new policies).
+   * For the module accrual: the *Prepaid insurance account* (current
+     asset) and the *Accrual journal* (miscellaneous).
+   * *Go-live date*, for the initial load of running policies; the section
+     then shows the opening balance control.
+#. Create the payment modes in **Insurance ‣ Configuration ‣ Payment modes**
+   (journal, payment method with its outstanding payments account, and
+   whether payments are posted or left as drafts) and choose the default one
+   and the *accounting users to notify* of unpaid installments in the
+   settings, section *Payments*.
+#. Optionally, set a product, an expense account, an analytic distribution
+   and a billing mode per branch (tab *Accounting* of the branch).

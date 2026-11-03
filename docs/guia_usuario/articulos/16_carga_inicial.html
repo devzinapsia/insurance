@@ -1,0 +1,31 @@
+<h1>Carga inicial e importación</h1>
+<p>Al arrancar con Odoo hay pólizas que ya estaban vigentes. Se cargan como <strong>pólizas en curso</strong>: continúan desde una cuota y devengan solo lo que falta, sin duplicar el gasto ya registrado.</p>
+<h2>Antes de empezar</h2>
+<ol>
+<li>Un administrador de Contabilidad carga la <strong>fecha de puesta en marcha</strong> en <strong>Seguros › Configuración › Ajustes</strong>.</li>
+<li>Deben existir las aseguradoras, productores, ramos y medios de pago.</li>
+</ol>
+<h2>Cargar una póliza en curso a mano</h2>
+<ol>
+<li>Cargue la póliza completa (datos, objetos, coberturas, documentos) y confírmela.</li>
+<li>En la pestaña <strong>Contabilidad</strong>, sección <strong>Carga inicial</strong>, marque <strong>Póliza en curso</strong>, indique <strong>Continúa desde la cuota</strong> (por ejemplo 4) y el <strong>importe a devengar en la puesta en marcha</strong> (en pesos).</li>
+<li><strong>Generar cuotas</strong>: las cuotas anteriores (1 a 3 en el ejemplo) y las vencidas antes de la puesta en marcha quedan <strong>históricas</strong>, como pagadas, sin pagos ni asientos.</li>
+<li><strong>Crear factura</strong> factura solo las cuotas que siguen. Esa factura no vuelve a devengar.</li>
+<li><strong>Generar devengamiento inicial</strong> reparte el importe a devengar desde el mes de la puesta en marcha hasta el fin de la póliza.</li>
+</ol>
+<h2>Importar desde Excel</h2>
+<ol>
+<li><strong>Seguros › Configuración › Importar pólizas en curso</strong> (también desde los ajustes), <strong>Nuevo</strong>.</li>
+<li><strong>Descargar plantilla</strong>. Tiene tres hojas: <strong>Pólizas</strong> (una fila por póliza), <strong>Objetos</strong> (una fila por objeto asegurado) y <strong>Cuotas</strong> (solo si alguna aseguradora factura cuotas desiguales). La fila 1 está oculta: no la modifique. Los datos empiezan en la fila 3.</li>
+<li>Complete la plantilla. La aseguradora y el productor se buscan por CUIT o por nombre; el ramo y el medio de pago por nombre; el responsable por usuario. Las fechas en formato fecha o <code>DD/MM/AAAA</code>.</li>
+<li>Suba el archivo y pulse <strong>Leer archivo</strong>: aparece una línea por póliza.</li>
+<li>Pulse <strong>Procesar ahora</strong>. Cada póliza se crea con sus objetos, se confirma, se generan las cuotas y, si es póliza en curso, el devengamiento inicial. Los archivos grandes se terminan de procesar solos (proceso automático cada hora).</li>
+<li>Las líneas con error muestran el motivo. Corrija el Excel, súbalo de nuevo y pulse <strong>Leer archivo</strong>: solo se reemplazan las líneas con error.</li>
+</ol>
+<div class="alert alert-info" role="status"><p>Una póliza ya importada (mismo número, aseguradora y fecha desde) nunca se modifica: si se importa otra vez, figura como <em>Ya importada</em>.</p></div>
+<h2>Saldo de apertura</h2>
+<ul>
+<li>El saldo no devengado entra con el <strong>asiento de apertura</strong> en la cuenta Seguros a devengar.</li>
+<li>En los ajustes, con la fecha de puesta en marcha cargada, se ve <strong>A devengar en pólizas en curso</strong>, el <strong>saldo de apertura de seguros a devengar</strong> y la <strong>diferencia de apertura</strong>, que tiene que ser cero.</li>
+<li>Si queda deuda con la aseguradora, vincule la factura de apertura a la póliza desde la factura (campo <strong>Póliza de seguros</strong>, aun publicada).</li>
+</ul>

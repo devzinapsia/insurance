@@ -1,0 +1,24 @@
+<h1>Cuotas y facturas</h1>
+<h2>Generar las cuotas</h2>
+<ol>
+<li>En la póliza confirmada, pulse <strong>Generar cuotas</strong>.</li>
+<li>Revise la <strong>cantidad de cuotas</strong> (se propone según la vigencia), el <strong>primer vencimiento</strong>, el <strong>importe total</strong> (el premio) y el <strong>medio de pago</strong>.</li>
+<li>Pulse <strong>Generar</strong>: se crean cuotas mensuales iguales; la última absorbe el redondeo.</li>
+</ol>
+<p>En la pestaña <strong>Cuotas</strong> se puede cambiar el importe, el vencimiento o el medio de pago de cada cuota mientras no esté facturada ni pagada (por ejemplo, si la aseguradora factura un prorrateo). Al pie se ven el <strong>total de cuotas</strong> y la <strong>diferencia con las cuotas</strong>, que tiene que quedar en cero. Volver a generar reemplaza las cuotas mientras ninguna esté facturada ni pagada.</p>
+<div class="alert alert-info" role="status"><p>El cierre de ejercicio no cambia las cuotas: se generan todas aunque la vigencia cruce el cierre, para que el flujo de fondos muestre todos los pagos comprometidos.</p></div>
+<h2>Crear la factura</h2>
+<p>Pulse <strong>Crear factura</strong> en la póliza (o en el endoso). Según el <strong>modo de facturación</strong>:</p>
+<ul>
+<li><strong>Una factura por póliza</strong>: una factura con <strong>un vencimiento por cuota</strong>.</li>
+<li><strong>Una factura por cuota</strong>: una factura por cada cuota, con su vencimiento.</li>
+</ul>
+<p>La factura queda en borrador con la aseguradora como proveedor, el producto de seguros (y sus impuestos) sobre la prima, la cuenta según el método de devengamiento y la analítica de la póliza o el ramo. Complete los datos del comprobante (fecha, número) y <strong>publíquela</strong>. Al publicarla:</p>
+<ul>
+<li>Cada vencimiento de la factura queda vinculado con su cuota.</li>
+<li>Se generan los pagos programados (cheques diferidos y transferencias).</li>
+<li>Con devengamiento del módulo, se arma el plan de devengamiento.</li>
+</ul>
+<p>El botón <strong>Facturas</strong> de la póliza muestra sus facturas y el saldo adeudado. En la factura, el botón <strong>Póliza</strong> vuelve a la póliza.</p>
+<h2>Moneda extranjera</h2>
+<p>Si la póliza está en dólares, las cuotas y la factura también. El devengamiento se calcula en pesos al tipo de cambio de la factura, y los pagos en pesos generan la diferencia de cambio al conciliar.</p>

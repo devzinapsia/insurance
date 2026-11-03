@@ -72,7 +72,7 @@ class TestSettingsAndHideCosts(InsuranceCommon):
     def test_hidden_amount_trackings(self):
         self.policy.action_confirm()
         self.env.cr.flush()
-        self.policy.write({"premium_total": 2000, "renewal_type": "renew"})
+        self.policy.with_context(insurance_endorsement_write=True).write({"premium_total": 2000, "renewal_type": "renew"})
         self.env.cr.flush()
         self._save_settings(hide_costs=True)
         self.policy.invalidate_recordset(["message_ids"])
@@ -87,9 +87,7 @@ class TestSettingsAndHideCosts(InsuranceCommon):
         self._save_settings(hide_costs=True)
         user = self.insurance_user
         self.policy.action_confirm()
-        self.policy.with_user(user).object_ids.create(
-            {"policy_id": self.policy.id, "name": "Van"}
-        )
+        self._endorse(self.policy, "add_object", user=user, lines=[{"operation": "add", "name": "Van"}])
         self.policy.with_context(insurance_lifecycle_write=True).write({"state": "expiring"})
         action = self.policy.with_user(user).action_renew()
         renewal = self.env["insurance.policy"].browse(action["res_id"])

@@ -9,8 +9,10 @@
   insurer, producer and validity, load the premiums and add the insured
   objects. Save it as a draft until the insurer issues the number, then click
   **Confirm**.
-* To take an object out of a confirmed policy, use the removal button of its
-  line: enter the date and the reason. The object stays listed as removed.
+* To change a confirmed policy (add or remove objects, change sums insured,
+  coverages or data, extend or cancel it), click **New endorsement**, choose
+  the type, the effective date and the affected objects, and confirm it.
+  Removed objects stay listed as history.
 * Insurable items are managed in **Insurance ‣ Policies ‣ Insurable items**,
   or created on the fly from an insured object line.
 * From an insurer or producer contact, the *Policies in force* smart button
@@ -31,6 +33,36 @@
   notify, the thresholds actually applied, the non-renewal sending mode and
   the list of alerts already sent. On its end date a policy shows an
   *Expires today* ribbon (also available as a search filter).
+
+Installments, bills and payments
+--------------------------------
+
+* On a confirmed policy, click **Generate installments**, check the number,
+  first due date, total and payment mode, and generate. Adjust any amount or
+  date in the *Installments* tab until the difference is zero.
+* Click **Create bill**, complete the insurer's document data (date, number)
+  and post it. Automatic debits are paid by the daily process on each due
+  date; deferred checks and scheduled transfers get their payments when the
+  bill is posted (drafts to review if so configured).
+* For an endorsement with additional premium, use **Generate installments**
+  and **Create bill** on the endorsement; for a refund, **Create credit
+  note**.
+* **Insurance ‣ Policies ‣ Installments** and the *With unpaid installments*
+  filter of the policies show what is due and what is overdue.
+
+Initial load
+------------
+
+* Set the go-live date in the settings, then either load each running
+  policy by hand (mark *Running policy*, the installment it continues from
+  and the amount still to accrue, generate the installments and the initial
+  accrual) or use **Insurance ‣ Configuration ‣ Import running policies**:
+  download the template, fill it in, upload it, click **Read file** and
+  **Process now**. Rows with errors show their message; fix the file, upload
+  it again and read it: only the failed rows are replaced.
+* Post the opening entry (prepaid insurance balance) and check that the
+  *Opening difference* of the settings is zero. Link the opening bills of
+  the insurers to their policies from the bill (*Insurance policy* field).
 
 Testing the emails by running the process by hand
 --------------------------------------------------

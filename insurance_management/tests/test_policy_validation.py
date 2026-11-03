@@ -56,7 +56,7 @@ class TestPolicyValidation(InsuranceCommon):
         self.assertEqual(exact_max.state, "in_force")
         # A confirmed policy cannot be stretched beyond the maximum either.
         with self.assertRaises(ValidationError):
-            exact_max.write({"date_to": date(2027, 4, 30)})
+            exact_max.with_context(insurance_endorsement_write=True).write({"date_to": date(2027, 4, 30)})
 
     def test_duration_warning_mode(self):
         self.company.insurance_duration_check = "warning"

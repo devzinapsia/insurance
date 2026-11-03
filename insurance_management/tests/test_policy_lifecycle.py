@@ -85,29 +85,32 @@ class TestPolicyLifecycle(InsuranceCommon):
         # The chatter keeps working on a locked policy.
         policy.message_post(body="Still allowed")
 
-    def test_confirmed_policy_editable_by_users(self):
-        """Transitional rule: confirmed policies are editable (both groups)
-        and key changes are tracked in the chatter."""
+    def test_confirmed_policy_contract_only_by_endorsement(self):
+        """Fase 2: contract data of a confirmed policy only change through an
+        endorsement; the rest stays editable and changes are tracked."""
         policy = self._create_policy()
         policy.action_confirm()
-        # Each UI action is its own transaction: run the pending tracking.
         self.env.cr.flush()
-        policy.with_user(self.insurance_user).write({"premium_total": 1500.0})
-        # Tracking values are created when the transaction pre-commits.
+        for values in ({"premium_total": 1500.0}, {"date_to": date(2026, 11, 30)}, {"insurer_id": self.insurer_2.id}):
+            with self.subTest(values=values), self.assertRaises(UserError):
+                policy.with_user(self.insurance_user).write(values)
+        # Administrative fields stay editable.
+        policy.with_user(self.insurance_user).write({"user_id": self.insurance_manager.id, "note": "<p>ok</p>"})
+        # An endorsement can change them, and the change is tracked.
+        policy.with_context(insurance_endorsement_write=True).write({"premium_total": 1500.0})
         self.env.flush_all()
         self.env.cr.flush()
         policy.invalidate_recordset(["message_ids"])
-        tracked = policy.message_ids.tracking_value_ids.filtered(
-            lambda t: t.field_id.name == "premium_total"
-        )
+        tracked = policy.message_ids.tracking_value_ids.filtered(lambda t: t.field_id.name == "premium_total")
         self.assertTrue(tracked)
-        self.assertEqual(tracked[0].old_value_float, 1210.0)
-        self.assertEqual(tracked[0].new_value_float, 1500.0)
+        self.assertEqual((tracked[0].old_value_float, tracked[0].new_value_float), (1210.0, 1500.0))
 
     def test_moving_end_date_updates_state(self):
         policy = self._create_policy()
         policy.action_confirm()
-        policy.write({"date_from": date(2025, 6, 1), "date_to": date(2026, 5, 31)})
+        policy.with_context(insurance_endorsement_write=True).write(
+            {"date_from": date(2025, 6, 1), "date_to": date(2026, 5, 31)}
+        )
         self.assertEqual(policy.state, "expired")
 
     def test_reset_to_draft_only_administrator(self):

@@ -10,3 +10,7 @@ from . import test_settings_hide_costs
 from . import test_documents
 from . import test_views
 from . import test_reports
+from . import test_endorsements
+from . import test_accounting_parameters
+from . import test_installments
+from . import test_import

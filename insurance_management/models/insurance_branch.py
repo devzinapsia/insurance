@@ -12,7 +12,7 @@ class InsuranceBranch(models.Model):
 
     _name = "insurance.branch"
     _description = "Insurance branch"
-    _inherit = ["mail.thread", "mail.activity.mixin"]
+    _inherit = ["mail.thread", "mail.activity.mixin", "analytic.mixin"]
     _order = "sequence, name, id"
 
     name = fields.Char(required=True, translate=True, tracking=True)
@@ -59,6 +59,24 @@ class InsuranceBranch(models.Model):
         help="Leave empty to share this branch across all companies.",
     )
     note = fields.Html(string="Notes")
+    product_id = fields.Many2one(
+        comodel_name="product.product",
+        string="Insurance product",
+        domain="[('type', '=', 'service'), ('purchase_ok', '=', True)]",
+        help="Service product of the bills of this branch. Leave empty to use "
+        "the one of the insurance settings.",
+    )
+    expense_account_id = fields.Many2one(
+        comodel_name="account.account",
+        string="Expense account",
+        groups="account.group_account_invoice,account.group_account_readonly",
+        help="Leave empty to use the expense account of the insurance product.",
+    )
+    billing_mode = fields.Selection(
+        selection=[("policy", "One bill per policy"), ("installment", "One bill per installment")],
+        string="Billing mode",
+        help="Leave empty to use the one of the insurance settings.",
+    )
 
     # COALESCE so that two shared branches (no company) cannot reuse a code;
     # a plain UNIQUE would treat their NULL company_id values as distinct.

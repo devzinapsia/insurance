@@ -55,6 +55,46 @@
             <field name="model_id" ref="model_insurance_policy_alert"/>
             <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
         </record>
+        <record id="insurance_payment_mode_company_rule" model="ir.rule">
+            <field name="name">Insurance payment mode: multi-company</field>
+            <field name="model_id" ref="model_insurance_payment_mode"/>
+            <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+        </record>
+        <record id="insurance_endorsement_company_rule" model="ir.rule">
+            <field name="name">Insurance endorsement: multi-company</field>
+            <field name="model_id" ref="model_insurance_endorsement"/>
+            <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+        </record>
+        <record id="insurance_endorsement_line_company_rule" model="ir.rule">
+            <field name="name">Insurance endorsement line: multi-company</field>
+            <field name="model_id" ref="model_insurance_endorsement_line"/>
+            <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+        </record>
+        <record id="insurance_installment_company_rule" model="ir.rule">
+            <field name="name">Insurance installment: multi-company</field>
+            <field name="model_id" ref="model_insurance_installment"/>
+            <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+        </record>
+        <record id="insurance_accrual_line_company_rule" model="ir.rule">
+            <field name="name">Insurance accrual line: multi-company</field>
+            <field name="model_id" ref="model_insurance_accrual_line"/>
+            <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+        </record>
+        <record id="insurance_cost_report_company_rule" model="ir.rule">
+            <field name="name">Insurance cost report: multi-company</field>
+            <field name="model_id" ref="model_insurance_cost_report"/>
+            <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        </record>
+        <record id="insurance_import_company_rule" model="ir.rule">
+            <field name="name">Insurance import: multi-company</field>
+            <field name="model_id" ref="model_insurance_import"/>
+            <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        </record>
+        <record id="insurance_import_line_company_rule" model="ir.rule">
+            <field name="name">Insurance import line: multi-company</field>
+            <field name="model_id" ref="model_insurance_import_line"/>
+            <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        </record>
         <record id="insurance_insured_item_company_rule" model="ir.rule">
             <field name="name">Insurable item: multi-company</field>
             <field name="model_id" ref="model_insurance_insured_item"/>

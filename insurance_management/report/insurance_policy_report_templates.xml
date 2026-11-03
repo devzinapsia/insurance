@@ -110,6 +110,52 @@
                     <h4 class="mt-3">Coverages</h4>
                     <div t-field="o.coverage"></div>
                 </t>
+                <t t-set="endorsements" t-value="o.endorsement_ids.filtered(lambda e: e.state == 'confirmed')"/>
+                <t t-if="endorsements">
+                    <h4 class="mt-3">Endorsements</h4>
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Endorsement</th>
+                                <th>Type</th>
+                                <th>Effective date</th>
+                                <th t-if="show_amounts" class="text-end">Premium difference</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr t-foreach="endorsements" t-as="endorsement">
+                                <td><span t-field="endorsement.name"></span></td>
+                                <td><span t-field="endorsement.type_id"></span></td>
+                                <td><span t-field="endorsement.effective_date"></span></td>
+                                <td t-if="show_amounts" class="text-end"><span t-field="endorsement.premium_difference" t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"></span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </t>
+                <t t-set="installments" t-value="o.installment_ids.filtered(lambda i: not i.cancelled)"/>
+                <t t-if="installments">
+                    <h4 class="mt-3">Installments</h4>
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Installment</th>
+                                <th>Due date</th>
+                                <th>Payment mode</th>
+                                <th t-if="show_amounts" class="text-end">Amount</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr t-foreach="installments" t-as="installment">
+                                <td><span t-field="installment.name"></span></td>
+                                <td><span t-field="installment.due_date"></span></td>
+                                <td><span t-field="installment.payment_mode_id"></span></td>
+                                <td t-if="show_amounts" class="text-end"><span t-field="installment.amount" t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"></span></td>
+                                <td><span t-field="installment.state"></span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </t>
             </div>
         </t>
     </template>

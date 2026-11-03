@@ -24,6 +24,18 @@
               action="insurance_insured_item_action"
               sequence="20"/>
 
+    <menuitem id="menu_insurance_endorsement"
+              name="Endorsements"
+              parent="menu_insurance_policies"
+              action="insurance_endorsement_action"
+              sequence="15"/>
+
+    <menuitem id="menu_insurance_installment"
+              name="Installments"
+              parent="menu_insurance_policies"
+              action="insurance_installment_action"
+              sequence="17"/>
+
     <menuitem id="menu_insurance_reporting"
               name="Reporting"
               parent="menu_insurance_root"
@@ -49,6 +61,26 @@
               action="action_server_print_policies_in_force"
               sequence="20"/>
 
+    <menuitem id="menu_insurance_report_installments"
+              name="Installments per month"
+              parent="menu_insurance_reporting"
+              action="insurance_installment_report_action"
+              sequence="30"/>
+
+    <menuitem id="menu_insurance_report_cost"
+              name="Cost by branch and insurer"
+              parent="menu_insurance_reporting"
+              action="insurance_cost_report_action"
+              groups="insurance_management.group_insurance_see_amounts"
+              sequence="35"/>
+
+    <menuitem id="menu_insurance_report_accrual"
+              name="Accrual plan"
+              parent="menu_insurance_reporting"
+              action="insurance_accrual_line_action"
+              groups="account.group_account_invoice,account.group_account_readonly"
+              sequence="40"/>
+
     <menuitem id="menu_insurance_configuration"
               name="Configuration"
               parent="menu_insurance_root"
@@ -67,9 +99,27 @@
               action="insurance_settings_action"
               sequence="1"/>
 
+    <menuitem id="menu_insurance_import"
+              name="Import running policies"
+              parent="menu_insurance_configuration"
+              action="insurance_import_action"
+              sequence="90"/>
+
     <menuitem id="menu_insurance_document_type"
               name="Document types"
               parent="menu_insurance_configuration"
               action="insurance_document_type_action"
               sequence="30"/>
+
+    <menuitem id="menu_insurance_endorsement_type"
+              name="Endorsement types"
+              parent="menu_insurance_configuration"
+              action="insurance_endorsement_type_action"
+              sequence="25"/>
+
+    <menuitem id="menu_insurance_payment_mode"
+              name="Payment modes"
+              parent="menu_insurance_configuration"
+              action="insurance_payment_mode_action"
+              sequence="27"/>
 </odoo>

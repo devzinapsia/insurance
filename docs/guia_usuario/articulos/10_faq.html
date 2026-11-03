@@ -11,10 +11,22 @@
 <h3>No puedo confirmar la póliza</h3>
 <p>Falta el número de póliza o alguna fecha, la fecha hasta no es posterior a la fecha desde, o la duración está fuera del mínimo y máximo de los ajustes. El mensaje indica cuál es el caso.</p>
 <h3>No puedo modificar una póliza</h3>
-<p>Las pólizas Vencidas, Renovadas, No renovadas y Anuladas son de solo lectura. Si hace falta corregirla, el Administrador puede usar <strong>Volver a borrador</strong>.</p>
+<p>Una póliza confirmada solo cambia con un <strong>endoso</strong>; las Vencidas, Renovadas, No renovadas y Anuladas son de solo lectura. Si fue un error de carga, el Administrador puede usar <strong>Volver a borrador</strong> mientras no haya facturas ni pagos publicados.</p>
 <h3>No puedo borrar una póliza o un objeto asegurado</h3>
 <p>Solo se borran pólizas en borrador. En una póliza confirmada, los objetos se dan de baja con fecha y motivo para conservar el historial.</p>
 <h3>¿Puede haber más de un responsable?</h3>
 <p>El responsable es uno solo. Para que otras personas reciban los mismos avisos, agréguelas en <strong>Usuarios a notificar</strong> (pestaña Notificaciones de la póliza, el ramo o los ajustes).</p>
+<h3>La aseguradora factura cuotas distintas (prorrateo)</h3>
+<p>Genere las cuotas iguales y edite el importe o la fecha de cada una en la pestaña <strong>Cuotas</strong> antes de crear la factura. La <em>Diferencia con las cuotas</em> tiene que quedar en cero.</p>
+<h3>No puedo cambiar el importe de una cuota</h3>
+<p>Ya está facturada, pagada o es histórica. Se puede seguir cambiando su medio de pago. Si la factura está mal: vuélvala a borrador en Contabilidad, corríjala y publíquela de nuevo (las cuotas se vuelven a vincular y los pagos ya hechos se concilian otra vez), o cancélela: las cuotas quedan libres para editarlas y facturarlas de nuevo. Si la factura ya tiene meses devengados no se puede cancelar: corríjala con una nota de crédito.</p>
+<h3>El débito automático no se generó</h3>
+<ul>
+<li>La factura tiene que estar <strong>publicada</strong>: la cuota se vincula con su vencimiento al publicarla.</li>
+<li>El medio de pago de la cuota tiene que ser de tipo débito automático, con diario y método de pago con cuenta de pagos pendientes.</li>
+<li>El proceso diario lo genera el día del vencimiento; si el pago quedó en borrador (según el medio de pago), hay que validarlo.</li>
+</ul>
+<h3>El devengamiento de un mes no se contabilizó</h3>
+<p>Revise que estén cargados el diario de devengamiento y las cuentas (ajustes, ramo o producto). Si el período estaba cerrado, el asiento se registra el primer día abierto.</p>
 <h3>¿Qué día vence realmente la póliza?</h3>
 <p>La fecha hasta es el último día cubierto, hasta la hora configurada (12:00 por defecto). Ese día la póliza figura <em>Por vencer</em> con la cinta <em>Vence hoy</em>; al día siguiente cambia de estado.</p>

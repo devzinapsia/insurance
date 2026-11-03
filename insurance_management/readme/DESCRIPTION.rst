@@ -3,9 +3,15 @@ the insured party, not a broker): policies by branch, their validity, renewal
 and non-renewal, insured objects, expiry alerts, documents and settings.
 
 This module is delivered in phases (see ``docs/ROADMAP.md`` in the
-repository). Phase 1, "expiry control", has no accounting: invoices,
-installments, endorsements and accrual arrive in phase 2; fleet and employee
-integrations, claims, surety bonds and the dashboard in phase 3.
+repository). Phase 1, "expiry control", and phase 2, "economic and accounting
+management" (endorsements, installments, vendor bills, payments, accrual,
+foreign currency, initial load and import), are included; fleet and employee
+integrations, claims, surety bonds and the dashboard arrive in phase 3.
+
+Two bridge modules install automatically when their dependency is present:
+``insurance_management_account_accountant`` (Enterprise deferred expenses as
+accrual method) and ``insurance_management_l10n_latam_check`` (own deferred
+checks for the installments).
 
 Currently included:
 
@@ -161,28 +167,188 @@ changes. Administrators always see amounts; other users can be given the
 access individually in **Settings ‣ Users**. The setting applies to all
 companies. Off by default.
 
-Transitional editing rule (until endorsements arrive in phase 2)
------------------------------------------------------------------
+Endorsements (phase 2)
+----------------------
 
-Endorsements do not exist yet, so a confirmed policy (In force or Expiring)
-can still be corrected by insurance users and administrators. Every change is
-traceable: key policy fields are tracked in the chatter, and every change to
-its insured objects (added, modified, removed) is logged on the policy chatter
-with the old and the new value. Once endorsements are available, insured
-objects of a confirmed policy will only change through an endorsement and this
-rule will be withdrawn.
+Once a policy is confirmed, its contract data (number, branch, insurer,
+producer, validity, currency, premiums, deductible, coverages) and its
+insured objects **only change through endorsements** (**Insurance ‣
+Policies ‣ Endorsements** or the *New endorsement* button of the policy, on
+policies In force or Expiring). Administrative data (responsible, users to
+notify, tags, notes, documents) stays editable. An administrator can still
+reset a policy to draft to correct a loading mistake.
+
+* Types (editable list in **Insurance ‣ Configuration ‣ Endorsement
+  types**): add object, remove object, sum insured increase or reduction,
+  coverage change, data change (e.g. new producer), validity extension and
+  cancellation.
+* Confirming an endorsement applies it: objects are added (dated with the
+  endorsement effective date), removed (kept as history with the date, the
+  reason and the endorsement) or changed (the previous sum insured is kept on
+  the endorsement line and logged in the chatter); the total sum insured is
+  recalculated; an extension moves the end date (it may exceed the maximum
+  duration); a cancellation moves the policy to Cancelled.
+* Each endorsement has its own premium difference: positive (additional
+  premium, with its own bill and installments) or negative (refund, by
+  default deducted from the next pending installments, or refunded by the
+  insurer). The policy shows the total premium including endorsements.
+* Confirmed endorsements are never deleted.
+
+The phase 1 transitional editing rule (confirmed policies editable by hand,
+with every change logged) has been withdrawn.
+
+Accounting parameters (phase 2)
+-------------------------------
+
+* **Insurance product** (Settings): a service product whose taxes and
+  expense account are proposed on every insurance bill; a branch can use its
+  own product.
+* **Expense account**: policy, else branch, else insurance product.
+  **Prepaid insurance account** (module accrual): policy, else settings.
+  **Analytic distribution**: policy, else branch.
+* **Billing mode** (one bill per policy, with one due date per installment,
+  or one bill per installment): settings, branch, policy.
+* **Accrual method** (module accrual, Enterprise deferred expenses through
+  the bridge module, or none): settings, policy.
+* **Payment modes** (**Insurance ‣ Configuration ‣ Payment modes**): how
+  installments are paid — automatic debit (bank or card), deferred check or
+  echeq, scheduled transfer or manual — with the journal, the payment method
+  and whether generated payments are posted or left as drafts to review.
+  The journal method must have an outstanding payments account. The policy
+  takes the default payment mode of the settings.
+* **Go-live date** and **accounting users to notify** (settings).
+* Accounting fields are only visible to accounting users, and only
+  accounting administrators set up the product, accounts and journals in the
+  insurance settings.
+
+Installments (phase 2)
+----------------------
+
+* **Generate installments** (policy, or endorsement with an additional
+  premium) creates monthly installments of equal amounts from the first due
+  date; the last one absorbs the rounding. The number of installments, the
+  first due date, the total and the payment mode are proposed from the
+  policy and can be changed. Generating again replaces the installments while
+  none of them is billed or paid.
+* Each installment can be edited (amount, due date, payment mode) until it is
+  billed or paid, e.g. when the insurer bills pro rata. The policy shows the
+  installments total and its **difference** with the total premium including
+  endorsements, which must be zero.
+* States: Pending, Scheduled (a payment exists), Paid, Overdue (due date
+  passed without payment) and Cancelled. Fiscal year closings never change
+  the installments: all of them are generated so the future cash flow is
+  complete.
+* **Insurance ‣ Policies ‣ Installments** lists them (editable list, pivot
+  and graph); **Insurance ‣ Reporting ‣ Installments per month** shows per
+  month what is pending, scheduled and paid, in company currency.
+
+Vendor bills (phase 2)
+----------------------
+
+* **Create bill** (policy or endorsement) creates the draft vendor bill of
+  the installments: one bill per policy with one due date per installment
+  (a payment term is generated for the bill), or one bill per installment,
+  according to the billing mode. The line uses the insurance product (its
+  taxes) on the net premium share, the account of the accrual method and the
+  analytic distribution.
+* Posting the bill links each payable line with its installment. Bills keep
+  the policy (and endorsement / installment) link; the policy shows a *Bills*
+  smart button with the balance due, and policies with posted bills or
+  payments can no longer be reset to draft.
+* An endorsement with a negative premium creates a **credit note**: by
+  default it is reconciled with the next pending installments (nearest due
+  date first); otherwise it waits for the insurer's refund.
+* Resetting a bill to draft and posting it again links the installments
+  again, reconciles the payments already posted and rebuilds the accrual
+  plan if the amount changed (and no month was accrued yet). Cancelling a
+  bill releases its installments, which can then be edited and billed
+  again; a bill with accrued months must be corrected with a credit note.
+* An opening bill (debt with the insurer at go-live) can be linked to a
+  running policy afterwards, even posted.
+
+Payments (phase 2)
+------------------
+
+* Every installment has a payment mode. Payments are created with the
+  installment amount, the journal and method of the mode, and posted or left
+  as drafts according to the mode; a draft payment is reconciled with its
+  installment when it is posted.
+* **Automatic debit**: the daily process *Insurance: installments* creates
+  the payment on the due date and reconciles it with the bill.
+* **Deferred check / scheduled transfer**: the payments are created when
+  the bill is posted, dated on each due date (future cash flow). With the
+  ``insurance_management_l10n_latam_check`` bridge, own checks get one
+  deferred check per installment.
+* **Manual**: never paid automatically; pay the bill as usual (the
+  installment becomes paid when its payable line is reconciled).
+* Generating payments is idempotent: an installment is never paid twice.
+
+Unpaid installments (phase 2)
+-----------------------------
+
+The day after the due date of an installment without payment, the daily
+process marks it *Overdue*, flags the policy *With debt* (red ribbon and
+*With unpaid installments* filter) and emails the template *Insurance:
+overdue unpaid installment* once to the responsible and to the accounting
+users to notify of the settings, each in their language; the amount only
+appears for recipients allowed to see amounts. Paying it clears the debt.
+
+Accrual (phase 2)
+-----------------
+
+* **Module accrual**: the bill goes to the prepaid insurance account; an
+  accrual plan (tab *Accrual* of the policy, **Insurance ‣ Reporting ‣
+  Accrual plan**) spreads its amount over the months of the validity (from
+  the endorsement effective date for endorsements). The lines can be edited
+  until posted. The scheduled action *Insurance: monthly accrual* posts one
+  entry per policy and month (expense / prepaid insurance, with the
+  analytic distribution) in the accrual journal; a closed period is posted
+  on its first open day. A cancellation moves the months still to accrue to
+  the cancellation month. Credit notes accrue negatively.
+* **Enterprise deferred expenses** (bridge module): the bill line keeps the
+  expense account and carries the validity as deferral dates.
+* **No accrual**: the bill goes straight to expense.
+
+Foreign currency (phase 2)
+--------------------------
+
+Policies, installments and bills can be in a foreign currency. Accrual is
+in company currency at the rate of the bill; payments in another currency
+generate the exchange difference when reconciled. Reports show the amounts
+in company currency and in the original currency.
+
+Initial load and import (phase 2)
+---------------------------------
+
+* A **running policy** (tab *Accounting*, *Initial load*) continues from a
+  given installment (e.g. 4 of 12): the previous installments are created as
+  historical (paid, without payments nor entries), as are those due before
+  the go-live date. Its bill does not accrue again: **Generate initial
+  accrual** spreads the *amount still to accrue at go-live* from the go-live
+  month to the end date.
+* The insurance settings compare the sum of the amounts still to accrue of
+  the running policies with the opening balance of the prepaid insurance
+  account before the go-live date, and show the difference.
+* **Insurance ‣ Configuration ‣ Import running policies** loads policies,
+  insured objects and, optionally, uneven installment amounts from an Excel
+  template. Each row is processed in its own savepoint (errors are shown
+  per row and the file can be read again after fixing it); policies already
+  imported (same number, insurer and start date) are never changed. Large
+  files are processed in batches by the scheduled action *Insurance: policy
+  import*.
+
+Reports (phase 2)
+-----------------
+
+* **Installments per month** (pivot and graph, in company currency).
+* **Cost by branch and insurer**: premiums billed (net of taxes, credit
+  notes deducted) per branch, insurer, policy and month, in company
+  currency and in the original currency.
+* The *Policy sheet* PDF now lists the endorsements and the installments.
 
 What comes next
 ---------------
 
-* **Phase 2 — economic and accounting management**: endorsements (they will
-  replace the transitional editing rule and enable the Cancelled state),
-  installments, vendor bills linked to policies, endorsements and
-  installments, monthly accrual (module, Enterprise deferred expenses bridge
-  or direct expense), payments (automatic debit, deferred payments and own
-  deferred checks bridge, credit card), unpaid installments ("with debt"),
-  foreign currency, initial load of running policies and Excel import, and
-  the installment reports. ``account`` becomes a dependency then.
 * **Phase 3 — claims, surety bonds and integrations**: Fleet and Employees
   bridge modules (vehicles and employees as insured objects, "Insurance (n)"
   history buttons, "insured today", insured payroll), claims and recovery

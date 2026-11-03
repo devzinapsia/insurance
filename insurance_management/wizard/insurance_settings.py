@@ -1,4 +1,4 @@
-from odoo import api, fields, models
+from odoo import Command, api, fields, models
 from odoo.exceptions import AccessError
 
 from ..models.insurance_policy import DEFAULT_BATCH_SIZE
@@ -12,7 +12,16 @@ COMPANY_FIELDS = {
     "coverage_time": "insurance_coverage_time",
     "non_renewal_send_mode": "insurance_non_renewal_send_mode",
     "non_renewal_days": "insurance_non_renewal_days",
+    "default_payment_mode_id": "insurance_default_payment_mode_id",
+    "unpaid_notify_user_ids": "insurance_unpaid_notify_user_ids",
+    "product_id": "insurance_product_id",
+    "prepaid_account_id": "insurance_prepaid_account_id",
+    "accrual_journal_id": "insurance_accrual_journal_id",
+    "accrual_method": "insurance_accrual_method",
+    "billing_mode": "insurance_billing_mode",
+    "go_live_date": "insurance_go_live_date",
 }
+ACCOUNTING_GROUP = "account.group_account_manager"
 BATCH_SIZE_PARAM = "insurance_management.cron_batch_size"
 
 
@@ -61,6 +70,72 @@ class InsuranceSettings(models.TransientModel):
         required=True,
     )
     non_renewal_days = fields.Integer(string="Send non-renewal instruction (days before)")
+    default_payment_mode_id = fields.Many2one(
+        comodel_name="insurance.payment.mode",
+        string="Default payment mode",
+        domain="[('company_id', '=', company_id)]",
+    )
+    unpaid_notify_user_ids = fields.Many2many(
+        comodel_name="res.users",
+        relation="insurance_settings_unpaid_user_rel",
+        column1="settings_id",
+        column2="user_id",
+        string="Accounting users to notify",
+        domain=[("share", "=", False)],
+    )
+    # Accounting setup: only for accounting administrators.
+    product_id = fields.Many2one(
+        comodel_name="product.product",
+        string="Insurance product",
+        domain="[('type', '=', 'service'), ('purchase_ok', '=', True)]",
+        groups=ACCOUNTING_GROUP,
+    )
+    prepaid_account_id = fields.Many2one(
+        comodel_name="account.account",
+        string="Prepaid insurance account",
+        domain="[('account_type', 'in', ('asset_prepayments', 'asset_current', 'asset_non_current'))]",
+        groups=ACCOUNTING_GROUP,
+    )
+    accrual_journal_id = fields.Many2one(
+        comodel_name="account.journal",
+        string="Accrual journal",
+        domain="[('type', '=', 'general'), ('company_id', '=', company_id)]",
+        groups=ACCOUNTING_GROUP,
+    )
+    accrual_method = fields.Selection(
+        selection=[("module", "Module accrual"), ("none", "No accrual (direct expense)")],
+        string="Accrual method",
+        groups=ACCOUNTING_GROUP,
+    )
+    billing_mode = fields.Selection(
+        selection=[("policy", "One bill per policy"), ("installment", "One bill per installment")],
+        string="Billing mode",
+        groups=ACCOUNTING_GROUP,
+    )
+    go_live_date = fields.Date(string="Go-live date", groups=ACCOUNTING_GROUP)
+    # Initial load control (section 8.7): read only, never blocks.
+    opening_unaccrued_total = fields.Monetary(
+        string="Still to accrue in running policies",
+        currency_field="company_currency_id",
+        compute="_compute_opening_control",
+        groups=ACCOUNTING_GROUP,
+        help="Sum of the amounts still to accrue informed on the running policies.",
+    )
+    opening_prepaid_balance = fields.Monetary(
+        string="Opening balance of prepaid insurance",
+        currency_field="company_currency_id",
+        compute="_compute_opening_control",
+        groups=ACCOUNTING_GROUP,
+        help="Posted balance of the prepaid insurance account before the go-live date.",
+    )
+    opening_difference = fields.Monetary(
+        string="Opening difference",
+        currency_field="company_currency_id",
+        compute="_compute_opening_control",
+        groups=ACCOUNTING_GROUP,
+        help="It must be zero: otherwise the opening entry or the amounts informed on the running policies are wrong.",
+    )
+    company_currency_id = fields.Many2one(related="company_id.currency_id", string="Company currency")
     hide_costs = fields.Boolean(
         string="Hide costs from users",
         help="When checked, insurance users only see policy amounts (premiums, "
@@ -79,6 +154,42 @@ class InsuranceSettings(models.TransientModel):
             settings.display_name = self.env._("Insurance settings")
 
     @api.model
+    @api.depends("company_id", "go_live_date", "prepaid_account_id")
+    def _compute_opening_control(self):
+        for settings in self:
+            company = settings.company_id
+            go_live = settings.go_live_date
+            account = settings.prepaid_account_id
+            unaccrued = sum(
+                self.env["insurance.policy"].sudo().search(
+                    [("company_id", "=", company.id), ("in_progress", "=", True), ("state", "!=", "cancelled")]
+                ).mapped("unaccrued_amount")
+            )
+            balance = 0.0
+            if go_live and account:
+                groups = self.env["account.move.line"].sudo()._read_group(
+                    [
+                        ("company_id", "=", company.id),
+                        ("account_id", "=", account.id),
+                        ("parent_state", "=", "posted"),
+                        ("date", "<", go_live),
+                    ],
+                    aggregates=["balance:sum"],
+                )
+                balance = groups[0][0] if groups else 0.0
+            settings.opening_unaccrued_total = unaccrued
+            settings.opening_prepaid_balance = balance
+            settings.opening_difference = balance - unaccrued
+
+    def _to_form_value(self, field, value):
+        """Company value as expected by default_get for ``field``."""
+        if field.type == "many2many":
+            return [Command.set(value.ids)]
+        if field.type == "many2one":
+            return value.id
+        return value
+
+    @api.model
     def _check_manager(self):
         if not self.env.user.has_group("insurance_management.group_insurance_manager"):
             raise AccessError(self.env._("Only an insurance administrator can change the insurance settings."))
@@ -95,9 +206,8 @@ class InsuranceSettings(models.TransientModel):
         values = super().default_get(fields_list)
         company = self.env.company
         for name, company_field in COMPANY_FIELDS.items():
-            if name in fields_list:
-                value = company[company_field]
-                values[name] = value.ids if isinstance(value, models.BaseModel) else value
+            if name in fields_list and self._has_field_access(self._fields[name], "read"):
+                values[name] = self._to_form_value(self._fields[name], company[company_field])
         user_group, see_amounts = self._get_amount_groups()
         values["hide_costs"] = see_amounts not in user_group.sudo().all_implied_ids
         values["batch_size"] = int(
@@ -110,10 +220,15 @@ class InsuranceSettings(models.TransientModel):
         self._check_manager()
         company_values = {}
         for name, company_field in COMPANY_FIELDS.items():
+            # Accounting fields are only saved by users allowed to see them.
+            if not self._has_field_access(self._fields[name], "read"):
+                continue
             value = self[name]
-            company_values[company_field] = (
-                [fields.Command.set(value.ids)] if isinstance(value, models.BaseModel) else value
-            )
+            if self._fields[name].type == "many2many":
+                value = [fields.Command.set(value.ids)]
+            elif self._fields[name].type == "many2one":
+                value = value.id
+            company_values[company_field] = value
         self.company_id.sudo().write(company_values)
         user_group, see_amounts = self._get_amount_groups()
         if self.hide_costs:
@@ -139,10 +254,14 @@ class InsuranceSettings(models.TransientModel):
             },
         }
 
+    def action_open_payment_modes(self):
+        return self.env["ir.actions.act_window"]._for_xml_id("insurance_management.insurance_payment_mode_action")
+
     def action_open_templates(self):
+        name = self.env._("Insurance email templates")
         return {
             "type": "ir.actions.act_window",
-            "name": self.env._("Insurance email templates"),
+            "name": name,
             "res_model": "mail.template",
             "view_mode": "list,form",
             "domain": [("model", "=", "insurance.policy")],

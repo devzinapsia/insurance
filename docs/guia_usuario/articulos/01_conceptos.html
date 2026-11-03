@@ -1,6 +1,6 @@
 <h1>Conceptos y alcance</h1>
 <h2>Para qué sirve</h2>
-<p>La aplicación reúne en un solo lugar todas las pólizas de seguro que <strong>contrata la empresa</strong> (la empresa es el asegurado, no un productor ni un broker). El objetivo de esta primera fase es que <strong>ninguna póliza venza sin que alguien lo sepa</strong>.</p>
+<p>La aplicación reúne en un solo lugar todas las pólizas de seguro que <strong>contrata la empresa</strong> (la empresa es el asegurado, no un productor ni un broker). La Fase 1 se ocupa de que <strong>ninguna póliza venza sin que alguien lo sepa</strong>; la Fase 2 agrega la parte económica: cuotas, facturas, pagos y devengamiento del gasto.</p>
 <h2>Conceptos</h2>
 <table class="table table-bordered">
 <thead><tr><th>Término</th><th>Qué es en la aplicación</th></tr></thead>
@@ -13,10 +13,16 @@
 <tr><td>Bien asegurable</td><td>Ficha maestra de un bien que no existe en otra parte de Odoo (un depósito, un local, un equipo). Conserva su historial entre pólizas.</td></tr>
 <tr><td>Prima / Premio</td><td>Prima: costo técnico del seguro. Premio: lo que efectivamente se paga (prima más impuestos y recargos).</td></tr>
 <tr><td>Vigencia</td><td>Desde y hasta. La <strong>fecha hasta es el último día cubierto</strong>.</td></tr>
+<tr><td>Endoso</td><td>Modificación de una póliza confirmada (alta o baja de objetos, cambio de suma, cobertura o datos, prórroga, anulación), con su propia diferencia de premio.</td></tr>
+<tr><td>Cuota</td><td>Cada pago del premio, con su vencimiento, importe y medio de pago.</td></tr>
+<tr><td>Medio de pago</td><td>Cómo se paga una cuota: débito automático, cheque diferido, transferencia programada o manual.</td></tr>
+<tr><td>Devengamiento</td><td>Reparto del premio como gasto en los meses de vigencia. Lo pagado por adelantado queda en la cuenta <em>Seguros a devengar</em>.</td></tr>
+<tr><td>Póliza en curso</td><td>Póliza que ya estaba vigente al arrancar con Odoo (carga inicial): continúa desde una cuota y devenga solo lo que falta.</td></tr>
 <tr><td>Días de aviso</td><td>Cuántos días antes del vencimiento se avisa (puede haber varios, por ejemplo 30, 15 y 7).</td></tr>
 </tbody>
 </table>
-<h2>Qué incluye la Fase 1</h2>
+<h2>Qué incluye hoy</h2>
+<h3>Fase 1 – Control de vencimientos</h3>
 <ul>
 <li>Pólizas, ramos, objetos asegurados y bienes asegurables.</li>
 <li>Estados de la póliza y control de vigencia.</li>
@@ -26,8 +32,19 @@
 <li>Ajustes, permisos y opción de ocultar costos.</li>
 <li>Vistas, filtros y reportes PDF.</li>
 </ul>
+<h3>Fase 2 – Gestión económica y contable</h3>
+<ul>
+<li>Endosos con diferencia de premio.</li>
+<li>Cuotas generadas en partes iguales y editables.</li>
+<li>Facturas de la aseguradora desde la póliza (una por póliza con un vencimiento por cuota, o una por cuota) y notas de crédito por endoso.</li>
+<li>Pagos: débito automático, cheque diferido (con cheques propios), transferencia programada o manual; en borrador o validados.</li>
+<li>Cuotas vencidas impagas: aviso y marca <em>Con deuda</em>.</li>
+<li>Devengamiento mensual (del módulo, diferidos de Enterprise o gasto directo), con analítica.</li>
+<li>Moneda extranjera.</li>
+<li>Carga inicial de pólizas en curso e importación desde Excel.</li>
+<li>Reportes: cuotas por mes y costo por ramo y aseguradora.</li>
+</ul>
 <h2>Qué viene después</h2>
 <ul>
-<li><strong>Fase 2 – Gestión económica y contable</strong>: endosos, cuotas, facturas de la aseguradora, devengamiento mensual, pagos (débito automático, pagos diferidos, tarjeta), cuotas impagas, moneda extranjera y carga inicial de pólizas en curso.</li>
 <li><strong>Fase 3 – Siniestros, cauciones e integraciones</strong>: vehículos de Flota y empleados como objetos asegurados, siniestros y recupero, cauciones hasta su liberación y tablero de seguros.</li>
 </ul>

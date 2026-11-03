@@ -57,3 +57,22 @@ class InsuranceCommon(TransactionCase):
     def _create_policy(cls, user=None, **values):
         env = cls.env(user=user) if user else cls.env
         return env["insurance.policy"].create(cls._policy_vals(**values))
+
+    @classmethod
+    def _endorse(cls, policy, type_xmlid, lines=None, user=None, **values):
+        """Create and confirm an endorsement of ``policy``.
+
+        :param type_xmlid: endorsement type xmlid suffix (e.g. "remove_object").
+        :param lines: list of endorsement line value dicts.
+        """
+        env = cls.env(user=user) if user else cls.env
+        vals = {
+            "policy_id": policy.id,
+            "type_id": cls.env.ref(f"insurance_management.insurance_endorsement_type_{type_xmlid}").id,
+            "effective_date": values.pop("effective_date", policy.date_from),
+            "line_ids": [(0, 0, line) for line in (lines or [])],
+        }
+        vals.update(values)
+        endorsement = env["insurance.endorsement"].create(vals)
+        endorsement.action_confirm()
+        return endorsement

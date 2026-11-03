@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Overdue unpaid installment (Fase 2): one email per recipient in
+             their language; the amount only for users allowed to see it. -->
+        <record id="mail_template_installment_unpaid" model="mail.template">
+            <field name="name">Insurance: overdue unpaid installment</field>
+            <field name="model_id" ref="insurance_management.model_insurance_policy"/>
+            <field name="subject">{{ object._get_unpaid_subject() }}</field>
+            <field name="email_from">{{ (object.company_id.email_formatted or user.email_formatted) }}</field>
+            <field name="use_default_to" eval="False"/>
+            <field name="lang">{{ ctx.get('insurance_recipient_lang') or object.company_id.partner_id.lang }}</field>
+            <field name="auto_delete" eval="True"/>
+            <field name="description">Sent to the responsible and the accounting users to notify the day after an installment due date without payment.</field>
+            <field name="body_html" type="html">
+<div style="margin:0; padding:0; background-color:#f3f4f6;">
+<t t-set="installment" t-value="object._get_mail_installment()"/>
+<t t-set="amount_text" t-value="object._get_mail_installment_amount()"/>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f3f4f6;">
+<tr><td align="center" style="padding:24px 12px;">
+<table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:100%; max-width:600px; background-color:#ffffff; border:1px solid #d1d5db; border-radius:6px; font-family:Arial, Helvetica, sans-serif; color:#1f2937;">
+    <tr><td style="padding:20px 24px; border-bottom:3px solid #b42318;">
+        <img t-att-src="'%s/logo.png?company=%s' % (object.get_base_url(), object.company_id.id)" t-att-alt="object.company_id.name" height="40" style="height:40px; max-width:200px; border:0; display:block;"/>
+    </td></tr>
+    <tr><td style="padding:24px 24px 8px 24px; font-size:15px; line-height:22px;">
+        <p style="margin:0 0 16px 0;">Hello <t t-out="ctx.get('insurance_recipient_name') or ''">Marc Demo</t>,</p>
+        <p style="margin:0 0 16px 0; font-size:17px; line-height:24px; font-weight:bold; color:#b42318;" t-out="object._get_unpaid_subject()">Installment 3/12 of policy POL-001 (Motor) is overdue and unpaid</p>
+        <p style="margin:0 0 16px 0;">The following installment reached its due date without payment. Many insurers suspend the coverage while installments are unpaid.</p>
+    </td></tr>
+    <tr><td style="padding:0 24px 8px 24px;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="font-size:14px; line-height:20px; border-collapse:collapse;">
+            <tr t-if="object.policy_number">
+                <td style="padding:8px; width:38%; color:#4b5563; border-bottom:1px solid #e5e7eb;">Policy number</td>
+                <td style="padding:8px; font-weight:bold; border-bottom:1px solid #e5e7eb;" t-out="object.policy_number">POL-001</td>
+            </tr>
+            <tr t-if="object.branch_id">
+                <td style="padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;">Branch</td>
+                <td style="padding:8px; border-bottom:1px solid #e5e7eb;" t-out="object.branch_id.name">Motor</td>
+            </tr>
+            <tr t-if="object.insurer_id">
+                <td style="padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;">Insurer</td>
+                <td style="padding:8px; border-bottom:1px solid #e5e7eb;" t-out="object.insurer_id.name">Insurer</td>
+            </tr>
+            <tr t-if="installment">
+                <td style="padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;">Installment</td>
+                <td style="padding:8px; font-weight:bold; border-bottom:1px solid #e5e7eb;" t-out="installment.name">3/12</td>
+            </tr>
+            <tr t-if="installment">
+                <td style="padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;">Due date</td>
+                <td style="padding:8px; border-bottom:1px solid #e5e7eb;" t-out="format_date(installment.due_date)">01/03/2026</td>
+            </tr>
+            <tr t-if="amount_text">
+                <td style="padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;">Amount</td>
+                <td style="padding:8px; font-weight:bold; border-bottom:1px solid #e5e7eb;" t-out="amount_text">$ 100,000.00</td>
+            </tr>
+            <tr t-if="installment and installment.payment_mode_id">
+                <td style="padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;">Payment mode</td>
+                <td style="padding:8px; border-bottom:1px solid #e5e7eb;" t-out="installment.payment_mode_id.name">Bank debit</td>
+            </tr>
+        </table>
+    </td></tr>
+    <tr><td style="padding:16px 24px 8px 24px; font-size:15px; line-height:22px;">
+        <p style="margin:0; padding:12px 14px; border-left:4px solid #b42318; background-color:#f9fafb;">What to do: check why the payment was not made (debit rejected, payment not generated or not posted) and pay the installment, or contact the insurer about the coverage.</p>
+    </td></tr>
+    <tr><td style="padding:16px 24px 8px 24px;">
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+            <tr><td bgcolor="#1f4e79" style="border-radius:4px; background-color:#1f4e79;">
+                <a t-att-href="object._get_record_url()" target="_blank" style="display:inline-block; padding:12px 24px; font-family:Arial, Helvetica, sans-serif; font-size:15px; font-weight:bold; color:#ffffff; text-decoration:none; border-radius:4px;">View policy</a>
+            </td></tr>
+        </table>
+    </td></tr>
+    <tr><td style="padding:16px 24px 24px 24px; font-size:12px; line-height:18px; color:#6b7280;">
+        You receive this email because you are the responsible of this policy or an accounting user to notify at <t t-out="object.company_id.name or ''">My Company</t>.
+    </td></tr>
+</table>
+</td></tr>
+</table>
+</div>
+            </field>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Endorsements -->
+    <record id="insurance_endorsement_view_list" model="ir.ui.view">
+        <field name="name">insurance.endorsement.list</field>
+        <field name="model">insurance.endorsement</field>
+        <field name="arch" type="xml">
+            <list string="Endorsements" decoration-muted="state == 'cancelled'" decoration-info="state == 'draft'">
+                <field name="name"/>
+                <field name="endorsement_number"/>
+                <field name="policy_id"/>
+                <field name="type_id"/>
+                <field name="issue_date" optional="hide"/>
+                <field name="effective_date"/>
+                <field name="currency_id" column_invisible="True"/>
+                <field name="premium_difference" sum="Total"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+                <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-success="state == 'confirmed'" decoration-muted="state == 'cancelled'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="insurance_endorsement_view_form" model="ir.ui.view">
+        <field name="name">insurance.endorsement.form</field>
+        <field name="model">insurance.endorsement</field>
+        <field name="arch" type="xml">
+            <form string="Endorsement">
+                <header>
+                    <button name="action_confirm" type="object" string="Confirm" class="btn-primary" invisible="state != 'draft'" data-hotkey="v"
+                            confirm="Confirming applies the endorsement to the policy and its insured objects. Continue?"/>
+                    <button name="action_cancel" type="object" string="Cancel" invisible="state != 'draft'"/>
+                    <button name="action_open_installment_generator" type="object" string="Generate installments" invisible="state != 'confirmed' or premium_direction != 'increase'"/>
+                    <button name="action_create_bill" type="object" string="Create bill" invisible="state != 'confirmed' or premium_direction != 'increase'" groups="account.group_account_invoice"/>
+                    <button name="action_create_bill" type="object" string="Create credit note" invisible="state != 'confirmed' or premium_direction != 'decrease'" groups="account.group_account_invoice"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,confirmed"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <field name="kind" invisible="1"/>
+                    <field name="premium_direction" invisible="1"/>
+                    <field name="object_type" invisible="1"/>
+                    <group>
+                        <group>
+                            <field name="policy_id" readonly="state != 'draft' or context.get('default_policy_id')" options="{'no_create': True}"/>
+                            <field name="type_id" readonly="state != 'draft'" options="{'no_create': True}"/>
+                            <field name="endorsement_number" readonly="state != 'draft'"/>
+                        </group>
+                        <group>
+                            <field name="issue_date" readonly="state != 'draft'"/>
+                            <field name="effective_date" readonly="state != 'draft'"/>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="premium_difference" readonly="state != 'draft'"/>
+                            <field name="refund_mode" invisible="premium_direction != 'decrease'" readonly="state != 'draft'" widget="radio"/>
+                        </group>
+                    </group>
+                    <group invisible="kind != 'extension'">
+                        <field name="new_date_to" readonly="state != 'draft'" required="kind == 'extension'"/>
+                    </group>
+                    <group invisible="kind != 'data_change'">
+                        <field name="new_producer_id" readonly="state != 'draft'" options="{'no_create': True}"/>
+                    </group>
+                    <notebook>
+                        <page name="objects" string="Insured objects" invisible="kind in ('extension', 'data_change', 'cancellation')">
+                            <field name="line_ids" readonly="state != 'draft'" context="{'default_operation': 'add' if kind == 'add_object' else ('remove' if kind == 'remove_object' else 'change')}">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="policy_id" column_invisible="True"/>
+                                    <field name="operation"/>
+                                    <field name="object_id" required="operation != 'add'" readonly="operation == 'add'" options="{'no_create': True}"/>
+                                    <field name="name" required="operation == 'add'" readonly="operation != 'add'"/>
+                                    <field name="insured_item_id" optional="show" readonly="operation != 'add'"/>
+                                    <field name="license_plate" column_invisible="parent.object_type != 'vehicle'" readonly="operation != 'add'"/>
+                                    <field name="chassis_number" column_invisible="parent.object_type != 'vehicle'" optional="hide" readonly="operation != 'add'"/>
+                                    <field name="engine_number" column_invisible="parent.object_type != 'vehicle'" optional="hide" readonly="operation != 'add'"/>
+                                    <field name="coverage" optional="show" readonly="operation == 'remove'"/>
+                                    <field name="currency_id" column_invisible="True"/>
+                                    <field name="old_sum_insured" optional="show"/>
+                                    <field name="sum_insured" readonly="operation == 'remove'"/>
+                                    <field name="reason" optional="show" readonly="operation != 'remove'"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page name="coverages" string="New coverages" invisible="kind != 'coverage_change'">
+                            <field name="new_coverage" readonly="state != 'draft'" placeholder="New coverages and clauses..."/>
+                        </page>
+                        <page name="description" string="Description">
+                            <field name="description" readonly="state != 'draft'" placeholder="What changes and why..."/>
+                        </page>
+                        <page name="installments" string="Installments" invisible="state != 'confirmed' or premium_direction != 'increase'">
+                            <field name="installment_ids">
+                                <list editable="bottom" create="0" default_order="due_date, number, id"
+                                      decoration-muted="state in ('cancelled', 'paid')" decoration-danger="state == 'overdue'">
+                                    <field name="is_locked" column_invisible="True"/>
+                                    <field name="name" readonly="1"/>
+                                    <field name="due_date" readonly="is_locked"/>
+                                    <field name="currency_id" column_invisible="True"/>
+                                    <field name="amount" sum="Total" readonly="is_locked"/>
+                                    <field name="payment_mode_id" options="{'no_create': True}" readonly="state in ('paid', 'cancelled', 'scheduled')"/>
+                                    <field name="move_id" readonly="1" groups="account.group_account_invoice,account.group_account_readonly"/>
+                                    <field name="payment_id" optional="hide" readonly="1" groups="account.group_account_invoice,account.group_account_readonly"/>
+                                    <field name="state" widget="badge" decoration-success="state == 'paid'" decoration-danger="state == 'overdue'" decoration-muted="state == 'cancelled'"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page name="moves" string="Bills" invisible="not move_ids" groups="account.group_account_invoice,account.group_account_readonly">
+                            <field name="move_ids" readonly="1">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="move_type"/>
+                                    <field name="invoice_date"/>
+                                    <field name="currency_id" column_invisible="True"/>
+                                    <field name="amount_total_signed" string="Total"/>
+                                    <field name="payment_state" widget="badge"/>
+                                    <field name="state" widget="badge"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="insurance_endorsement_view_search" model="ir.ui.view">
+        <field name="name">insurance.endorsement.search</field>
+        <field name="model">insurance.endorsement</field>
+        <field name="arch" type="xml">
+            <search string="Endorsements">
+                <field name="name" filter_domain="['|', ('name', 'ilike', self), ('endorsement_number', 'ilike', self)]"/>
+                <field name="policy_id"/>
+                <field name="type_id"/>
+                <filter name="draft" string="Draft" domain="[('state', '=', 'draft')]"/>
+                <filter name="confirmed" string="Confirmed" domain="[('state', '=', 'confirmed')]"/>
+                <group name="group_by">
+                    <filter name="group_by_policy" string="Policy" context="{'group_by': 'policy_id'}"/>
+                    <filter name="group_by_type" string="Type" context="{'group_by': 'type_id'}"/>
+                    <filter name="group_by_state" string="Status" context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="insurance_endorsement_action" model="ir.actions.act_window">
+        <field name="name">Endorsements</field>
+        <field name="res_model">insurance.endorsement</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="insurance_endorsement_view_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Register an endorsement</p>
+            <p>Endorsements change a policy in force: objects added or removed, sums insured, coverages, data, extension or cancellation.</p>
+        </field>
+    </record>
+
+    <!-- Endorsement types -->
+    <record id="insurance_endorsement_type_view_list" model="ir.ui.view">
+        <field name="name">insurance.endorsement.type.list</field>
+        <field name="model">insurance.endorsement.type</field>
+        <field name="arch" type="xml">
+            <list string="Endorsement types">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="kind"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="insurance_endorsement_type_view_form" model="ir.ui.view">
+        <field name="name">insurance.endorsement.type.form</field>
+        <field name="model">insurance.endorsement.type</field>
+        <field name="arch" type="xml">
+            <form string="Endorsement type">
+                <sheet>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <field name="active" invisible="1"/>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group>
+                        <field name="kind"/>
+                        <field name="description"/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="insurance_endorsement_type_view_search" model="ir.ui.view">
+        <field name="name">insurance.endorsement.type.search</field>
+        <field name="model">insurance.endorsement.type</field>
+        <field name="arch" type="xml">
+            <search string="Endorsement types">
+                <field name="name"/>
+                <filter name="inactive" string="Archived" domain="[('active', '=', False)]"/>
+                <group name="group_by">
+                    <filter name="group_by_kind" string="Kind" context="{'group_by': 'kind'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="insurance_endorsement_type_action" model="ir.actions.act_window">
+        <field name="name">Endorsement types</field>
+        <field name="res_model">insurance.endorsement.type</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="insurance_endorsement_type_view_search"/>
+    </record>
+
+    <!-- Payment modes -->
+    <record id="insurance_payment_mode_view_list" model="ir.ui.view">
+        <field name="name">insurance.payment.mode.list</field>
+        <field name="model">insurance.payment.mode</field>
+        <field name="arch" type="xml">
+            <list string="Payment modes">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="payment_type"/>
+                <field name="journal_id"/>
+                <field name="payment_method_line_id"/>
+                <field name="payment_state"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="insurance_payment_mode_view_form" model="ir.ui.view">
+        <field name="name">insurance.payment.mode.form</field>
+        <field name="model">insurance.payment.mode</field>
+        <field name="arch" type="xml">
+            <form string="Payment mode">
+                <sheet>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <field name="active" invisible="1"/>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" placeholder="e.g. VISA automatic debit"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="payment_type" widget="radio"/>
+                            <field name="payment_state" widget="radio" invisible="payment_type == 'manual'"/>
+                        </group>
+                        <group invisible="payment_type == 'manual'">
+                            <field name="journal_id" required="payment_type != 'manual'" options="{'no_create': True}"/>
+                            <field name="payment_method_line_id" required="payment_type != 'manual'" options="{'no_create': True}"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                    <field name="note" placeholder="Notes..."/>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="insurance_payment_mode_action" model="ir.actions.act_window">
+        <field name="name">Payment modes</field>
+        <field name="res_model">insurance.payment.mode</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Create a payment mode</p>
+            <p>Ways of paying the installments (automatic debit, deferred check, scheduled transfer, manual), with the journal and the state of the generated payments.</p>
+        </field>
+    </record>
+</odoo>

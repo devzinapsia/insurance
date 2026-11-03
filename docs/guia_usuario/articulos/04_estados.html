@@ -8,7 +8,7 @@
 <tr><td>Vencida</td><td>Terminó sin renovarse ni marcarse para no renovar.</td><td>Día siguiente a la fecha hasta.</td></tr>
 <tr><td>Renovada</td><td>Terminó y tiene una renovación cargada.</td><td>Día siguiente a la fecha hasta, o en el momento si se renueva una póliza ya vencida.</td></tr>
 <tr><td>No renovada</td><td>Terminó y estaba marcada para no renovar.</td><td>Día siguiente a la fecha hasta.</td></tr>
-<tr><td>Anulada</td><td>Reservado para la Fase 2 (anulación por endoso).</td><td>—</td></tr>
+<tr><td>Anulada</td><td>Terminó antes de tiempo por un endoso de anulación.</td><td>Al confirmar el endoso de anulación.</td></tr>
 </tbody>
 </table>
 <h2>Reglas importantes</h2>
@@ -17,6 +17,19 @@
 <li>Una póliza <em>Por vencer</em> con renovación cargada sigue cubierta hasta su fecha hasta; recién al día siguiente pasa a <em>Renovada</em>.</li>
 <li><em>Vencida</em>, <em>Renovada</em>, <em>No renovada</em> y <em>Anulada</em> quedan <strong>en solo lectura</strong>. Se pueden seguir agregando documentos y mensajes.</li>
 <li>Si se corre la fecha hasta hacia adelante, una póliza <em>Por vencer</em> vuelve a <em>Vigente</em> y los avisos empiezan de nuevo.</li>
-<li><strong>Volver a borrador</strong>: solo el Administrador de Seguros.</li>
+<li><strong>Volver a borrador</strong>: solo el Administrador de Seguros, y solo si la póliza no tiene facturas ni pagos publicados.</li>
+<li>Una póliza <em>Vigente</em> o <em>Por vencer</em> solo cambia mediante <strong>endosos</strong>.</li>
+<li>La cinta roja <strong>Con deuda</strong> indica que alguna cuota venció sin pagarse.</li>
 <li>Solo se pueden <strong>eliminar</strong> pólizas en borrador.</li>
 </ul>
+<h2>Estados de las cuotas</h2>
+<table class="table table-bordered">
+<thead><tr><th>Estado</th><th>Significado</th></tr></thead>
+<tbody>
+<tr><td>Pendiente</td><td>Sin pago todavía.</td></tr>
+<tr><td>Programada</td><td>Tiene un pago generado (por ejemplo, un cheque diferido o una transferencia con fecha futura, o un pago en borrador a revisar).</td></tr>
+<tr><td>Pagada</td><td>Su vencimiento de la factura quedó conciliado con un pago (o es histórica, de la carga inicial).</td></tr>
+<tr><td>Vencida</td><td>Pasó el vencimiento sin pago.</td></tr>
+<tr><td>Anulada</td><td>Quedó sin efecto por la anulación de la póliza.</td></tr>
+</tbody>
+</table>

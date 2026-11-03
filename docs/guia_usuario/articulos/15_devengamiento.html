@@ -1,0 +1,33 @@
+<h1>Devengamiento</h1>
+<p>El seguro se paga por adelantado pero es un gasto de cada mes de la vigencia. El <strong>método de devengamiento</strong> de la póliza (viene de los ajustes) define cómo se registra:</p>
+<table class="table table-bordered">
+<thead><tr><th>Método</th><th>Cómo funciona</th></tr></thead>
+<tbody>
+<tr><td>Devengamiento del módulo</td><td>La factura va a <em>Seguros a devengar</em> (activo). El plan reparte el importe en partes iguales por mes y un proceso mensual registra el asiento gasto / seguros a devengar.</td></tr>
+<tr><td>Gastos diferidos de Enterprise</td><td>La factura lleva la vigencia como fechas de diferimiento y Contabilidad genera los asientos de diferimiento (cuenta y momento según los ajustes de Contabilidad).</td></tr>
+<tr><td>Sin devengamiento</td><td>La factura va directo al gasto. Para pólizas mensuales o de bajo importe.</td></tr>
+</tbody>
+</table>
+<h2>Ejemplo</h2>
+<p>Póliza anual con premio de $ 1.200.000, pagado en 12 cuotas por débito automático:</p>
+<table class="table table-bordered">
+<thead><tr><th>Momento</th><th>Debe</th><th>Haber</th><th>Importe</th></tr></thead>
+<tbody>
+<tr><td>Factura</td><td>Seguros a devengar</td><td>Proveedores</td><td>1.200.000</td></tr>
+<tr><td>Cada mes</td><td>Gasto de seguros (con analítica)</td><td>Seguros a devengar</td><td>100.000</td></tr>
+<tr><td>Cada débito</td><td>Proveedores</td><td>Banco (pagos pendientes)</td><td>100.000</td></tr>
+</tbody>
+</table>
+<h2>El plan de devengamiento</h2>
+<ul>
+<li>Pestaña <strong>Devengamiento</strong> de la póliza (con permiso contable) y <strong>Seguros › Reportes › Plan de devengamiento</strong>.</li>
+<li>Cada línea es un mes. Se puede editar el importe o el mes hasta que se registra su asiento.</li>
+<li>El proceso diario <em>Seguros: devengamiento mensual</em> registra un asiento por póliza y mes, en el diario de devengamiento. Si el período está cerrado, lo registra el primer día abierto.</li>
+<li>Endosos: el premio adicional se devenga desde la fecha del endoso; una devolución devenga en negativo. Una anulación lleva lo pendiente al mes de la anulación.</li>
+</ul>
+<h2>Cuentas</h2>
+<ul>
+<li><strong>Cuenta de gasto</strong>: la de la póliza; si no, la del ramo; si no, la del producto de seguros.</li>
+<li><strong>Cuenta de seguros a devengar</strong>: la de la póliza; si no, la de los ajustes.</li>
+<li><strong>Analítica</strong>: la de la póliza; si no, la del ramo.</li>
+</ul>

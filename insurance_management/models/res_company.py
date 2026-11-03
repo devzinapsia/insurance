@@ -69,6 +69,62 @@ class ResCompany(models.Model):
         "instruction is sent.",
     )
 
+    # Accounting (Fase 2, section 4.9) --------------------------------------------
+    insurance_product_id = fields.Many2one(
+        comodel_name="product.product",
+        string="Insurance product",
+        domain="[('type', '=', 'service'), ('purchase_ok', '=', True)]",
+        help="Service product used on insurance bills: its taxes and expense "
+        "account are proposed on every bill (a branch can use its own product).",
+    )
+    insurance_prepaid_account_id = fields.Many2one(
+        comodel_name="account.account",
+        string="Prepaid insurance account",
+        domain="[('account_type', 'in', ('asset_prepayments', 'asset_current', 'asset_non_current'))]",
+        help="Asset account where the premium waits to be accrued month by "
+        "month (module accrual).",
+    )
+    insurance_accrual_journal_id = fields.Many2one(
+        comodel_name="account.journal",
+        string="Accrual journal",
+        domain="[('type', '=', 'general')]",
+        help="Miscellaneous journal of the monthly accrual entries (module accrual).",
+    )
+    insurance_accrual_method = fields.Selection(
+        selection=[("module", "Module accrual"), ("none", "No accrual (direct expense)")],
+        string="Accrual method",
+        default="module",
+        required=True,
+        help="Default accrual method of new policies.",
+    )
+    insurance_billing_mode = fields.Selection(
+        selection=[("policy", "One bill per policy"), ("installment", "One bill per installment")],
+        string="Billing mode",
+        default="policy",
+        required=True,
+        help="Default billing mode of new policies (a branch can set its own).",
+    )
+    insurance_default_payment_mode_id = fields.Many2one(
+        comodel_name="insurance.payment.mode",
+        string="Default payment mode",
+        help="Payment mode proposed on new policies.",
+    )
+    insurance_go_live_date = fields.Date(
+        string="Go-live date",
+        help="Installments due before this date are historical: they are "
+        "recorded as paid, without payments nor journal entries.",
+    )
+    insurance_unpaid_notify_user_ids = fields.Many2many(
+        comodel_name="res.users",
+        relation="insurance_company_unpaid_notify_user_rel",
+        column1="company_id",
+        column2="user_id",
+        string="Accounting users to notify",
+        domain=[("share", "=", False)],
+        help="Users (typically accounting) notified, with the responsible, when "
+        "an installment is overdue and unpaid.",
+    )
+
     @api.constrains("insurance_alert_days")
     def _check_insurance_alert_days(self):
         for company in self:

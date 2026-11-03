@@ -3,6 +3,8 @@ from markupsafe import Markup
 from odoo import api, fields, models
 from odoo.exceptions import UserError
 
+from .insurance_endorsement import ENDORSEMENT_CTX
+
 # Fields whose changes on a confirmed policy are logged on the policy chatter
 # with their old and new values (transitional rule until endorsements exist).
 LOGGED_FIELDS = (
@@ -61,6 +63,20 @@ class InsurancePolicyObject(models.Model):
     date_start = fields.Date(string="Added on")
     date_end = fields.Date(string="Removed on", readonly=True)
     exclusion_reason = fields.Char(string="Removal reason", readonly=True)
+    endorsement_in_id = fields.Many2one(
+        comodel_name="insurance.endorsement",
+        string="Added by endorsement",
+        readonly=True,
+        index="btree_not_null",
+        ondelete="set null",
+    )
+    endorsement_out_id = fields.Many2one(
+        comodel_name="insurance.endorsement",
+        string="Removed by endorsement",
+        readonly=True,
+        index="btree_not_null",
+        ondelete="set null",
+    )
     state = fields.Selection(
         selection=[("active", "Active"), ("excluded", "Removed")],
         string="Status",
@@ -75,12 +91,19 @@ class InsurancePolicyObject(models.Model):
     # -------------------------------------------------------------------------
 
     def _check_policy_editable(self, policies):
-        locked = policies.filtered("is_locked")
-        if locked:
+        """Objects of a draft policy are edited freely. Once the policy is
+        confirmed they only change through an endorsement (RF-06), which
+        keeps their history."""
+        if self.env.context.get(ENDORSEMENT_CTX):
+            policies = policies.filtered("is_locked")
+        else:
+            policies = policies.filtered(lambda policy: policy.state != "draft")
+        if policies:
             raise UserError(
                 self.env._(
-                    "The insured objects of policy %(policy)s can no longer be modified.",
-                    policy=locked[0].display_name,
+                    "The insured objects of policy %(policy)s can only be changed with an "
+                    "endorsement.",
+                    policy=policies[0].display_name,
                 )
             )
 
@@ -161,17 +184,6 @@ class InsurancePolicyObject(models.Model):
                 (0, 0, TrackingValue._create_tracking_values(old_value, new_value, fname, fields_info[fname], self))
             )
         return commands
-
-    def action_open_exclude_wizard(self):
-        self.ensure_one()
-        return {
-            "type": "ir.actions.act_window",
-            "name": self.env._("Remove insured object"),
-            "res_model": "insurance.policy.object.exclude",
-            "view_mode": "form",
-            "target": "new",
-            "context": {"default_object_id": self.id},
-        }
 
     def _exclude(self, date_end, reason):
         """Remove the objects from their policy, keeping them as history."""

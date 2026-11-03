@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="insurance_installment_view_list" model="ir.ui.view">
+        <field name="name">insurance.installment.list</field>
+        <field name="model">insurance.installment</field>
+        <field name="arch" type="xml">
+            <list string="Installments" editable="bottom" create="0" default_order="due_date, id"
+                  decoration-muted="state in ('cancelled', 'paid')" decoration-danger="state == 'overdue'" decoration-info="state == 'scheduled'">
+                <field name="is_locked" column_invisible="True"/>
+                <field name="policy_id" readonly="1"/>
+                <field name="name" readonly="1"/>
+                <field name="insurer_id" optional="show"/>
+                <field name="branch_id" optional="hide"/>
+                <field name="due_date" readonly="is_locked"/>
+                <field name="currency_id" column_invisible="True"/>
+                <field name="amount" sum="Total" readonly="is_locked"/>
+                <field name="amount_residual" sum="Total due" optional="show"/>
+                <field name="company_currency_id" column_invisible="True"/>
+                <field name="amount_company" sum="Total" optional="hide"/>
+                <field name="payment_mode_id" options="{'no_create': True}" readonly="state in ('paid', 'cancelled', 'scheduled')"/>
+                <field name="move_id" optional="show" readonly="1" groups="account.group_account_invoice,account.group_account_readonly"/>
+                <field name="payment_id" optional="show" readonly="1" groups="account.group_account_invoice,account.group_account_readonly"/>
+                <field name="historical" optional="hide"/>
+                <field name="state" widget="badge" decoration-success="state == 'paid'" decoration-info="state == 'scheduled'" decoration-danger="state == 'overdue'" decoration-muted="state == 'cancelled'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="insurance_installment_view_search" model="ir.ui.view">
+        <field name="name">insurance.installment.search</field>
+        <field name="model">insurance.installment</field>
+        <field name="arch" type="xml">
+            <search string="Installments">
+                <field name="policy_id"/>
+                <field name="insurer_id"/>
+                <field name="branch_id"/>
+                <filter name="pending" string="Pending" domain="[('state', '=', 'pending')]"/>
+                <filter name="scheduled" string="Scheduled" domain="[('state', '=', 'scheduled')]"/>
+                <filter name="paid" string="Paid" domain="[('state', '=', 'paid')]"/>
+                <filter name="overdue" string="Overdue unpaid" domain="[('state', '=', 'overdue')]"/>
+                <filter name="not_paid" string="Not paid" domain="[('state', 'in', ('pending', 'scheduled', 'overdue'))]"/>
+                <separator/>
+                <filter name="filter_due_date" string="Due date" date="due_date"/>
+                <group name="group_by">
+                    <filter name="group_by_month" string="Due month" context="{'group_by': 'due_date:month'}"/>
+                    <filter name="group_by_state" string="Status" context="{'group_by': 'state'}"/>
+                    <filter name="group_by_policy" string="Policy" context="{'group_by': 'policy_id'}"/>
+                    <filter name="group_by_insurer" string="Insurer" context="{'group_by': 'insurer_id'}"/>
+                    <filter name="group_by_payment_mode" string="Payment mode" context="{'group_by': 'payment_mode_id'}"/>
+                    <filter name="group_by_currency" string="Currency" context="{'group_by': 'currency_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="insurance_installment_view_pivot" model="ir.ui.view">
+        <field name="name">insurance.installment.pivot</field>
+        <field name="model">insurance.installment</field>
+        <field name="arch" type="xml">
+            <pivot string="Installments per month" sample="1">
+                <field name="due_date" interval="month" type="row"/>
+                <field name="state" type="col"/>
+                <field name="amount_company" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="insurance_installment_view_graph" model="ir.ui.view">
+        <field name="name">insurance.installment.graph</field>
+        <field name="model">insurance.installment</field>
+        <field name="arch" type="xml">
+            <graph string="Installments per month" type="bar" stacked="1" sample="1">
+                <field name="due_date" interval="month"/>
+                <field name="state"/>
+                <field name="amount_company" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="insurance_installment_action" model="ir.actions.act_window">
+        <field name="name">Installments</field>
+        <field name="res_model">insurance.installment</field>
+        <field name="view_mode">list,pivot,graph</field>
+        <field name="search_view_id" ref="insurance_installment_view_search"/>
+        <field name="context">{'search_default_not_paid': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No installments yet</p>
+            <p>Generate the installments from each policy (button Generate installments).</p>
+        </field>
+    </record>
+
+    <record id="insurance_installment_report_action" model="ir.actions.act_window">
+        <field name="name">Installments per month</field>
+        <field name="res_model">insurance.installment</field>
+        <field name="view_mode">pivot,graph,list</field>
+        <field name="search_view_id" ref="insurance_installment_view_search"/>
+        <field name="context">{'search_default_group_by_month': 1}</field>
+        <field name="domain">[('state', '!=', 'cancelled')]</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No installments yet</p>
+            <p>Pending, scheduled and paid installments of every policy per month, including the ones after the fiscal year closing.</p>
+        </field>
+    </record>
+
+    <record id="action_server_installment_create_bill" model="ir.actions.server">
+        <field name="name">Create bills</field>
+        <field name="model_id" ref="model_insurance_installment"/>
+        <field name="binding_model_id" ref="model_insurance_installment"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">action = records.action_create_bill()</field>
+        <field name="group_ids" eval="[Command.link(ref('account.group_account_invoice'))]"/>
+    </record>
+
+    <record id="action_server_installment_generate_payment" model="ir.actions.server">
+        <field name="name">Generate payments</field>
+        <field name="model_id" ref="model_insurance_installment"/>
+        <field name="binding_model_id" ref="model_insurance_installment"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">action = records.action_generate_payment()</field>
+        <field name="group_ids" eval="[Command.link(ref('account.group_account_invoice'))]"/>
+    </record>
+
+    <!-- Generate installments wizard -->
+    <record id="insurance_installment_generate_view_form" model="ir.ui.view">
+        <field name="name">insurance.installment.generate.form</field>
+        <field name="model">insurance.installment.generate</field>
+        <field name="arch" type="xml">
+            <form string="Generate installments">
+                <p class="text-muted">
+                    Monthly installments of equal amounts (the last one absorbs the rounding). Generating again replaces the installments while none is billed or paid; each one can be edited afterwards until it is billed or paid.
+                </p>
+                <group>
+                    <group>
+                        <field name="policy_id"/>
+                        <field name="endorsement_id" invisible="not endorsement_id"/>
+                        <field name="count"/>
+                        <field name="first_due_date"/>
+                    </group>
+                    <group>
+                        <field name="currency_id" invisible="1"/>
+                        <field name="total_amount"/>
+                        <field name="payment_mode_id" options="{'no_create': True}"/>
+                        <field name="continue_from" invisible="endorsement_id"/>
+                    </group>
+                </group>
+                <footer>
+                    <button name="action_generate" type="object" string="Generate" class="btn-primary" data-hotkey="q"/>
+                    <button string="Discard" special="cancel" class="btn-secondary" data-hotkey="x"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Accrual lines (standalone list) -->
+    <record id="insurance_accrual_line_view_list" model="ir.ui.view">
+        <field name="name">insurance.accrual.line.list</field>
+        <field name="model">insurance.accrual.line</field>
+        <field name="arch" type="xml">
+            <list string="Accrual plan" create="0" default_order="date, policy_id" decoration-muted="state == 'posted'">
+                <field name="policy_id"/>
+                <field name="endorsement_id" optional="show"/>
+                <field name="date"/>
+                <field name="company_currency_id" column_invisible="True"/>
+                <field name="amount" sum="Total"/>
+                <field name="move_id" groups="account.group_account_invoice,account.group_account_readonly"/>
+                <field name="state" widget="badge" decoration-success="state == 'posted'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="insurance_accrual_line_view_search" model="ir.ui.view">
+        <field name="name">insurance.accrual.line.search</field>
+        <field name="model">insurance.accrual.line</field>
+        <field name="arch" type="xml">
+            <search string="Accrual plan">
+                <field name="policy_id"/>
+                <filter name="to_accrue" string="To accrue" domain="[('state', '=', 'draft')]"/>
+                <filter name="accrued" string="Accrued" domain="[('state', '=', 'posted')]"/>
+                <group name="group_by">
+                    <filter name="group_by_period" string="Period" context="{'group_by': 'date:month'}"/>
+                    <filter name="group_by_policy" string="Policy" context="{'group_by': 'policy_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="insurance_accrual_line_action" model="ir.actions.act_window">
+        <field name="name">Accrual plan</field>
+        <field name="res_model">insurance.accrual.line</field>
+        <field name="view_mode">list,pivot</field>
+        <field name="search_view_id" ref="insurance_accrual_line_view_search"/>
+        <field name="context">{'search_default_to_accrue': 1}</field>
+    </record>
+
+    <!-- Bills and payments -->
+    <record id="account_move_view_form_insurance" model="ir.ui.view">
+        <field name="name">account.move.form.insurance</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_open_insurance_policy" type="object" class="oe_stat_button" icon="fa-shield" invisible="not insurance_policy_id" string="Policy"/>
+            </xpath>
+            <xpath expr="//group[@id='header_right_group']" position="inside">
+                <field name="insurance_policy_id" invisible="move_type not in ('in_invoice', 'in_refund')" readonly="state == 'cancel'" options="{'no_create': True}"/>
+                <field name="insurance_endorsement_id" invisible="not insurance_policy_id or (not insurance_endorsement_id and state != 'draft')" readonly="state != 'draft'" options="{'no_create': True}"/>
+                <field name="insurance_installment_id" invisible="not insurance_policy_id or (not insurance_installment_id and state != 'draft')" readonly="state != 'draft'" options="{'no_create': True}"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="account_move_view_search_insurance" model="ir.ui.view">
+        <field name="name">account.move.search.insurance</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_account_invoice_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="insurance_policy_id"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="account_payment_view_form_insurance" model="ir.ui.view">
+        <field name="name">account.payment.form.insurance</field>
+        <field name="model">account.payment</field>
+        <field name="inherit_id" ref="account.view_account_payment_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='memo']" position="after">
+                <field name="insurance_installment_id" invisible="not insurance_installment_id"/>
+                <field name="insurance_policy_id" invisible="not insurance_installment_id"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

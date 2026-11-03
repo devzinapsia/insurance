@@ -25,7 +25,11 @@ class TestReports(InsuranceCommon):
             ],
         )
         cls.policy.action_confirm()
-        cls.policy.object_ids.filtered(lambda o: o.name == "Van")._exclude(date(2026, 5, 1), "Vehicle sold")
+        cls._endorse(
+            cls.policy, "remove_object", effective_date=date(2026, 5, 1),
+            lines=[{"operation": "remove", "object_id": cls.policy.object_ids.filtered(lambda o: o.name == "Van").id, "reason": "Vehicle sold"}],
+        )
+        cls.policy._generate_installments(count=2, first_due_date=date(2026, 6, 10), total_amount=24680.24)
         cls.other = cls._create_policy(policy_number="POL-002", date_from=date(2026, 2, 1), date_to=date(2027, 1, 31))
         cls.other.action_confirm()
 
@@ -49,6 +53,10 @@ class TestReports(InsuranceCommon):
             self.assertIn(text, html)
         self.assertIn("987654321", self._digits(html))
         self.assertIn("8642097", self._digits(html))
+        # Endorsements and installments (section 10).
+        self.assertIn(self.policy.endorsement_ids.name, html)
+        self.assertIn("1/2", html)
+        self.assertIn("1234012", self._digits(html))
         # Empty values never show the template's example text.
         self.assertNotIn("01/06/2026", html)
         self.assertNotIn("SEG/2026/0001</span> -", html.replace(self.policy.name, "X"))
@@ -62,7 +70,8 @@ class TestReports(InsuranceCommon):
         )
         html = self._html("insurance_management.action_report_insurance_policy", self.policy, hidden)
         self.assertIn("Truck", html)
-        for amount in ("987654321", "8642097", "121000"):
+        self.assertIn("1/2", html, "Installments without their amounts")
+        for amount in ("987654321", "8642097", "121000", "1234012"):
             self.assertNotIn(amount, self._digits(html))
         html_list = self._html("insurance_management.action_report_insurance_policy_list", self.policy | self.other, hidden)
         self.assertNotIn("987654321", self._digits(html_list))

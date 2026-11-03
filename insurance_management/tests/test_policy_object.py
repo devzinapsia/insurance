@@ -37,28 +37,42 @@ class TestPolicyObject(InsuranceCommon):
         policy = self._policy_with_objects()
         policy.action_confirm()
         van = policy.object_ids.filtered(lambda o: o.license_plate == "AC456EF")
-        action = van.with_user(self.insurance_user).action_open_exclude_wizard()
-        wizard = (
-            self.env[action["res_model"]]
-            .with_user(self.insurance_user)
-            .with_context(action["context"])
-            .create({"date_end": date(2026, 6, 10), "reason": "Vehicle sold"})
+        endorsement = self._endorse(
+            policy, "remove_object", user=self.insurance_user, effective_date=date(2026, 6, 10),
+            lines=[{"operation": "remove", "object_id": van.id, "reason": "Vehicle sold"}],
         )
-        wizard.action_confirm()
         self.assertEqual(van.state, "excluded")
         self.assertEqual(van.date_end, date(2026, 6, 10))
         self.assertEqual(van.exclusion_reason, "Vehicle sold")
+        self.assertEqual(van.endorsement_out_id, endorsement)
         self.assertIn(van, policy.object_ids, "Removed objects stay as history")
         self.assertEqual(policy.sum_insured_total, 100000)
         self.assertEqual(policy.object_count, 1)
         with self.assertRaises(UserError):
-            van._exclude(date(2026, 6, 11), "Twice")
+            van.with_context(insurance_endorsement_write=True)._exclude(date(2026, 6, 11), "Twice")
 
     def test_removal_date_not_before_added(self):
         policy = self._policy_with_objects()
         policy.action_confirm()
+        added = self._endorse(
+            policy, "add_object", effective_date=date(2026, 3, 1), lines=[{"operation": "add", "name": "Car", "sum_insured": 10}]
+        )
+        car = policy.object_ids.filtered(lambda o: o.endorsement_in_id == added)
         with self.assertRaises(UserError):
-            policy.object_ids[0]._exclude(date(2025, 12, 31), "Too early")
+            self._endorse(
+                policy, "remove_object", effective_date=date(2026, 2, 1),
+                lines=[{"operation": "remove", "object_id": car.id, "reason": "Too early"}],
+            )
+
+    def test_objects_of_confirmed_policy_only_by_endorsement(self):
+        policy = self._policy_with_objects()
+        policy.action_confirm()
+        with self.assertRaises(UserError):
+            policy.object_ids[0].with_user(self.insurance_user).write({"sum_insured": 1})
+        with self.assertRaises(UserError):
+            self.env["insurance.policy.object"].with_user(self.insurance_user).create({"policy_id": policy.id, "name": "New"})
+        with self.assertRaises(UserError):
+            policy.object_ids[0].with_user(self.insurance_user)._exclude(date(2026, 6, 1), "No endorsement")
 
     def test_delete_object_only_on_draft(self):
         policy = self._policy_with_objects()
@@ -72,22 +86,26 @@ class TestPolicyObject(InsuranceCommon):
         policy = self._policy_with_objects()
         policy.action_confirm()
         truck = policy.object_ids.filtered(lambda o: o.license_plate == "AB123CD")
-        truck.with_user(self.insurance_user).write({"sum_insured": 120000, "coverage": "All risks"})
-        message = policy.message_ids[0]
+        self._endorse(
+            policy, "increase_sum", user=self.insurance_user, effective_date=date(2026, 6, 1),
+            lines=[{"operation": "change", "object_id": truck.id, "sum_insured": 120000, "coverage": "All risks"}],
+        )
+        self.assertEqual(truck.sum_insured, 120000)
+        message = policy.message_ids.filtered(lambda m: "Truck AB123CD" in (m.body or ""))[:1]
         trackings = {t.field_id.name: t for t in message.tracking_value_ids}
-        self.assertIn("Truck AB123CD", message.body)
         self.assertEqual(trackings["sum_insured"].old_value_float, 100000)
         self.assertEqual(trackings["sum_insured"].new_value_float, 120000)
         self.assertEqual(trackings["coverage"].new_value_char, "All risks")
-        # Adding an object to a confirmed policy is logged too, dated today.
-        new_object = self.env["insurance.policy.object"].create(
-            {"policy_id": policy.id, "name": "Car AD789GH", "sum_insured": 30000, "insured_item_id": self.item.id}
+        self.assertEqual(policy.sum_insured_total, 170000)
+        # Adding an object is logged too, dated with the endorsement.
+        endorsement = self._endorse(
+            policy, "add_object", effective_date=date(2026, 6, 15),
+            lines=[{"operation": "add", "name": "Car AD789GH", "sum_insured": 30000, "insured_item_id": self.item.id}],
         )
+        new_object = policy.object_ids.filtered(lambda o: o.name == "Car AD789GH")
         self.assertEqual(new_object.date_start, date(2026, 6, 15))
-        self.assertIn("Car AD789GH", policy.message_ids[0].body)
-        self.assertIn(
-            "insured_item_id", policy.message_ids[0].tracking_value_ids.field_id.mapped("name")
-        )
+        self.assertEqual(new_object.endorsement_in_id, endorsement)
+        self.assertTrue(any("Car AD789GH" in (m.body or "") for m in policy.message_ids))
 
     def test_drafts_do_not_log_object_changes(self):
         policy = self._policy_with_objects()
@@ -95,7 +113,7 @@ class TestPolicyObject(InsuranceCommon):
         policy.object_ids[0].write({"sum_insured": 1})
         self.assertEqual(len(policy.message_ids), count)
 
-    def test_objects_locked_with_policy(self):
+    def test_objects_locked_with_closed_policy(self):
         policy = self._create_policy(
             date_from=date(2025, 1, 1),
             date_to=date(2025, 12, 31),

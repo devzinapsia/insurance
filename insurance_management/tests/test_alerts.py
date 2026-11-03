@@ -4,6 +4,7 @@ from unittest.mock import patch
 from freezegun import freeze_time
 
 from odoo.tests import new_test_user, tagged
+from odoo.tools import mute_logger
 
 from odoo.addons.insurance_management.models.insurance_policy import InsurancePolicy
 
@@ -135,7 +136,10 @@ class TestAlerts(InsuranceCommon):
         self._run(TODAY)  # 19 days left -> notice 30
         self.assertEqual(len(self._mails(policy)), 1)
         with freeze_time(TODAY):
-            policy.write({"date_from": date(2025, 9, 1), "date_to": date(2026, 8, 31)})
+            # Contract dates of a confirmed policy only change through an endorsement.
+            policy.with_context(insurance_endorsement_write=True).write(
+                {"date_from": date(2025, 9, 1), "date_to": date(2026, 8, 31)}
+            )
         self.assertEqual(policy.state, "in_force", "Moving the end date away goes back to In force")
         self._run(date(2026, 8, 1))  # 30 days left for the new end date
         self.assertEqual(policy.state, "expiring")
@@ -248,7 +252,9 @@ class TestAlerts(InsuranceCommon):
                 raise ValueError("Simulated failure")
             return original(policy, today)
 
-        with patch.object(InsurancePolicy, "_process_expiry_notice", failing):
+        with patch.object(InsurancePolicy, "_process_expiry_notice", failing), mute_logger(
+            "odoo.addons.insurance_management.models.insurance_policy"
+        ):
             failed = self._run(TODAY, policies=bad | good)
         self.assertEqual(failed, bad)
         self.assertTrue(self._mails(good))

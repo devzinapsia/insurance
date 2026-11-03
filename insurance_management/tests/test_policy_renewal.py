@@ -42,7 +42,10 @@ class TestPolicyRenewal(InsuranceCommon):
 
     def test_renew_creates_linked_draft(self):
         policy = self._expiring_policy()
-        policy.object_ids.filtered(lambda o: o.name == "Van")._exclude(date(2026, 6, 1), "Sold")
+        self._endorse(
+            policy, "remove_object", effective_date=date(2026, 6, 1),
+            lines=[{"operation": "remove", "object_id": policy.object_ids.filtered(lambda o: o.name == "Van").id, "reason": "Sold"}],
+        )
         action = policy.with_user(self.insurance_user).action_renew()
         renewal = self.env["insurance.policy"].browse(action["res_id"])
         self.assertEqual(renewal.state, "draft")

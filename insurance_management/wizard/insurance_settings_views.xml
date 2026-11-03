@@ -46,10 +46,32 @@
                             </div>
                         </group>
                     </group>
+                    <group>
+                        <group string="Payments" name="payments">
+                            <field name="default_payment_mode_id" options="{'no_create': True}"/>
+                            <field name="unpaid_notify_user_ids" widget="many2many_avatar_user"/>
+                        </group>
+                        <group string="Accounting" name="accounting" groups="account.group_account_manager">
+                            <field name="product_id" options="{'no_create': True}"/>
+                            <field name="billing_mode" widget="radio"/>
+                            <field name="accrual_method" widget="radio"/>
+                            <field name="prepaid_account_id" invisible="accrual_method != 'module'" options="{'no_create': True}"/>
+                            <field name="accrual_journal_id" invisible="accrual_method != 'module'" options="{'no_create': True}"/>
+                            <field name="go_live_date"/>
+                            <field name="company_currency_id" invisible="1"/>
+                            <field name="opening_unaccrued_total" invisible="not go_live_date"/>
+                            <field name="opening_prepaid_balance" invisible="not go_live_date or not prepaid_account_id"/>
+                            <field name="opening_difference" invisible="not go_live_date or not prepaid_account_id"
+                                   decoration-danger="opening_difference != 0" decoration-success="opening_difference == 0"/>
+                            <button name="%(insurance_management.insurance_import_action)d" type="action" string="Import running policies" icon="fa-upload" class="btn-link" colspan="2"/>
+                        </group>
+                    </group>
                     <group string="Configuration" name="links">
                         <div colspan="2" class="d-flex flex-wrap gap-2">
                             <button name="%(insurance_management.insurance_branch_action)d" type="action" string="Branches" icon="oi-arrow-right" class="btn-link"/>
                             <button name="%(insurance_management.insurance_document_type_action)d" type="action" string="Document types" icon="oi-arrow-right" class="btn-link"/>
+                            <button name="action_open_payment_modes" type="object" string="Payment modes" icon="oi-arrow-right" class="btn-link"/>
+                            <button name="%(insurance_management.insurance_endorsement_type_action)d" type="action" string="Endorsement types" icon="oi-arrow-right" class="btn-link"/>
                             <button name="action_open_templates" type="object" string="Email templates" icon="oi-arrow-right" class="btn-link"/>
                         </div>
                     </group>

@@ -1,0 +1,20 @@
+<h1>Pagos y cuotas impagas</h1>
+<p>Cada cuota tiene un <strong>medio de pago</strong> (por defecto, el de la póliza). El medio define el diario, el método de pago y si el pago queda <strong>validado</strong> o en <strong>borrador</strong> para revisar. Un pago en borrador se concilia con su cuota cuando se valida.</p>
+<table class="table table-bordered">
+<thead><tr><th>Medio</th><th>Cuándo se genera el pago</th></tr></thead>
+<tbody>
+<tr><td>Débito automático</td><td>El proceso diario lo genera el día del vencimiento y lo concilia con la factura.</td></tr>
+<tr><td>Cheque diferido</td><td>Al publicar la factura, un pago por cuota con fecha de vencimiento. Con cheques propios, cada pago lleva su cheque con esa fecha de pago: complete el número y valide.</td></tr>
+<tr><td>Transferencia programada</td><td>Al publicar la factura, un pago por cuota con fecha futura.</td></tr>
+<tr><td>Manual</td><td>Nunca automático: pague la factura como siempre (botón <em>Pagar</em>); la cuota queda pagada al conciliarse su vencimiento.</td></tr>
+</tbody>
+</table>
+<p>Si hace falta, <strong>Generar pagos</strong> (en la pestaña Cuotas, o desde la lista de cuotas en el menú Acciones) crea los pagos que falten. Nunca se paga dos veces la misma cuota.</p>
+<h2>Cuotas vencidas impagas</h2>
+<p>El día siguiente al vencimiento de una cuota sin pago, el proceso diario:</p>
+<ul>
+<li>Marca la cuota como <strong>Vencida</strong>.</li>
+<li>Marca la póliza <strong>Con deuda</strong> (cinta roja y filtro <em>Con cuotas impagas</em>): muchas aseguradoras suspenden la cobertura mientras hay cuotas impagas.</li>
+<li>Envía <strong>una sola vez</strong> el correo <em>Cuota vencida impaga</em> al responsable de la póliza y a los <strong>usuarios de contabilidad a notificar</strong> de los ajustes, cada uno en su idioma. El importe solo aparece para quien puede ver importes.</li>
+</ul>
+<p>Al pagarla, la cuota pasa a <strong>Pagada</strong> y la póliza deja de figurar con deuda.</p>
