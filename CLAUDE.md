@@ -343,6 +343,75 @@ before doing anything:
   only reliable way to reproduce a client-specific bug — the "never touch
   `ingadhoc/*`/`OCA/*`" rule (Section B) is about not *modifying* them, not
   about being unable to read/install them locally for diagnosis.
+- `mail.template.use_default_to` defaults to **True** in Odoo 19: the
+  template then ignores its own `partner_to`/`email_to` and looks for a
+  partner on the record (`_message_get_default_recipients`). On a model
+  without a customer-like `partner_id`, the composer opens with no
+  recipient and nothing tells you why. Set
+  `<field name="use_default_to" eval="False"/>` on every template that
+  defines its recipients.
+- QWeb renders the example text inside a `t-field`/`t-out` element as the
+  **default value when the field is empty**. In a report, an empty date
+  shows the placeholder ("01/06/2026") as if it were real data. Leave those
+  bodies empty in reports, or guard the element with `t-if`. In mail
+  templates, keep example text only where the row has a `t-if` or the value
+  is always set.
+- Odoo 19 exports a `mail.template` `body_html` as **one msgid** holding the
+  whole HTML block, not one msgid per sentence. Any edit to the template
+  (even whitespace) creates a new msgid and leaves the old translation
+  unused. Regenerate the `.pot` and the `es`/`es_AR` translations after
+  every template change, and check that no English sentence is left in the
+  translated block.
+- An implied group that a setting switches on and off (e.g. a "see amounts"
+  group implied by the User group unless "hide costs" is on) must **not** be
+  listed in the group's XML `implied_ids`. `Command.link` runs again on
+  every `-u` and silently undoes the setting. Add the default implication
+  once in a `post_init_hook` (`group._apply_group(...)`), and let the
+  setting use `_apply_group` / `_remove_group`.
+- Field-level `groups=` is enforced by the server in Odoo 19: `read`,
+  `search_read`, domains, group-by and the chatter's tracking values all
+  check it, and views drop the field. Code that runs for users without the
+  group and still has to copy or log those fields (renewals, line change
+  logs) must read them with `sudo()`, after an explicit `check_access()`.
+  Changes to such fields logged as `mail.tracking.value` stay hidden in the
+  chatter for users without access; a plain text message would leak them.
+- `res.config.settings` can only be saved by a system administrator
+  (`execute()` raises otherwise). If an *app* administrator must edit the
+  module's parameters, build a dedicated `TransientModel` settings form
+  that writes the company fields with `sudo()` after checking the app
+  group, instead of extending the general Settings screen.
+- Scheduled actions run as a technical user with no language. Any text they
+  write for people (activity summaries, chatter notes) must be rendered
+  with an explicit `with_context(lang=...)`: the recipient's language for
+  what that user reads, the company's for chatter notes. Otherwise it comes
+  out in English.
+- `ir.cron.method_direct_trigger()` runs the job in **its own cursor**. From
+  an `odoo-bin shell` session that already has a transaction open, you will
+  not see what the job committed (nothing seems to happen). Read the
+  results from a new session. `ir.cron._commit_progress()` commits even
+  outside a cron, so put the real work in an inner method that processes a
+  batch and call that one from tests; `TransactionCase` forbids commits.
+- `res.lang._activate_lang()` does **not** load the module's translations.
+  Tests that assert translated text pass on a dev database that already had
+  the language loaded, and fail on a fresh one like the odoo.sh build. Call
+  `env.ref("base.module_<module>")._update_translations([lang])` in
+  `setUpClass`, and run the suite at least once on a fresh database with no
+  languages preloaded.
+- Tracking values are created at **pre-commit**, not on `flush_all()`. In
+  tests, call `self.env.cr.flush()` between steps that represent separate UI
+  transactions and invalidate `message_ids` before reading them. A
+  create + state change inside the same transaction produces no tracking
+  for the state change at all.
+- A tracked `user_id` makes Odoo send its own "you have been assigned"
+  notification email. When a test counts the emails a module sends, filter
+  `mail.mail` with `is_notification = False`.
+- Uninstall deletes the module's own xmlid records (e.g. seed data) **before**
+  dropping its tables. User records still pointing at them through a
+  required Many2one (`ondelete` restrict) cause foreign-key errors, and the
+  uninstall has to retry. Records created on the fly without an xmlid (per-
+  company `ir.sequence`, attachments) are left orphaned. Clean both in an
+  `uninstall_hook`, and check after uninstalling that no `ir_model_data`,
+  tables, sequences or attachments are left.
 
 ---
 
