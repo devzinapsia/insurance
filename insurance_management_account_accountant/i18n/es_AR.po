@@ -1,0 +1,82 @@
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-03 16:18+0000\n"
+"PO-Revision-Date: 2026-11-03 16:18+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: es_AR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#. module: insurance_management_account_accountant
+#: model:ir.model.fields,field_description:insurance_management_account_accountant.field_insurance_policy__accrual_method
+#: model:ir.model.fields,field_description:insurance_management_account_accountant.field_insurance_settings__accrual_method
+#: model:ir.model.fields,field_description:insurance_management_account_accountant.field_res_company__insurance_accrual_method
+msgid "Accrual method"
+msgstr "Método de devengamiento"
+
+#. module: insurance_management_account_accountant
+#: model_terms:ir.ui.view,arch_db:insurance_management_account_accountant.insurance_settings_view_form
+msgid ""
+"Bills carry the policy validity as deferral dates. The deferred expense "
+"account and when the deferral entries are generated are set in Accounting "
+"settings (Deferred expenses)."
+msgstr ""
+"Las facturas llevan la vigencia de la póliza como fechas de diferimiento. La"
+" cuenta de gastos diferidos y cuándo se generan los asientos de diferimiento"
+" se configuran en los ajustes de Contabilidad (Gastos diferidos)."
+
+#. module: insurance_management_account_accountant
+#: model:ir.model,name:insurance_management_account_accountant.model_res_company
+msgid "Companies"
+msgstr "Compañías"
+
+#. module: insurance_management_account_accountant
+#: model:ir.model.fields,help:insurance_management_account_accountant.field_res_company__insurance_accrual_method
+msgid "Default accrual method of new policies."
+msgstr "Método de devengamiento por defecto de las pólizas nuevas."
+
+#. module: insurance_management_account_accountant
+#: model:ir.model.fields,field_description:insurance_management_account_accountant.field_insurance_policy__display_name
+#: model:ir.model.fields,field_description:insurance_management_account_accountant.field_insurance_settings__display_name
+#: model:ir.model.fields,field_description:insurance_management_account_accountant.field_res_company__display_name
+msgid "Display Name"
+msgstr "Nombre para mostrar"
+
+#. module: insurance_management_account_accountant
+#: model:ir.model.fields.selection,name:insurance_management_account_accountant.selection__insurance_policy__accrual_method__deferred
+#: model:ir.model.fields.selection,name:insurance_management_account_accountant.selection__insurance_settings__accrual_method__deferred
+#: model:ir.model.fields.selection,name:insurance_management_account_accountant.selection__res_company__insurance_accrual_method__deferred
+msgid "Enterprise deferred expenses"
+msgstr "Gastos diferidos de Enterprise"
+
+#. module: insurance_management_account_accountant
+#: model:ir.model.fields,help:insurance_management_account_accountant.field_insurance_policy__accrual_method
+msgid ""
+"How the premium is spread as an expense over the policy months. Taken from "
+"the settings when the policy is created."
+msgstr ""
+"Cómo se reparte el premio como gasto en los meses de la póliza. Se toma de "
+"los ajustes al crear la póliza."
+
+#. module: insurance_management_account_accountant
+#: model:ir.model.fields,field_description:insurance_management_account_accountant.field_insurance_policy__id
+#: model:ir.model.fields,field_description:insurance_management_account_accountant.field_insurance_settings__id
+#: model:ir.model.fields,field_description:insurance_management_account_accountant.field_res_company__id
+msgid "ID"
+msgstr "ID"
+
+#. module: insurance_management_account_accountant
+#: model:ir.model,name:insurance_management_account_accountant.model_insurance_policy
+msgid "Insurance policy"
+msgstr "Póliza de seguro"
+
+#. module: insurance_management_account_accountant
+#: model:ir.model,name:insurance_management_account_accountant.model_insurance_settings
+msgid "Insurance settings"
+msgstr "Ajustes de seguros"

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="insurance_settings_view_form" model="ir.ui.view">
+        <field name="name">insurance.settings.form.deferred</field>
+        <field name="model">insurance.settings</field>
+        <field name="inherit_id" ref="insurance_management.insurance_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='accrual_method']" position="after">
+                <div class="text-muted small" colspan="2" invisible="accrual_method != 'deferred'">
+                    Bills carry the policy validity as deferral dates. The deferred expense account and when the deferral entries are generated are set in Accounting settings (Deferred expenses).
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>
