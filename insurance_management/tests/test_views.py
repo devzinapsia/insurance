@@ -76,3 +76,11 @@ class TestViews(InsuranceCommon):
             with self.subTest(model=model):
                 self.env[model].with_user(self.insurance_manager).get_views([(False, "form"), (False, "search")])
         self.env["res.partner"].with_user(self.insurance_user).get_views([(False, "form")])
+
+    def test_tag_color_picker(self):
+        """Creating a tag from the policy shows the color palette, not a number."""
+        views = self.env["insurance.policy.tag"].with_user(self.insurance_user).get_views(
+            [(False, "form"), (False, "list")]
+        )
+        self.assertIn('widget="color_picker"', views["views"]["form"]["arch"])
+        self.assertIn('widget="color_picker"', views["views"]["list"]["arch"])

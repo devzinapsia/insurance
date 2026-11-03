@@ -87,3 +87,20 @@ class TestResPartnerPolicyButton(TransactionCase):
                 ["P1", "P2", "P3"],
             )
             self.assertEqual(action["context"], {"search_default_in_force": 1})
+
+
+@tagged("post_install", "-at_install")
+class TestPolicyPartnerSelectors(TransactionCase):
+    def test_selectors_filter_and_create_marked_contacts(self):
+        """RF-03 / RF-04: the selectors only offer marked contacts, and a
+        contact created from the policy form gets the mark."""
+        fields = self.env["insurance.policy"]._fields
+        self.assertIn("is_insurance_producer", fields["producer_id"].domain)
+        self.assertIn("is_insurer", fields["insurer_id"].domain)
+        arch = self.env["insurance.policy"].get_view(view_type="form")["arch"]
+        self.assertIn("default_is_insurance_producer", arch)
+        self.assertIn("default_is_insurer", arch)
+        producer = self.env["res.partner"].with_context(default_is_insurance_producer=True).name_create("New producer")
+        insurer = self.env["res.partner"].with_context(default_is_insurer=True, default_is_company=True).name_create("New insurer")
+        self.assertTrue(self.env["res.partner"].browse(producer[0]).is_insurance_producer)
+        self.assertTrue(self.env["res.partner"].browse(insurer[0]).is_insurer)

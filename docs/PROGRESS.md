@@ -376,6 +376,14 @@ Implemented as designed (see models for details):
 - Production (grupolara main) only after the user confirms staging2 testing
   passed (Section B branch caution).
 
+## Staging feedback (grupolara staging2)
+
+| # | Reported | Resolution | Version |
+| --- | --- | --- | --- |
+| 1 | Creating a tag from the policy shows the color as a number | Added form and list views for `insurance.policy.tag` with `widget="color_picker"` (default form showed the raw integer) | 19.0.1.0.1 |
+| 2 | Producer selector empty, only "Create and edit" | By design (RF-03/RF-04): only contacts marked as producer / insurer are listed and none were marked yet on staging. Added placeholders ("Contacts marked as producer/insurer") and field help explaining where to mark them; creating from the field already marks the contact (tested) | 19.0.1.0.1 |
+| 3 | Allow several responsibles | Dropped by the user: one responsible; other people go in "Users to notify" (Notifications tab), who already get every alert email | — |
+
 ## Open ambiguities (Paso 0, Fase 1)
 
 None open for Fase 1. All Paso 0 items were resolved (see "Decisions taken").

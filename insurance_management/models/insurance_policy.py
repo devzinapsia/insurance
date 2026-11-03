@@ -94,6 +94,9 @@ class InsurancePolicy(models.Model):
         tracking=True,
         check_company=True,
         domain="[('is_insurer', '=', True)]",
+        help="Only contacts marked \"Is an insurer\" are listed (contact form, "
+        "Sales & Purchase tab). A contact created from here is marked "
+        "automatically.",
     )
     producer_id = fields.Many2one(
         comodel_name="res.partner",
@@ -103,6 +106,9 @@ class InsurancePolicy(models.Model):
         tracking=True,
         check_company=True,
         domain="[('is_insurance_producer', '=', True)]",
+        help="Only contacts marked \"Is an insurance producer\" are listed "
+        "(contact form, Sales & Purchase tab). A contact created from here is "
+        "marked automatically.",
     )
     date_from = fields.Date(string="Valid from", tracking=True, copy=False)
     date_to = fields.Date(

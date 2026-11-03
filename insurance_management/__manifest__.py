@@ -1,6 +1,6 @@
 {
     "name": "Gestión de seguros",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.0.1",
     "summary": "Pólizas de seguro contratadas por la empresa: vigencias, "
     "renovaciones y alertas de vencimiento.",
     "author": "Zinapsia",
@@ -19,6 +19,7 @@
         "data/ir_cron_data.xml",
         "views/insurance_branch_views.xml",
         "views/insurance_insured_item_views.xml",
+        "views/insurance_policy_tag_views.xml",
         "views/insurance_document_type_views.xml",
         "views/insurance_policy_views.xml",
         "wizard/insurance_policy_object_exclude_views.xml",

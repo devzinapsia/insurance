@@ -3,8 +3,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 19.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-02 23:32+0000\n"
-"PO-Revision-Date: 2026-11-02 23:32+0000\n"
+"POT-Creation-Date: 2026-11-03 13:19+0000\n"
+"PO-Revision-Date: 2026-11-03 13:19+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: es_AR\n"
@@ -909,6 +909,16 @@ msgstr ""
 #: model:ir.model,name:insurance_management.model_res_partner
 msgid "Contact"
 msgstr "Contacto"
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_form
+msgid "Contacts marked as insurer"
+msgstr "Contactos marcados como aseguradora"
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_form
+msgid "Contacts marked as producer"
+msgstr "Contactos marcados como productor"
 
 #. module: insurance_management
 #: model:ir.model.fields.selection,name:insurance_management.selection__insurance_branch__object_type__contract
@@ -2123,6 +2133,27 @@ msgid "Only an insurance administrator can reset a policy to draft."
 msgstr "Solo un administrador de seguros puede volver una póliza a borrador."
 
 #. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_policy__producer_id
+#: model:ir.model.fields,help:insurance_management.field_insurance_policy_non_renewal__producer_id
+msgid ""
+"Only contacts marked \"Is an insurance producer\" are listed (contact form, "
+"Sales & Purchase tab). A contact created from here is marked automatically."
+msgstr ""
+"Solo se listan los contactos marcados como \"Es productor de seguros\" "
+"(ficha del contacto, pestaña Ventas y compras). Un contacto creado desde "
+"aquí se marca automáticamente."
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_policy__insurer_id
+msgid ""
+"Only contacts marked \"Is an insurer\" are listed (contact form, Sales & "
+"Purchase tab). A contact created from here is marked automatically."
+msgstr ""
+"Solo se listan los contactos marcados como \"Es aseguradora\" (ficha del "
+"contacto, pestaña Ventas y compras). Un contacto creado desde aquí se marca "
+"automáticamente."
+
+#. module: insurance_management
 #. odoo-python
 #: code:addons/insurance_management/models/insurance_policy.py:0
 msgid "Only draft policies can be deleted."
@@ -2676,6 +2707,8 @@ msgstr "Caución"
 
 #. module: insurance_management
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__tag_ids
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_tag_view_form
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_tag_view_list
 msgid "Tags"
 msgstr "Etiquetas"
 
