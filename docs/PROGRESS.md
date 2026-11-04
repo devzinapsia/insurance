@@ -616,6 +616,7 @@ notify the user, then commit and push only with their confirmation.
 
 | Date | Client repo / branch | Client commit | insurance commit | Notes |
 | --- | --- | --- | --- | --- |
+| 2026-11-04 | grupolara / staging2 | 2d2d069 | 41396b9 (19.0.2.0.1: Not started state, insurable item history, type descriptions) | Submodule update only; grupolara staging untouched (user: "no actualizar staging"). |
 | 2026-11-03 | grupolara / staging2 | 17f835f | 02e32c8 (19.0.2.0.0: Fase 2 + 2 bridges) | Submodule update only. The 19.0.2.0.0 upgrade installs the bridges insurance_management_account_accountant and insurance_management_l10n_latam_check when their dependencies are installed. To test with docs/casos_prueba_manual.md. |
 | 2026-11-03 | grupolara / staging2 | 0c62ef0 | 40cdbed (19.0.1.0.1: staging bugs 1-2) | Submodule update only (`git submodule update --remote --merge -- zinapsia/insurance`). |
 | 2026-11-03 | grupolara / staging2 | a6bd5ef | 32b5ce7 (Fase 1) | New submodule `zinapsia/insurance` (branch 19.0, public repo, no deploy key needed). Module `insurance_management` 19.0.1.0.0 is NOT auto-installed: install "Gestión de seguros" from Apps. main and staging untouched. |
