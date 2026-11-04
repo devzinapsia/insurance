@@ -11,13 +11,20 @@ Output:
     docs/guia_usuario/guia_gestion_seguros_knowledge.zip
 """
 
+import hashlib
 import json
+import mimetypes
 import pathlib
+import re
 import zipfile
 from datetime import datetime, timezone
 
 HERE = pathlib.Path(__file__).resolve().parent
 SOURCE_DIR = HERE / "articulos"
+IMAGE_DIR = HERE / "img"
+# Images are referenced in the articles as src="../img/<file>" (so the HTML
+# previews in a browser) and shipped as knowledge_transfer attachments.
+IMAGE_SRC = re.compile(r'src="\.\./img/([^"]+)"')
 OUTPUT = HERE / "guia_gestion_seguros_knowledge.zip"
 ODOO_SERIES = "19.0"
 FORMAT_VERSION = 1
@@ -28,6 +35,7 @@ ARTICLES = [
     ("guia", None, "Gestión de seguros – Guía de implementación", "🛡️", "00_inicio.html"),
     ("conceptos", "guia", "Conceptos y alcance", "📘", "01_conceptos.html"),
     ("puesta_en_marcha", "guia", "Puesta en marcha", "🚀", "02_puesta_en_marcha.html"),
+    ("parametrizacion_contable", "puesta_en_marcha", "Parametrización contable", "🧮", "02a_parametrizacion_contable.html"),
     ("cargar_poliza", "guia", "Cargar una póliza", "📝", "03_cargar_poliza.html"),
     ("estados", "guia", "Estados de la póliza", "🔄", "04_estados.html"),
     ("avisos", "guia", "Avisos de vencimiento", "⏰", "05_avisos.html"),
@@ -48,9 +56,40 @@ ARTICLES = [
 def build():
     manifest_articles = []
     bodies = {}
+    attachments = []
+    payloads = {}
+    index_by_image = {}
     sequence_by_parent = {}
     for key, parent_key, name, icon, filename in ARTICLES:
         body = (SOURCE_DIR / filename).read_text(encoding="utf-8").strip()
+        article_attachments = []
+
+        def to_marker(match, key=key, article_attachments=article_attachments):
+            name = match.group(1)
+            if name not in index_by_image:
+                raw = (IMAGE_DIR / name).read_bytes()
+                index = len(attachments) + 1
+                index_by_image[name] = index
+                file_path = f"attachments/{index}__{name}"
+                payloads[file_path] = raw
+                attachments.append(
+                    {
+                        "index": index,
+                        "name": name,
+                        "mimetype": mimetypes.guess_type(name)[0] or "application/octet-stream",
+                        "checksum": hashlib.sha1(raw).hexdigest(),
+                        "type": "binary",
+                        "article_key": key,
+                        "articles": [key],
+                        "file": file_path,
+                    }
+                )
+            index = index_by_image[name]
+            if index not in article_attachments:
+                article_attachments.append(index)
+            return f'src="kt-attachment:{index}:image"'
+
+        body = IMAGE_SRC.sub(to_marker, body)
         body_path = f"articles/{key}/body.html"
         bodies[body_path] = body
         sequence = sequence_by_parent.get(parent_key, 0) + 1
@@ -70,7 +109,7 @@ def build():
                 "stages": [],
                 "properties_definition": [],
                 "properties": {},
-                "attachments": [],
+                "attachments": article_attachments,
             }
         )
     manifest = {
@@ -78,13 +117,15 @@ def build():
         "odoo_series": ODOO_SERIES,
         "exported_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "articles": manifest_articles,
-        "attachments": [],
+        "attachments": attachments,
         "warnings": [],
     }
     with zipfile.ZipFile(OUTPUT, "w", compression=zipfile.ZIP_DEFLATED) as archive:
         archive.writestr("manifest.json", json.dumps(manifest, indent=2, ensure_ascii=False))
         for path, body in bodies.items():
             archive.writestr(path, body)
+        for path, raw in payloads.items():
+            archive.writestr(path, raw)
     return OUTPUT, len(manifest_articles)
 
 

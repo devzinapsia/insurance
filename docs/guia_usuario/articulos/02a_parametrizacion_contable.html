@@ -1,0 +1,148 @@
+<h1>Parametrización contable</h1>
+<p>Qué tiene que existir en Contabilidad <strong>antes</strong> de completar la sección <em>Contabilidad</em> de los Ajustes de Seguros y de crear los medios de pago. Lo hace el contador o un administrador de Contabilidad, una sola vez por compañía.</p>
+<div class="alert alert-info" role="status"><p>Este artículo se completa en cada fase. Hoy cubre la <strong>Fase 2</strong> (facturas, pagos y devengamiento). La Fase 3 agregará lo que haga falta para siniestros (crédito con la aseguradora, recuperos) y cauciones.</p></div>
+<p>Los nombres y códigos son ejemplos: use los de su plan de cuentas. Los tipos de cuenta y de diario son los que muestra Odoo en el campo <strong>Tipo</strong>.</p>
+
+<h2>Resumen</h2>
+<table class="table table-bordered">
+<thead><tr><th>Qué</th><th>Tipo</th><th>¿Cuándo hace falta?</th></tr></thead>
+<tbody>
+<tr><td>Cuenta de gasto de seguros</td><td>Cuenta – Gastos</td><td>Siempre</td></tr>
+<tr><td>Cuenta de seguros a devengar</td><td>Cuenta – Prepagos</td><td>Devengamiento del módulo</td></tr>
+<tr><td>Cuenta de proveedores (aseguradoras)</td><td>Cuenta – Por pagar</td><td>Siempre (normalmente ya existe)</td></tr>
+<tr><td>Cuenta de pagos pendientes del banco</td><td>Cuenta – Activos corrientes, conciliable</td><td>Pagos automáticos o programados</td></tr>
+<tr><td>Diario de devengamiento</td><td>Diario – Varios</td><td>Devengamiento del módulo</td></tr>
+<tr><td>Diario de compras</td><td>Diario – Compras</td><td>Siempre (ya existe)</td></tr>
+<tr><td>Diarios de banco y tarjeta</td><td>Diario – Banco / Tarjeta de crédito</td><td>Medios de pago</td></tr>
+<tr><td>Impuesto IVA compras</td><td>Impuesto de compra</td><td>Siempre (ya existe)</td></tr>
+<tr><td>Producto de seguros</td><td>Producto – Servicio, se compra</td><td>Siempre</td></tr>
+<tr><td>Contabilidad analítica</td><td>Plan y cuentas analíticas</td><td>Opcional</td></tr>
+<tr><td>Cuenta y diario de gastos diferidos</td><td>Prepagos / Varios</td><td>Solo con <em>Gastos diferidos de Enterprise</em></td></tr>
+<tr><td>Moneda extranjera y diferencia de cambio</td><td>Moneda / cuentas de diferencia de cambio</td><td>Pólizas en dólares</td></tr>
+</tbody>
+</table>
+
+<h2>1. Cuentas contables</h2>
+<p>Menú <strong>Contabilidad › Configuración › Plan de cuentas</strong>, botón <strong>Nuevo</strong>.</p>
+<table class="table table-bordered">
+<thead><tr><th>Cuenta (ejemplo)</th><th>Tipo</th><th>Permitir conciliación</th><th>Para qué</th></tr></thead>
+<tbody>
+<tr><td><strong>Seguros</strong> (gasto)</td><td>Gastos</td><td>No</td><td>El costo del seguro. Es la cuenta de gastos del producto de seguros. Si quiere el gasto separado por ramo (Seguros automotores, Seguros de incendio, Seguros de caución…), cree una por ramo y asígnela en el ramo.</td></tr>
+<tr><td><strong>Seguros a devengar</strong></td><td>Prepagos (activo)</td><td>No</td><td>Lo pagado o facturado por adelantado que todavía no es gasto. Solo con <em>Devengamiento del módulo</em>. El ajuste acepta cuentas de tipo Prepagos, Activos corrientes o Activos no corrientes.</td></tr>
+<tr><td><strong>Proveedores</strong></td><td>Por pagar (pasivo)</td><td>Sí</td><td>La deuda con las aseguradoras. Normalmente se usa la cuenta de proveedores que ya trae el plan. Si quiere separar la deuda con aseguradoras, cree una cuenta de este tipo y asígnela en cada aseguradora (ficha del contacto, pestaña <em>Contabilidad</em>, cuenta a pagar).</td></tr>
+<tr><td><strong>Pagos pendientes</strong></td><td>Activos corrientes</td><td><strong>Sí</strong></td><td>Puente entre el pago y el extracto bancario: el pago generado queda ahí hasta conciliarlo con el banco. El plan suele traerla; tiene que estar cargada en cada método de pago saliente del banco (ver punto 2).</td></tr>
+<tr><td><strong>Cheques diferidos emitidos</strong></td><td>Pasivos corrientes</td><td>Sí</td><td>Solo si se pagan cuotas con cheques propios: es la cuenta pendiente del método <em>Cheques Propios</em>. En Argentina el plan de cuentas suele traerla; si no, créela.</td></tr>
+</tbody>
+</table>
+<h3>Argentina: cómo dar de alta <em>Seguros a devengar</em></h3>
+<p>Con el plan de cuentas argentino y los módulos de ajuste por inflación (por ejemplo, en Grupo Lara):</p>
+<table class="table table-bordered">
+<thead><tr><th>Campo</th><th>Valor</th><th>Por qué</th></tr></thead>
+<tbody>
+<tr><td>Código</td><td>Dentro de <strong>1.1.5 Otros créditos</strong> (ej. <code>1.1.5.01.050</code>)</td><td>Es un gasto pagado por adelantado. <strong>No</strong> va en <code>1.1.1</code> (Cajas y Bancos): ahí se mezclaría con los bancos en los reportes que agrupan por código.</td></tr>
+<tr><td>Tipo</td><td>Activos corrientes (o Prepagos)</td><td>El módulo acepta los dos.</td></tr>
+<tr><td>Etiquetas</td><td>AR ESP: Otros Créditos</td><td>Rubro del Estado de Situación Patrimonial.</td></tr>
+<tr><td>Moneda</td><td>Cualquier moneda (sin fijar)</td><td>Con una moneda extranjera fija, la revalorización de moneda la ajustaría por tipo de cambio (ver punto 7).</td></tr>
+<tr><td>Permitir conciliación</td><td><strong>Desmarcado</strong></td><td>El módulo nunca concilia esta cuenta. Marcado, los movimientos aparecen como pendientes de conciliar.</td></tr>
+<tr><td>Es Monetario</td><td><strong>Desmarcado</strong></td><td>Es una partida no monetaria (derecho a recibir un servicio, RT 6): tiene que reexpresarse en el ajuste por inflación, que solo ajusta las cuentas no monetarias. Odoo lo marca solo para las cuentas de Activos corrientes: <strong>hay que desmarcarlo a mano</strong>.</td></tr>
+</tbody>
+</table>
+<p><img src="../img/cuenta_seguros_a_devengar_ar.png" alt="Cuenta Seguros a devengar bien configurada: código 1.1.5.01.050, Activos corrientes, etiqueta AR ESP: Otros Créditos, sin conciliación y sin Es Monetario" style="max-width: 100%;"/></p>
+<p><em>La cuenta bien configurada.</em></p>
+<p>Las demás cuentas de este artículo quedan bien con el valor que propone Odoo para <em>Es Monetario</em>: la de gasto (Gastos) no es monetaria; proveedores, pagos pendientes y cheques diferidos sí lo son.</p>
+<div class="alert alert-warning" role="alert"><p>Si una póliza dura más de 12 meses, la parte que se devenga después del año es no corriente. El módulo usa una sola cuenta de seguros a devengar; la reclasificación al cierre se hace con un asiento manual si el contador lo necesita.</p></div>
+
+<h2>2. Diarios</h2>
+<p>Menú <strong>Contabilidad › Configuración › Diarios</strong>.</p>
+<table class="table table-bordered">
+<thead><tr><th>Diario (ejemplo)</th><th>Tipo</th><th>Qué configurar</th></tr></thead>
+<tbody>
+<tr><td><strong>Devengamiento de seguros</strong> (prefijo de secuencia <code>DSEG</code>)</td><td>Varios (Misceláneo)</td><td><strong>Cuenta predeterminada</strong>: vacía. <strong>Moneda</strong>: vacía (la de la compañía). Recibe un asiento por póliza y por mes (gasto contra seguros a devengar); cada asiento ya trae sus dos cuentas. Puede usarse el de <em>Operaciones misceláneas</em>, pero un diario propio facilita controlarlo. Es <strong>uno solo</strong> aunque haya pólizas en dólares (ver punto 7).</td></tr>
+<tr><td><strong>Facturas de proveedores</strong></td><td>Compras</td><td>Ya existe. Las facturas de seguros usan el diario de compras por defecto (en Argentina, el que maneja los comprobantes de proveedor).</td></tr>
+<tr><td><strong>Banco</strong> (cada cuenta bancaria desde la que se paga)</td><td>Banco</td><td>Pestaña <strong>Pagos salientes</strong>: cada método de pago (Manual, Cheques Propios, etc.) tiene que tener su <strong>Cuenta pendiente</strong> (la de pagos pendientes, o la de cheques diferidos para Cheques Propios). Sin esa cuenta, el medio de pago de Seguros no se puede guardar.</td></tr>
+<tr><td><strong>Tarjeta de crédito</strong> (si hay pólizas debitadas de una tarjeta)</td><td>Tarjeta de crédito</td><td>Igual que el banco: el método de pago saliente necesita una <strong>Cuenta pendiente</strong>, que en este tipo de diario no viene cargada.</td></tr>
+</tbody>
+</table>
+<p><img src="../img/diario_devengamiento_seguros.png" alt="Diario Devengamiento de seguros: tipo Misceláneo, prefijo DSEG, sin cuenta predeterminada y sin moneda" style="max-width: 100%;"/></p>
+<p><em>El diario de devengamiento bien configurado: tipo Misceláneo, sin cuenta predeterminada y sin moneda.</em></p>
+
+<h2>3. Impuestos</h2>
+<ul>
+<li>El producto de seguros lleva el <strong>IVA compras</strong> que corresponda (en Argentina, un solo IVA por línea; normalmente 21%).</li>
+<li>La factura se arma con la <strong>prima</strong> (neto) y el IVA del producto. Si el comprobante de la aseguradora trae otros conceptos (percepciones, sellos, tasas, recargos), agréguelos en la factura antes de publicarla: los vencimientos de las cuotas se reparten en proporción al total final.</li>
+</ul>
+
+<h2>4. Producto de seguros</h2>
+<p>Menú <strong>Contabilidad › Proveedores › Productos</strong>, botón <strong>Nuevo</strong>:</p>
+<table class="table table-bordered">
+<thead><tr><th>Campo</th><th>Valor</th></tr></thead>
+<tbody>
+<tr><td>Nombre</td><td>Uno por ramo (Seguro automotor, Seguro de caución, etc.) o uno general (Prima de seguros)</td></tr>
+<tr><td>Tipo de producto</td><td><strong>Servicio</strong></td></tr>
+<tr><td>Compras</td><td>Marcado (se puede comprar). Ventas, desmarcado.</td></tr>
+<tr><td>Impuestos de compra</td><td>IVA compras 21% (o el que corresponda)</td></tr>
+<tr><td>Pestaña Contabilidad › Cuenta de gastos</td><td>La cuenta <strong>Seguros</strong> del punto 1</td></tr>
+</tbody>
+</table>
+<p><img src="../img/producto_seguro_informacion_general.png" alt="Producto Seguro de caución, solapa Información general: Compras marcado, Ventas desmarcado, tipo Servicio, impuestos de compra IVA 21%" style="max-width: 100%;"/></p>
+<p><em>Solapa Información general: <strong>Compras</strong> marcado, Ventas desmarcado, tipo <strong>Servicio</strong> e <strong>Impuestos de compra</strong>. El precio y los impuestos de venta no se usan.</em></p>
+<p><img src="../img/producto_seguro_contabilidad.png" alt="Producto Seguro de caución, solapa Contabilidad: cuenta de gastos 5.3.1.01.133 Seguros Caución" style="max-width: 100%;"/></p>
+<p><em>Solapa Contabilidad: la <strong>Cuenta de gastos</strong> del ramo (en el ejemplo, <code>5.3.1.01.133 Seguros Caución</code>). La cuenta de ingresos no se usa.</em></p>
+<p>El ajuste <em>Producto de seguros</em> solo ofrece productos de tipo Servicio que se pueden comprar. Un ramo puede tener su propio producto (pestaña <em>Contabilidad</em> del ramo).</p>
+
+<h2>5. Contabilidad analítica (opcional)</h2>
+<ol>
+<li>En <strong>Contabilidad › Configuración › Ajustes</strong>, active <strong>Contabilidad analítica</strong>.</li>
+<li>Cree el plan (por ejemplo <em>Centros de costo</em>) y sus cuentas analíticas (Flota, Administración, Planta…).</li>
+<li>Asigne la distribución analítica en el <strong>ramo</strong> (vale para todas sus pólizas) o en la <strong>póliza</strong> (pestaña Contabilidad). Se copia en la factura y en cada asiento de devengamiento.</li>
+</ol>
+
+<h2>6. Gastos diferidos de Enterprise (solo si se usa ese método)</h2>
+<p>En <strong>Contabilidad › Configuración › Ajustes</strong>, sección de gastos diferidos:</p>
+<ul>
+<li><strong>Diario de gastos diferidos</strong>: un diario de tipo Varios.</li>
+<li><strong>Cuenta diferida de gastos</strong>: una cuenta de tipo Prepagos (cumple el papel de <em>seguros a devengar</em>).</li>
+<li><strong>Generar asientos de gastos diferidos</strong>: <em>Validación en la factura</em> (al publicar) o <em>Manual y agrupados</em> (desde el reporte de gastos diferidos).</li>
+</ul>
+<p>Con este método no hacen falta la cuenta de seguros a devengar ni el diario de devengamiento del módulo.</p>
+
+<h2>7. Moneda extranjera (pólizas en dólares)</h2>
+<ul>
+<li>Active la moneda (<strong>Contabilidad › Configuración › Monedas</strong>) y mantenga las cotizaciones al día (manual o automático).</li>
+<li>Verifique en los ajustes contables las cuentas de <strong>ganancia y pérdida por diferencia de cambio</strong> y su diario: se usan al conciliar pagos en pesos de cuotas en dólares.</li>
+<li>Si se paga desde una cuenta en dólares, el diario de banco tiene que tener esa moneda.</li>
+</ul>
+<h3>¿Hace falta otro diario de devengamiento en dólares? No</h3>
+<ul>
+<li>El devengamiento se registra siempre <strong>en pesos, al tipo de cambio de la factura</strong>. <em>Seguros a devengar</em> es una partida no monetaria: queda a costo histórico, no se actualiza por tipo de cambio (se reexpresa por inflación). Por eso el mismo diario sirve para pólizas en pesos y en dólares.</li>
+<li>La moneda de la póliza está en la <strong>factura</strong> y en las <strong>cuotas</strong>: la deuda con la aseguradora queda en dólares.</li>
+<li>La moneda del <strong>pago</strong> la define el <strong>diario del medio de pago</strong>, no la póliza:
+<ul>
+<li>Medio de pago con un banco en dólares: el débito sale en dólares.</li>
+<li>Medio de pago con un banco en pesos: sale en pesos al tipo de cambio del día del pago, y al conciliar Odoo registra la <strong>diferencia de cambio</strong> contra la deuda con la aseguradora.</li>
+</ul>
+</li>
+<li>Si hay cuentas bancarias en las dos monedas, cree dos medios de pago (por ejemplo, <em>Débito banco $</em> y <em>Débito banco USD</em>) y elija en cada póliza o cuota el que corresponda.</li>
+<li>Deje la cuenta <strong>Seguros a devengar</strong> con moneda <em>Cualquier moneda</em>. Si se le fija USD, el reporte de revalorización de moneda de Contabilidad la revaloriza por tipo de cambio, y no corresponde para una partida no monetaria.</li>
+</ul>
+
+<h2>8. Fechas de bloqueo</h2>
+<p>El devengamiento respeta las fechas de bloqueo contable: si un mes ya está cerrado, su asiento se registra el primer día abierto. No hace falta configurar nada; conviene saberlo antes de cerrar períodos.</p>
+
+<h2>Después: cargar los Ajustes de Seguros</h2>
+<p>Con todo lo anterior creado, siga con los pasos <strong>8. Contabilidad de seguros</strong> y <strong>9. Medios de pago</strong> de <em>Puesta en marcha</em>:</p>
+<table class="table table-bordered">
+<thead><tr><th>Ajuste de Seguros</th><th>Se elige</th></tr></thead>
+<tbody>
+<tr><td>Producto de seguros</td><td>El producto del punto 4</td></tr>
+<tr><td>Cuenta de seguros a devengar</td><td>La cuenta <em>Seguros a devengar</em> del punto 1</td></tr>
+<tr><td>Diario de devengamiento</td><td>El diario <em>Devengamiento de seguros</em> del punto 2</td></tr>
+<tr><td>Medio de pago › Diario y método de pago</td><td>Un diario de banco o tarjeta y un método saliente con cuenta pendiente (punto 2)</td></tr>
+<tr><td>Ramo › Cuenta de gasto / analítica</td><td>Opcional: cuenta de gasto por ramo (punto 1) y distribución analítica (punto 5)</td></tr>
+</tbody>
+</table>
+
+<h2>Próximas fases</h2>
+<ul>
+<li><strong>Fase 3 – Siniestros y cauciones</strong>: se agregarán aquí las cuentas para el crédito con la aseguradora por siniestros, los recuperos y lo que requieran las cauciones.</li>
+</ul>

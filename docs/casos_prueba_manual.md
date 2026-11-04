@@ -21,7 +21,7 @@ Convenciones:
 - **Correos**: en odoo.sh, las bases de staging no envían correos reales; se
   ven en **Ajustes › Técnico › Correos** (modo desarrollador) y en el chatter
   de la póliza.
-- Marque cada caso con ✅ / ❌ y anote lo que vea distinto.
+- Al final de cada caso, marque el resultado y anote lo que vea distinto.
 
 ---
 
@@ -52,7 +52,9 @@ Convenciones:
 muestran.
 
 ### 0.3 Configuración contable
-En **Seguros › Configuración › Ajustes**, sección **Contabilidad** (solo la ve
+Antes, el contador crea las cuentas, diarios, impuestos y el producto que
+indica el artículo **Parametrización contable** de la guía (dentro de *Puesta
+en marcha*). Después, en **Seguros › Configuración › Ajustes**, sección **Contabilidad** (solo la ve
 un administrador de Contabilidad):
 1. **Producto de seguros**: crear un producto de servicio *Prima de seguros*
    con IVA compras 21% y una cuenta de gasto de seguros.
@@ -104,11 +106,35 @@ pendientes, el medio de pago no se guarda y lo explica.
 3. Otra póliza con el mismo número, aseguradora y fecha desde → error de
    duplicado.
 
+### 1.2b Póliza que empieza más adelante
+1. Nueva póliza con vigencia desde dentro de 2 días hasta dentro de 32 días
+   (días de aviso `30`), con un objeto. Confirmar.
+2. Correr el proceso de vencimientos.
+
+**Esperado**: la póliza queda **Por iniciar** (no Vigente ni Por vencer),
+*Cubierta hoy* = No, no figura en el filtro *Vigentes* y el proceso no envía
+avisos. Se le puede agregar un endoso. El día de su fecha desde (o corriendo
+el proceso con esa fecha) pasa a *Por vencer* y recién ahí recibe el aviso.
+
 ### 1.3 Póliza bloqueada
 En la póliza 1.1 intentar cambiar el premio, la vigencia o un objeto.
 
 **Esperado**: los campos de contrato están en solo lectura. Responsable,
 etiquetas y notas siguen editables.
+
+### 1.3b Bien asegurable
+1. **Seguros › Pólizas › Bienes asegurables › Nuevo**: *Depósito central*,
+   tipo Inmueble, valor de referencia 50.000.000.
+2. En una póliza en borrador, agregar un objeto y elegir solo el bien
+   asegurable.
+3. Agregar otro objeto escribiendo primero descripción y suma, y después
+   eligiendo el bien.
+4. Confirmar la póliza y abrir el bien asegurable.
+
+**Esperado**: en el paso 2 se completan la descripción *Depósito central* y
+la suma 50.000.000; en el 3 se respeta lo escrito. El bien muestra el botón
+**Pólizas (1)** y la pestaña **Historial de seguros** con la póliza, su
+estado, las fechas y la suma.
 
 ### 1.4 Documentos
 Pestaña **Documentos › Subir documento**, tipo *Póliza*, adjuntar un PDF.

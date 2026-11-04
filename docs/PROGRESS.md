@@ -594,6 +594,18 @@ notify the user, then commit and push only with their confirmation.
   Fase 2 update (2026-11-03): 17 articles (new: Endosos, Cuotas y facturas,
   Pagos y cuotas impagas, Devengamiento, Carga inicial e importación; the
   others updated; novedades 19.0.2.0.0). Same format, not re-imported yet.
+- Sub-article "Parametrización contable" (child of "Puesta en marcha",
+  2026-11-03, user request): accounts, journals, taxes, product, analytic,
+  deferred, currency to create BEFORE the insurance accounting settings.
+  **Extend it in every phase** (Fase 3: claims receivable, recoveries,
+  surety bonds). Includes the Argentina setup of "Seguros a devengar"
+  (code under 1.1.5 Otros créditos, not 1.1.1 Cajas y Bancos; no
+  reconciliation; "Es Monetario" OFF because it is non-monetary and must be
+  inflation-adjusted — account_ux sets it ON for current assets) with the
+  user's screenshot. The ZIP builder now ships images from `img/` as
+  knowledge_transfer attachments; verified 2026-11-03 by importing the
+  18-article ZIP in a scratch Enterprise DB (image attached and rendered
+  via /web/image).
 - **Working rule**: update the guide with every phase and every module
   version that changes something visible to users (edit the article, add the
   entry in `articulos/11_novedades.html`, rebuild the ZIP, commit both).
@@ -631,4 +643,32 @@ None open for Fase 1. All Paso 0 items were resolved (see "Decisions taken").
 Possible follow-ups the user may ask for: reference year from the start date
 vs. creation year; default policy view kanban vs. list; copying premiums on
 renewal; allowing Renew from "In force".
-- Manual test plan: `docs/casos_prueba_manual.md` (levels 0-7, simple to complex, Fases 1-2).
+- Manual test plan: `docs/casos_prueba_manual.md` (levels 0-7, simple to complex, Fases 1-2), also as `docs/casos_prueba_manual.docx` (one result box per case) built by `docs/build_casos_prueba_docx.js` from the .md: edit the .md, then rebuild the .docx.
+
+### 19.0.2.0.1 — not started state, insurable item history, type descriptions (2026-11-03/04, user requests)
+
+- The 7 initial document types and the 8 initial endorsement types (with a real-life example) get a description (English source, es/es_AR
+  in the .po). They are `noupdate` data, so `migrations/19.0.2.0.1/
+  post-migrate.py` fills the description only where it is still empty
+  (descriptions written by users are kept), in English and in the active
+  Spanish languages. Verified on the Fase 1 -> Fase 2 upgrade DB (es_AR
+  only, en_US inactive): English and Spanish correct, a user-written
+  description untouched. Tests: 163 on a fresh DB with no language, 169
+  with both bridges.
+- New state **Not started** (user request 2026-11-04): a policy confirmed
+  before its start date is `not_started` (not covered, no expiry notices,
+  endorsable and billable; contract data locked like in force). The daily
+  process (now over CONFIRMED_STATES) starts it on its start date and sends
+  the pending notice that day. Migration 19.0.2.0.1 moves the existing
+  confirmed policies with a future start date. Renewals confirmed early are
+  now Not started instead of In force.
+- Insurable item: choosing it on an object (or an "add" endorsement line)
+  proposes its name and its reference value as sum insured (same currency,
+  see-amounts users, never over typed values); the item has a "Policies"
+  smart button and an "Insurance history" tab.
+- Tests: 167 on a fresh DB with no language, 173 with both bridges. Browser
+  check (es_AR): kanban "Por iniciar" column, item history tab and button.
+- Lesson (candidate for CLAUDE.md): when en_US is NOT an active language,
+  writing a translated field with `with_context(lang="es_AR")` also replaces
+  the en_US value (en_US is the fallback). In migrations write en_US first,
+  then `record.update_field_translations(field, {lang: value})`.

@@ -3,7 +3,8 @@
 <thead><tr><th>Estado</th><th>Significado</th><th>Cómo llega</th></tr></thead>
 <tbody>
 <tr><td>Borrador</td><td>En carga, todavía no cuenta.</td><td>Al crearla o al renovar otra.</td></tr>
-<tr><td>Vigente</td><td>Confirmada y lejos del vencimiento.</td><td>Botón Confirmar.</td></tr>
+<tr><td>Por iniciar</td><td>Confirmada, pero su vigencia todavía no empezó (fecha desde posterior a hoy). No está cubierta y no recibe avisos de vencimiento. Se pueden cargar endosos, cuotas y facturas.</td><td>Botón Confirmar, si la fecha desde es futura. Típico de las renovaciones confirmadas antes de que termine la póliza anterior.</td></tr>
+<tr><td>Vigente</td><td>Confirmada y lejos del vencimiento.</td><td>Botón Confirmar, o el proceso diario el día de la fecha desde de una póliza <em>Por iniciar</em>.</td></tr>
 <tr><td>Por vencer</td><td>Llegó al primer aviso de vencimiento (y siempre el día de la fecha hasta).</td><td>Proceso diario o al confirmar.</td></tr>
 <tr><td>Vencida</td><td>Terminó sin renovarse ni marcarse para no renovar.</td><td>Día siguiente a la fecha hasta.</td></tr>
 <tr><td>Renovada</td><td>Terminó y tiene una renovación cargada.</td><td>Día siguiente a la fecha hasta, o en el momento si se renueva una póliza ya vencida.</td></tr>
@@ -13,12 +14,13 @@
 </table>
 <h2>Reglas importantes</h2>
 <ul>
+<li>Una póliza <em>Por iniciar</em> pasa sola a <em>Vigente</em> (o a <em>Por vencer</em>, si ya está dentro del primer aviso) el día de su fecha desde. Ese día recibe el aviso de vencimiento que corresponda.</li>
 <li><strong>Cubierta hoy</strong>: indica si hoy la póliza está confirmada, no anulada y dentro de su vigencia. El día de la fecha hasta sigue cubierta (con la cinta <em>Vence hoy</em>).</li>
 <li>Una póliza <em>Por vencer</em> con renovación cargada sigue cubierta hasta su fecha hasta; recién al día siguiente pasa a <em>Renovada</em>.</li>
 <li><em>Vencida</em>, <em>Renovada</em>, <em>No renovada</em> y <em>Anulada</em> quedan <strong>en solo lectura</strong>. Se pueden seguir agregando documentos y mensajes.</li>
 <li>Si se corre la fecha hasta hacia adelante, una póliza <em>Por vencer</em> vuelve a <em>Vigente</em> y los avisos empiezan de nuevo.</li>
 <li><strong>Volver a borrador</strong>: solo el Administrador de Seguros, y solo si la póliza no tiene facturas ni pagos publicados.</li>
-<li>Una póliza <em>Vigente</em> o <em>Por vencer</em> solo cambia mediante <strong>endosos</strong>.</li>
+<li>Una póliza <em>Por iniciar</em>, <em>Vigente</em> o <em>Por vencer</em> solo cambia mediante <strong>endosos</strong>.</li>
 <li>La cinta roja <strong>Con deuda</strong> indica que alguna cuota venció sin pagarse.</li>
 <li>Solo se pueden <strong>eliminar</strong> pólizas en borrador.</li>
 </ul>

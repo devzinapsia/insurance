@@ -18,6 +18,16 @@ agrega la entrada en `articulos/11_novedades.html`.
 - `guia_gestion_seguros_knowledge.zip`: el ZIP generado, listo para
   importar.
 
+Los artículos pueden tener subartículos: en `ARTICLES`, el segundo valor es
+la clave del artículo padre (por ejemplo, *Parametrización contable* cuelga
+de *Puesta en marcha*).
+
+Imágenes: se guardan en `img/` y se usan en el artículo como
+`<img src="../img/<archivo>.png" .../>` (así se ven al abrir el HTML en un
+navegador). El script las empaqueta como adjuntos de `knowledge_transfer`
+(`attachments/` + marca `kt-attachment:N:image`) y al importar quedan como
+adjuntos del artículo.
+
 ## Regenerar el ZIP
 
 ```bash
@@ -39,5 +49,4 @@ navegador.
 
 ## Pendiente para próximas versiones
 
-- Capturas de pantalla (el formato admite adjuntos; se agregarán cuando la
-  interfaz se estabilice en staging).
+- Más capturas de pantalla (ya se admiten: ver *Imágenes*).
