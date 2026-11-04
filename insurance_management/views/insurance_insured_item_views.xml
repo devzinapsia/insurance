@@ -22,6 +22,11 @@
         <field name="arch" type="xml">
             <form string="Insurable item">
                 <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_policies" type="object" class="oe_stat_button" icon="fa-shield">
+                            <field name="policy_count" widget="statinfo" string="Policies"/>
+                        </button>
+                    </div>
                     <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
                     <field name="active" invisible="1"/>
                     <div class="oe_title">
@@ -41,6 +46,21 @@
                         </group>
                     </group>
                     <notebook>
+                        <page name="history" string="Insurance history">
+                            <field name="object_ids" readonly="1">
+                                <list default_order="date_start desc, id desc" decoration-muted="state == 'excluded' or policy_state not in ('not_started', 'in_force', 'expiring')">
+                                    <field name="policy_id"/>
+                                    <field name="policy_state" widget="badge" decoration-success="policy_state in ('in_force', 'renewed')" decoration-warning="policy_state == 'expiring'" decoration-info="policy_state in ('draft', 'not_started')"/>
+                                    <field name="name"/>
+                                    <field name="coverage" optional="show"/>
+                                    <field name="currency_id" column_invisible="True"/>
+                                    <field name="sum_insured" optional="show"/>
+                                    <field name="date_start"/>
+                                    <field name="date_end"/>
+                                    <field name="state" widget="badge" decoration-muted="state == 'excluded'"/>
+                                </list>
+                            </field>
+                        </page>
                         <page name="notes" string="Notes">
                             <field name="note" placeholder="Internal notes..."/>
                         </page>

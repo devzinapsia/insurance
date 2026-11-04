@@ -46,6 +46,13 @@ class TestDocuments(InsuranceCommon):
             [self.env.ref(f"insurance_management.{name}").id for name in names]
         )
         self.assertEqual(len(types), 7)
+        self.assertTrue(all(types.with_context(lang="en_US").mapped("description")), "Every initial type is described")
+        self.env["res.lang"]._activate_lang("es_AR")
+        self.env.ref("base.module_insurance_management")._update_translations(["es_AR"])
+        self.assertEqual(
+            self.type_policy.with_context(lang="es_AR").description,
+            "Póliza emitida por la aseguradora, con sus condiciones y anexos.",
+        )
         self.type_policy.name = "Signed policy"
         convert_file(
             self.env, "insurance_management", "data/insurance_document_type_data.xml",

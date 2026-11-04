@@ -3,30 +3,37 @@
     <!-- Initial document types (requirements RF-10). Editable: noupdate. -->
     <record id="insurance_document_type_policy" model="insurance.document.type">
         <field name="name">Policy</field>
+        <field name="description">Policy issued by the insurer, with its conditions and annexes.</field>
         <field name="sequence">10</field>
     </record>
     <record id="insurance_document_type_endorsement" model="insurance.document.type">
         <field name="name">Endorsement</field>
+        <field name="description">Endorsement issued by the insurer that modifies the policy (objects, sums insured, coverages, validity).</field>
         <field name="sequence">20</field>
     </record>
     <record id="insurance_document_type_certificate" model="insurance.document.type">
         <field name="name">Coverage certificate</field>
+        <field name="description">Certificate proving the coverage to third parties (e.g. a client, a lessor or a vehicle check).</field>
         <field name="sequence">30</field>
     </record>
     <record id="insurance_document_type_payment_receipt" model="insurance.document.type">
         <field name="name">Payment receipt</field>
+        <field name="description">Proof of payment of a premium installment.</field>
         <field name="sequence">40</field>
     </record>
     <record id="insurance_document_type_invoice" model="insurance.document.type">
         <field name="name">Invoice</field>
+        <field name="description">Invoice from the insurer for the premium or an endorsement.</field>
         <field name="sequence">50</field>
     </record>
     <record id="insurance_document_type_claim_report" model="insurance.document.type">
         <field name="name">Claim report</field>
+        <field name="description">Claim report filed with the insurer and its supporting documents.</field>
         <field name="sequence">60</field>
     </record>
     <record id="insurance_document_type_other" model="insurance.document.type">
         <field name="name">Other</field>
+        <field name="description">Any other document related to the policy.</field>
         <field name="sequence">100</field>
     </record>
 </odoo>

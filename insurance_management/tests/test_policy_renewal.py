@@ -118,6 +118,8 @@ class TestPolicyRenewal(InsuranceCommon):
         self.assertEqual(renewal.policy_number, policy.policy_number)
         self.assertTrue(renewal.keep_number_on_renewal)
         renewal.action_confirm()
+        self.assertEqual(renewal.state, "not_started", "Confirmed before the original ends")
+        renewal._apply_lifecycle_state(renewal.date_from)
         self.assertEqual(renewal.state, "in_force")
 
     def test_same_duration_for_partial_months(self):

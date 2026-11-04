@@ -55,3 +55,33 @@ class InsuranceInsuredItem(models.Model):
         string="Policy objects",
     )
     note = fields.Html(string="Notes")
+    policy_count = fields.Integer(string="Policy count", compute="_compute_policy_count")
+
+    def _compute_policy_count(self):
+        for item in self:
+            item.policy_count = len(item.object_ids.policy_id)
+
+    def action_view_policies(self):
+        """Every policy the item is (or was) insured in."""
+        self.ensure_one()
+        action = self.env["ir.actions.act_window"]._for_xml_id("insurance_management.insurance_policy_action")
+        action["domain"] = [("id", "in", self.object_ids.policy_id.ids)]
+        action["context"] = {}
+        action["view_mode"] = "list,kanban,form"
+        action["views"] = [(False, "list"), (False, "kanban"), (False, "form")]
+        return action
+
+    def _get_object_values(self, currency):
+        """Values proposed on an insured object line when this item is chosen:
+        its name, and its reference value as sum insured when the policy is in
+        the same currency (only for users allowed to see amounts)."""
+        self.ensure_one()
+        values = {"name": self.name}
+        item = self.sudo()
+        if (
+            item.reference_value
+            and (not currency or currency == item.currency_id)
+            and self.env.user.has_group("insurance_management.group_insurance_see_amounts")
+        ):
+            values["sum_insured"] = item.reference_value
+        return values

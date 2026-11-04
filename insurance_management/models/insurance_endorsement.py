@@ -64,7 +64,7 @@ class InsuranceEndorsement(models.Model):
         index=True,
         tracking=True,
         check_company=True,
-        domain="[('state', 'in', ('in_force', 'expiring'))]",
+        domain="[('state', 'in', ('not_started', 'in_force', 'expiring'))]",
     )
     company_id = fields.Many2one(related="policy_id.company_id", store=True, index=True)
     currency_id = fields.Many2one(related="policy_id.currency_id")
@@ -181,9 +181,9 @@ class InsuranceEndorsement(models.Model):
         env = self.env
         if self.state != "draft":
             raise UserError(env._("Endorsement %(name)s is not a draft.", name=self.display_name))
-        if self.policy_id.state not in ("in_force", "expiring"):
+        if self.policy_id.state not in ("not_started", "in_force", "expiring"):
             raise UserError(
-                env._("Endorsements can only be confirmed on policies in force or expiring.")
+                env._("Endorsements can only be confirmed on policies not started yet, in force or expiring.")
             )
         operation = LINE_OPERATION_BY_KIND.get(self.kind)
         if operation:
@@ -337,6 +337,17 @@ class InsuranceEndorsementLine(models.Model):
         groups=AMOUNTS_GROUP,
     )
     reason = fields.Char(string="Removal reason")
+
+    @api.onchange("insured_item_id")
+    def _onchange_insured_item_id(self):
+        """New objects: propose the description and the sum insured of the
+        chosen item, without replacing what was already typed."""
+        for line in self.filtered(lambda l: l.insured_item_id and l.operation == "add"):
+            values = line.insured_item_id._get_object_values(line.currency_id)
+            if not line.name:
+                line.name = values["name"]
+            if "sum_insured" in values and not line.sum_insured:
+                line.sum_insured = values["sum_insured"]
 
     @api.depends("object_id")
     def _compute_old_sum_insured(self):

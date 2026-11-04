@@ -19,7 +19,7 @@
                 <field name="sum_insured_total" optional="hide"/>
                 <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'color'}" optional="hide"/>
                 <field name="company_id" groups="base.group_multi_company" optional="hide"/>
-                <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-success="state in ('in_force', 'renewed')" decoration-warning="state == 'expiring'" decoration-danger="state in ('expired', 'cancelled')"/>
+                <field name="state" widget="badge" decoration-info="state in ('draft', 'not_started')" decoration-success="state in ('in_force', 'renewed')" decoration-warning="state == 'expiring'" decoration-danger="state in ('expired', 'cancelled')"/>
             </list>
         </field>
     </record>
@@ -34,11 +34,11 @@
                     <button name="action_renew" type="object" string="Renew" class="btn-primary" invisible="state not in ('expiring', 'expired') or renewed_by_id" data-hotkey="r"/>
                     <button name="action_open_non_renewal_wizard" type="object" string="Do not renew" invisible="state not in ('in_force', 'expiring') or renewed_by_id or renewal_type == 'no_renew'"/>
                     <button name="action_request_renewal" type="object" string="Request renewal" invisible="state not in ('in_force', 'expiring') or renewed_by_id or renewal_type == 'no_renew'"/>
-                    <button name="action_new_endorsement" type="object" string="New endorsement" invisible="state not in ('in_force', 'expiring')"/>
+                    <button name="action_new_endorsement" type="object" string="New endorsement" invisible="state not in ('not_started', 'in_force', 'expiring')"/>
                     <button name="action_open_installment_generator" type="object" string="Generate installments" invisible="state in ('cancelled', 'expired')"/>
-                    <button name="action_create_bill" type="object" string="Create bill" invisible="state not in ('in_force', 'expiring') or installment_count == 0" groups="account.group_account_invoice"/>
+                    <button name="action_create_bill" type="object" string="Create bill" invisible="state not in ('not_started', 'in_force', 'expiring') or installment_count == 0" groups="account.group_account_invoice"/>
                     <button name="action_reset_to_draft" type="object" string="Reset to draft" invisible="state in ('draft', 'cancelled')" groups="insurance_management.group_insurance_manager" confirm="Reset this policy to draft?"/>
-                    <field name="state" widget="statusbar" statusbar_visible="draft,in_force,expiring,expired"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,not_started,in_force,expiring,expired"/>
                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
@@ -173,7 +173,7 @@
                         <page name="installments" string="Installments">
                             <div class="d-flex gap-2 mb-2">
                                 <button name="action_open_installment_generator" type="object" string="Generate installments" icon="fa-calendar" class="btn-secondary" invisible="state in ('cancelled', 'expired')"/>
-                                <button name="action_generate_payments" type="object" string="Generate payments" icon="fa-money" class="btn-secondary" invisible="state not in ('in_force', 'expiring') or installment_count == 0" groups="account.group_account_invoice"/>
+                                <button name="action_generate_payments" type="object" string="Generate payments" icon="fa-money" class="btn-secondary" invisible="state not in ('not_started', 'in_force', 'expiring') or installment_count == 0" groups="account.group_account_invoice"/>
                             </div>
                             <field name="installment_ids" context="{'default_policy_id': id}">
                                 <list editable="bottom" create="0" default_order="due_date, number, id"
@@ -397,6 +397,7 @@
                 <filter name="covered_today" string="Covered today" domain="[('covered_today', '=', True)]"/>
                 <separator/>
                 <filter name="draft" string="Draft" domain="[('state', '=', 'draft')]"/>
+                <filter name="not_started" string="Not started" domain="[('state', '=', 'not_started')]"/>
                 <filter name="not_renewed" string="Not to be renewed" domain="[('renewal_type', '=', 'no_renew')]"/>
                 <filter name="with_debt" string="With unpaid installments" domain="[('has_debt', '=', True)]"/>
                 <separator/>

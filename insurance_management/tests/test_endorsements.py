@@ -30,6 +30,16 @@ class TestEndorsements(InsuranceCommon):
         policy.action_confirm()
         return policy
 
+    def test_initial_endorsement_types_described(self):
+        types = self.env["insurance.endorsement.type"].search([])
+        seeded = types.filtered(lambda t: t.get_external_id()[t.id].startswith("insurance_management."))
+        self.assertEqual(len(seeded), 8)
+        self.assertTrue(all(seeded.with_context(lang="en_US").mapped("description")))
+        self.env["res.lang"]._activate_lang("es_AR")
+        self.env.ref("base.module_insurance_management")._update_translations(["es_AR"])
+        sold = self.env.ref("insurance_management.insurance_endorsement_type_remove_object")
+        self.assertIn("se vende un vehículo de la flota", sold.with_context(lang="es_AR").description)
+
     def test_only_on_policies_in_force_or_expiring(self):
         draft = self._create_policy(policy_number="DRAFT")
         with self.assertRaises(UserError):

@@ -86,6 +86,17 @@ class InsurancePolicyObject(models.Model):
         index=True,
     )
 
+    @api.onchange("insured_item_id")
+    def _onchange_insured_item_id(self):
+        """Propose the description and the sum insured of the chosen item,
+        without replacing what was already typed."""
+        for line in self.filtered("insured_item_id"):
+            values = line.insured_item_id._get_object_values(line.currency_id)
+            if not line.name:
+                line.name = values["name"]
+            if "sum_insured" in values and not line.sum_insured:
+                line.sum_insured = values["sum_insured"]
+
     # -------------------------------------------------------------------------
     # CRUD
     # -------------------------------------------------------------------------

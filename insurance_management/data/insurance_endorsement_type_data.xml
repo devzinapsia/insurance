@@ -3,41 +3,49 @@
     <!-- Initial endorsement types (section 4.4). Editable: noupdate. -->
     <record id="insurance_endorsement_type_add_object" model="insurance.endorsement.type">
         <field name="name">Add object</field>
+        <field name="description">Adds insured objects to the policy from the endorsement date, usually with an additional premium. E.g. a new pickup truck joins the fleet policy.</field>
         <field name="kind">add_object</field>
         <field name="sequence">10</field>
     </record>
     <record id="insurance_endorsement_type_remove_object" model="insurance.endorsement.type">
         <field name="name">Remove object</field>
+        <field name="description">Removes insured objects from the endorsement date; they stay as history with the reason, usually with a premium refund. E.g. a fleet vehicle is sold.</field>
         <field name="kind">remove_object</field>
         <field name="sequence">20</field>
     </record>
     <record id="insurance_endorsement_type_increase_sum" model="insurance.endorsement.type">
         <field name="name">Sum insured increase</field>
+        <field name="description">Raises the sum insured of some objects, with an additional premium. E.g. the stock of a warehouse grows before the high season.</field>
         <field name="kind">increase_sum</field>
         <field name="sequence">30</field>
     </record>
     <record id="insurance_endorsement_type_decrease_sum" model="insurance.endorsement.type">
         <field name="name">Sum insured reduction</field>
+        <field name="description">Lowers the sum insured of some objects, usually with a premium refund. E.g. a vehicle is revalued at its current market price.</field>
         <field name="kind">decrease_sum</field>
         <field name="sequence">40</field>
     </record>
     <record id="insurance_endorsement_type_coverage_change" model="insurance.endorsement.type">
         <field name="name">Coverage change</field>
+        <field name="description">Changes the coverages or clauses of the policy or of some objects. E.g. a vehicle goes from third party cover to all risks.</field>
         <field name="kind">coverage_change</field>
         <field name="sequence">50</field>
     </record>
     <record id="insurance_endorsement_type_data_change" model="insurance.endorsement.type">
         <field name="name">Data change</field>
+        <field name="description">Changes administrative data without changing the risk, such as the producer. E.g. the company changes its insurance producer.</field>
         <field name="kind">data_change</field>
         <field name="sequence">60</field>
     </record>
     <record id="insurance_endorsement_type_extension" model="insurance.endorsement.type">
         <field name="name">Validity extension</field>
+        <field name="description">Extends the validity to a new end date, usually with an additional premium. E.g. the policy is extended one month while the renewal is negotiated.</field>
         <field name="kind">extension</field>
         <field name="sequence">70</field>
     </record>
     <record id="insurance_endorsement_type_cancellation" model="insurance.endorsement.type">
         <field name="name">Cancellation</field>
+        <field name="description">Ends the policy before its end date: installments not billed are cancelled and the insurer may refund premium. E.g. the insured asset is sold or the contract a surety bond guaranteed ends.</field>
         <field name="kind">cancellation</field>
         <field name="sequence">80</field>
     </record>

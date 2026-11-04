@@ -27,11 +27,36 @@ class TestPolicyLifecycle(InsuranceCommon):
         self.assertEqual(policy.state, "expired")
         self.assertFalse(policy.covered_today)
 
-    def test_future_policy_in_force_not_covered(self):
+    def test_future_policy_not_started(self):
+        """Confirmed before its start date: Not started (not in force, not
+        covered, no expiry notice); the daily process starts it on its start
+        date."""
+        policy = self._create_policy(date_from=date(2026, 6, 17), date_to=date(2026, 7, 16))
+        policy.action_confirm()
+        self.assertEqual(policy.state, "not_started", "Within the 30 days alert, but it has not started")
+        self.assertFalse(policy.covered_today)
+        self.assertNotIn(policy, self.env["insurance.policy"].search([("state", "in", ("in_force", "expiring"))]))
+        Policy = self.env["insurance.policy"]
+        Policy._process_expiry_batch(policy, TODAY)
+        self.assertEqual(policy.state, "not_started")
+        self.assertFalse(policy.alert_ids, "No expiry notice before it starts")
+        Policy._process_expiry_batch(policy, date(2026, 6, 17))
+        self.assertEqual(policy.state, "expiring", "Started, already within the 30 days alert")
+        self.assertTrue(policy.alert_ids, "The pending notice is sent the day it starts")
+
+    def test_not_started_policy_is_locked_but_endorsable(self):
         policy = self._create_policy(date_from=date(2026, 7, 1), date_to=date(2027, 6, 30))
         policy.action_confirm()
+        self.assertEqual(policy.state, "not_started")
+        with self.assertRaises(UserError):
+            policy.premium_total = 2000
+        action = policy.action_new_endorsement()
+        self.assertEqual(action["context"]["default_effective_date"], "2026-07-01", "Proposed from its start date")
+        self._endorse(policy, "data_change", description="Producer contact changed", effective_date=date(2026, 7, 1))
+        self.assertEqual(policy.endorsement_count, 1)
+        # Moving the start date to today (by endorsement) starts it.
+        policy.with_context(insurance_endorsement_write=True, insurance_skip_duration_check=True).date_from = TODAY
         self.assertEqual(policy.state, "in_force")
-        self.assertFalse(policy.covered_today)
 
     def test_end_date_is_inclusive(self):
         """On date_to the policy is still in force and covered; it expires
@@ -150,5 +175,5 @@ class TestPolicyLifecycle(InsuranceCommon):
         )
         self.assertEqual(
             [group["state"] for group in result["groups"]],
-            ["draft", "in_force", "expiring", "expired", "renewed", "not_renewed", "cancelled"],
+            ["draft", "not_started", "in_force", "expiring", "expired", "renewed", "not_renewed", "cancelled"],
         )

@@ -3,7 +3,7 @@ from datetime import date
 from freezegun import freeze_time
 
 from odoo.exceptions import AccessError, UserError
-from odoo.tests import new_test_user, tagged
+from odoo.tests import Form, new_test_user, tagged
 
 from .common import InsuranceCommon
 
@@ -125,6 +125,40 @@ class TestPolicyObject(InsuranceCommon):
             policy.object_ids.write({"sum_insured": 2})
         with self.assertRaises(UserError):
             self.env["insurance.policy.object"].create({"policy_id": policy.id, "name": "New"})
+
+    def test_insured_item_proposes_description_and_sum(self):
+        policy = self._create_policy()
+        with Form(policy) as form:
+            with form.object_ids.new() as line:
+                line.insured_item_id = self.item
+                self.assertEqual(line.name, "Main warehouse")
+                self.assertEqual(line.sum_insured, 900000)
+            with form.object_ids.new() as line:
+                line.name = "Warehouse stock"
+                line.sum_insured = 250000
+                line.insured_item_id = self.item
+                self.assertEqual((line.name, line.sum_insured), ("Warehouse stock", 250000), "Typed values are kept")
+        self.assertEqual(policy.sum_insured_total, 1150000)
+        # A policy in another currency does not take the reference value.
+        usd = self.env.ref("base.USD") if self.env.company.currency_id != self.env.ref("base.USD") else self.env.ref("base.EUR")
+        usd.active = True
+        other = self._create_policy(policy_number="POL-USD", currency_id=usd.id)
+        with Form(other) as form:
+            with form.object_ids.new() as line:
+                line.insured_item_id = self.item
+                self.assertEqual(line.name, "Main warehouse")
+                self.assertFalse(line.sum_insured)
+
+    def test_insured_item_policies_and_history(self):
+        first = self._create_policy(object_ids=[(0, 0, {"name": "Warehouse", "insured_item_id": self.item.id, "sum_insured": 1})])
+        second = self._create_policy(
+            policy_number="POL-002", object_ids=[(0, 0, {"name": "Warehouse", "insured_item_id": self.item.id, "sum_insured": 2})]
+        )
+        self._create_policy(policy_number="POL-003", object_ids=[(0, 0, {"name": "Other", "sum_insured": 3})])
+        self.assertEqual(self.item.policy_count, 2)
+        action = self.item.with_user(self.insurance_user).action_view_policies()
+        self.assertEqual(self.env["insurance.policy"].search(action["domain"]), first | second)
+        self.assertEqual(self.item.object_ids.policy_id, first | second, "History tab: one line per policy")
 
     def test_insured_item_access(self):
         item = self.env["insurance.insured.item"].with_user(self.insurance_user).create(

@@ -14,8 +14,11 @@ from .insurance_tools import format_alert_days, parse_alert_days
 _logger = logging.getLogger(__name__)
 
 AMOUNTS_GROUP = "insurance_management.group_insurance_see_amounts"
-# Policies the daily expiry process looks at.
+# Policies in force: they count as "in force" and get the expiry alerts.
 ACTIVE_STATES = ("in_force", "expiring")
+# Confirmed and not ended: contract data only change through endorsements,
+# and they can be billed. "Not started" = confirmed, start date still ahead.
+CONFIRMED_STATES = ("not_started", "in_force", "expiring")
 # Default size of the batches of the daily process (ir.config_parameter
 # insurance_management.cron_batch_size overrides it).
 DEFAULT_BATCH_SIZE = 200
@@ -83,6 +86,7 @@ class InsurancePolicy(models.Model):
     state = fields.Selection(
         selection=[
             ("draft", "Draft"),
+            ("not_started", "Not started"),
             ("in_force", "In force"),
             ("expiring", "Expiring"),
             ("expired", "Expired"),
@@ -938,7 +942,7 @@ class InsurancePolicy(models.Model):
                 raise UserError(
                     self.env._("The policy status can only be changed with its action buttons.")
                 )
-            confirmed = self.filtered(lambda p: p.state in ("in_force", "expiring"))
+            confirmed = self.filtered(lambda p: p.state in CONFIRMED_STATES)
             contract = CONTRACT_FIELDS.intersection(vals)
             if confirmed and contract and not self.env.context.get(ENDORSEMENT_CTX):
                 raise UserError(
@@ -1006,13 +1010,16 @@ class InsurancePolicy(models.Model):
     def _get_lifecycle_state(self, today):
         """Return the state this confirmed policy should be in on ``today``.
 
-        In force until its end date (inclusive), Expiring from its first alert
-        threshold. From the day after the end date, it ends as Renewed (a
-        renewal exists), Not renewed (marked "do not renew") or Expired.
+        Not started while its start date is still ahead. In force until its
+        end date (inclusive), Expiring from its first alert threshold. From the
+        day after the end date, it ends as Renewed (a renewal exists), Not
+        renewed (marked "do not renew") or Expired.
         """
         self.ensure_one()
         if self.state in UNCOVERED_STATES:
             return self.state
+        if self.date_from > today:
+            return "not_started"
         if self.date_to < today:
             if self.renewed_by_id:
                 return "renewed"
@@ -1245,15 +1252,20 @@ class InsurancePolicy(models.Model):
 
     def action_new_endorsement(self):
         self.ensure_one()
-        if self.state not in ("in_force", "expiring"):
-            raise UserError(self.env._("Endorsements can only be added to policies in force or expiring."))
+        if self.state not in CONFIRMED_STATES:
+            raise UserError(
+                self.env._("Endorsements can only be added to policies not started yet, in force or expiring.")
+            )
         return {
             "type": "ir.actions.act_window",
             "name": self.env._("New endorsement"),
             "res_model": "insurance.endorsement",
             "view_mode": "form",
             "target": "current",
-            "context": {"default_policy_id": self.id, "default_effective_date": fields.Date.to_string(self._get_today())},
+            "context": {
+                "default_policy_id": self.id,
+                "default_effective_date": fields.Date.to_string(max(self._get_today(), self.date_from)),
+            },
         }
 
     def action_view_endorsements(self):
@@ -1552,7 +1564,7 @@ class InsurancePolicy(models.Model):
         if self.state in ACTIVE_STATES:
             self._process_auto_non_renewal(today)
             self._process_expiry_notice(today)
-        elif previous_state in ACTIVE_STATES:
+        elif previous_state in CONFIRMED_STATES and self.state not in CONFIRMED_STATES:
             self._process_expired_notice(today)
 
     @api.model
@@ -1575,15 +1587,16 @@ class InsurancePolicy(models.Model):
 
     @api.model
     def _cron_process_expiry(self):
-        """Scheduled action: transitions and alerts of every active policy,
-        in batches of configurable size, committing after each batch."""
+        """Scheduled action: transitions and alerts of every confirmed policy
+        (not started ones start on their start date), in batches of
+        configurable size, committing after each batch."""
         today = self._get_today()
         batch_size = int(
             self.env["ir.config_parameter"].sudo().get_param(
                 "insurance_management.cron_batch_size", DEFAULT_BATCH_SIZE
             )
         ) or DEFAULT_BATCH_SIZE
-        policies = self.sudo().search([("state", "in", ACTIVE_STATES)], order="date_to, id")
+        policies = self.sudo().search([("state", "in", CONFIRMED_STATES)], order="date_to, id")
         remaining = len(policies)
         for start in range(0, len(policies), batch_size):
             batch = policies[start:start + batch_size]

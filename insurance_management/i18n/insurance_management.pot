@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 19.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-03 16:44+0000\n"
-"PO-Revision-Date: 2026-11-03 16:44+0000\n"
+"POT-Creation-Date: 2026-11-04 20:08+0000\n"
+"PO-Revision-Date: 2026-11-04 20:08+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -612,6 +612,13 @@ msgid ""
 msgstr ""
 
 #. module: insurance_management
+#: model:insurance.endorsement.type,description:insurance_management.insurance_endorsement_type_add_object
+msgid ""
+"Adds insured objects to the policy from the endorsement date, usually with "
+"an additional premium. E.g. a new pickup truck joins the fleet policy."
+msgstr ""
+
+#. module: insurance_management
 #: model:res.groups,name:insurance_management.group_insurance_manager
 msgid "Administrator"
 msgstr ""
@@ -733,6 +740,11 @@ msgstr ""
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_branch__analytic_precision
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__analytic_precision
 msgid "Analytic Precision"
+msgstr ""
+
+#. module: insurance_management
+#: model:insurance.document.type,description:insurance_management.insurance_document_type_other
+msgid "Any other document related to the policy."
 msgstr ""
 
 #. module: insurance_management
@@ -987,8 +999,29 @@ msgid "Cargo transport"
 msgstr ""
 
 #. module: insurance_management
+#: model:insurance.document.type,description:insurance_management.insurance_document_type_certificate
+msgid ""
+"Certificate proving the coverage to third parties (e.g. a client, a lessor "
+"or a vehicle check)."
+msgstr ""
+
+#. module: insurance_management
 #: model:ir.model.fields.selection,name:insurance_management.selection__insurance_endorsement_line__operation__change
 msgid "Change"
+msgstr ""
+
+#. module: insurance_management
+#: model:insurance.endorsement.type,description:insurance_management.insurance_endorsement_type_data_change
+msgid ""
+"Changes administrative data without changing the risk, such as the producer."
+" E.g. the company changes its insurance producer."
+msgstr ""
+
+#. module: insurance_management
+#: model:insurance.endorsement.type,description:insurance_management.insurance_endorsement_type_coverage_change
+msgid ""
+"Changes the coverages or clauses of the policy or of some objects. E.g. a "
+"vehicle goes from third party cover to all risks."
 msgstr ""
 
 #. module: insurance_management
@@ -1013,6 +1046,11 @@ msgstr ""
 #. module: insurance_management
 #: model:insurance.document.type,name:insurance_management.insurance_document_type_claim_report
 msgid "Claim report"
+msgstr ""
+
+#. module: insurance_management
+#: model:insurance.document.type,description:insurance_management.insurance_document_type_claim_report
+msgid "Claim report filed with the insurer and its supporting documents."
 msgstr ""
 
 #. module: insurance_management
@@ -1747,6 +1785,13 @@ msgid "Endorsement count"
 msgstr ""
 
 #. module: insurance_management
+#: model:insurance.document.type,description:insurance_management.insurance_document_type_endorsement
+msgid ""
+"Endorsement issued by the insurer that modifies the policy (objects, sums "
+"insured, coverages, validity)."
+msgstr ""
+
+#. module: insurance_management
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement__endorsement_number
 msgid "Endorsement number"
 msgstr ""
@@ -1779,13 +1824,17 @@ msgstr ""
 #. module: insurance_management
 #. odoo-python
 #: code:addons/insurance_management/models/insurance_policy.py:0
-msgid "Endorsements can only be added to policies in force or expiring."
+msgid ""
+"Endorsements can only be added to policies not started yet, in force or "
+"expiring."
 msgstr ""
 
 #. module: insurance_management
 #. odoo-python
 #: code:addons/insurance_management/models/insurance_endorsement.py:0
-msgid "Endorsements can only be confirmed on policies in force or expiring."
+msgid ""
+"Endorsements can only be confirmed on policies not started yet, in force or "
+"expiring."
 msgstr ""
 
 #. module: insurance_management
@@ -1798,6 +1847,14 @@ msgstr ""
 #. module: insurance_management
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__endorsement_premium_total
 msgid "Endorsements premium"
+msgstr ""
+
+#. module: insurance_management
+#: model:insurance.endorsement.type,description:insurance_management.insurance_endorsement_type_cancellation
+msgid ""
+"Ends the policy before its end date: installments not billed are cancelled "
+"and the insurer may refund premium. E.g. the insured asset is sold or the "
+"contract a surety bond guaranteed ends."
 msgstr ""
 
 #. module: insurance_management
@@ -1886,6 +1943,13 @@ msgstr ""
 #. odoo-python
 #: code:addons/insurance_management/models/insurance_policy.py:0
 msgid "Expiry notice sent to: %(users)s"
+msgstr ""
+
+#. module: insurance_management
+#: model:insurance.endorsement.type,description:insurance_management.insurance_endorsement_type_extension
+msgid ""
+"Extends the validity to a new end date, usually with an additional premium. "
+"E.g. the policy is extended one month while the renewal is negotiated."
 msgstr ""
 
 #. module: insurance_management
@@ -2408,6 +2472,11 @@ msgid "Insurance endorsement type"
 msgstr ""
 
 #. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_insured_item_view_form
+msgid "Insurance history"
+msgstr ""
+
+#. module: insurance_management
 #: model:ir.model,name:insurance_management.model_insurance_import
 msgid "Insurance import"
 msgstr ""
@@ -2633,6 +2702,11 @@ msgid "Invoice"
 msgstr ""
 
 #. module: insurance_management
+#: model:insurance.document.type,description:insurance_management.insurance_document_type_invoice
+msgid "Invoice from the insurer for the premium or an endorsement."
+msgstr ""
+
+#. module: insurance_management
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_branch__message_is_follower
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_document_type__message_is_follower
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement__message_is_follower
@@ -2844,6 +2918,13 @@ msgstr ""
 #. module: insurance_management
 #: model:ir.model.fields,help:insurance_management.field_res_company__insurance_max_duration_months
 msgid "Longest validity period accepted for an insurance policy."
+msgstr ""
+
+#. module: insurance_management
+#: model:insurance.endorsement.type,description:insurance_management.insurance_endorsement_type_decrease_sum
+msgid ""
+"Lowers the sum insured of some objects, usually with a premium refund. E.g. "
+"a vehicle is revalued at its current market price."
 msgstr ""
 
 #. module: insurance_management
@@ -3176,6 +3257,12 @@ msgstr ""
 #. module: insurance_management
 #: model:ir.model.fields.selection,name:insurance_management.selection__insurance_policy__state__not_renewed
 msgid "Not renewed"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_policy__state__not_started
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_search
+msgid "Not started"
 msgstr ""
 
 #. module: insurance_management
@@ -3598,6 +3685,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_import__line_ids
 #: model:ir.ui.menu,name:insurance_management.menu_insurance_policies
 #: model:ir.ui.menu,name:insurance_management.menu_insurance_policy
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_insured_item_view_form
 msgid "Policies"
 msgstr ""
 
@@ -3779,6 +3867,11 @@ msgid "Policy analysis"
 msgstr ""
 
 #. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_insured_item__policy_count
+msgid "Policy count"
+msgstr ""
+
+#. module: insurance_management
 #: model:ir.model.fields,help:insurance_management.field_insurance_policy__renewed_by_id
 msgid "Policy created when this one was renewed."
 msgstr ""
@@ -3826,6 +3919,11 @@ msgstr ""
 #: model:ir.actions.act_window,name:insurance_management.insurance_import_action
 #: model_terms:ir.ui.view,arch_db:insurance_management.insurance_import_view_list
 msgid "Policy imports"
+msgstr ""
+
+#. module: insurance_management
+#: model:insurance.document.type,description:insurance_management.insurance_document_type_policy
+msgid "Policy issued by the insurer, with its conditions and annexes."
 msgstr ""
 
 #. module: insurance_management
@@ -3951,8 +4049,20 @@ msgid "Producers"
 msgstr ""
 
 #. module: insurance_management
+#: model:insurance.document.type,description:insurance_management.insurance_document_type_payment_receipt
+msgid "Proof of payment of a premium installment."
+msgstr ""
+
+#. module: insurance_management
 #: model:ir.model.fields.selection,name:insurance_management.selection__insurance_branch__object_type__property
 msgid "Property"
+msgstr ""
+
+#. module: insurance_management
+#: model:insurance.endorsement.type,description:insurance_management.insurance_endorsement_type_increase_sum
+msgid ""
+"Raises the sum insured of some objects, with an additional premium. E.g. the"
+" stock of a warehouse grows before the high season."
 msgstr ""
 
 #. module: insurance_management
@@ -4049,6 +4159,13 @@ msgstr ""
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_object__date_end
 #: model_terms:ir.ui.view,arch_db:insurance_management.report_insurance_policy_document
 msgid "Removed on"
+msgstr ""
+
+#. module: insurance_management
+#: model:insurance.endorsement.type,description:insurance_management.insurance_endorsement_type_remove_object
+msgid ""
+"Removes insured objects from the endorsement date; they stay as history with"
+" the reason, usually with a premium refund. E.g. a fleet vehicle is sold."
 msgstr ""
 
 #. module: insurance_management

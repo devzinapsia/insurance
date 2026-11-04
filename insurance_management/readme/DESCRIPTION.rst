@@ -31,10 +31,12 @@ Currently included:
   responsible, validity (from / to, the end date is the last covered day),
   duration in months, renewal type, currency, net and total premium, total
   sum insured, deductible (amount or percentage), coverages, tags and notes.
-* **Lifecycle**: seven states — Draft, In force, Expiring, Expired, Renewed,
-  Not renewed and Cancelled. Confirming requires the policy number and the
-  validity; the state is then set from the dates (a policy confirmed after
-  its end date goes straight to Expired). A policy stays in force on its end
+* **Lifecycle**: eight states — Draft, Not started, In force, Expiring,
+  Expired, Renewed, Not renewed and Cancelled. Confirming requires the policy
+  number and the validity; the state is then set from the dates: a policy
+  whose start date is still ahead is Not started (not covered, no expiry
+  notices; the daily process starts it on its start date), and a policy
+  confirmed after its end date goes straight to Expired. A policy stays in force on its end
   date and expires the day after. Expired, Renewed, Not renewed and Cancelled
   policies are read-only (the chatter keeps working). Only an Administrator
   can reset a policy to draft. *Covered today* is true for confirmed,
@@ -47,7 +49,9 @@ Currently included:
   with sum insured, coverage, added / removed dates and, for vehicle
   branches, license plate, chassis and engine numbers. An object can point to
   an *insurable item* master (warehouse, shop, equipment...) that keeps its
-  insurance history across policies. Objects of a confirmed policy are never
+  insurance history across policies: choosing it proposes its name and its
+  reference value as sum insured, and the item shows a *Policies* smart
+  button and an *Insurance history* tab. Objects of a confirmed policy are never
   deleted: they are removed with a date and a reason and stay as history; the
   total sum insured only counts active objects.
 * **Contacts**: insurers and producers show a *Policies in force* smart
