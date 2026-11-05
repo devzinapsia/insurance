@@ -30,6 +30,9 @@ LOCKED_STATES = ("expired", "renewed", "not_renewed", "cancelled")
 UNCOVERED_STATES = ("draft", "cancelled")
 # Context key allowing internal lifecycle writes (state changes, links).
 LIFECYCLE_CTX = "insurance_lifecycle_write"
+# Set by the Confirm button: ask before confirming policies whose premium
+# and/or total premium is zero (code callers, e.g. the import, never ask).
+AMOUNT_CHECK_CTX = "insurance_check_amounts"
 # Contract data of a confirmed policy: only an endorsement can change them
 # (RF-06; Fase 2 retired the Fase 1 transitional editing rule).
 CONTRACT_FIELDS = {
@@ -1074,10 +1077,30 @@ class InsurancePolicy(models.Model):
                 self.env._("Policy %(policy)s: %(issue)s", policy=self.display_name, issue=issue)
             )
 
+    def _get_zero_amount_policies(self):
+        """Policies whose premium and/or total premium is zero."""
+        return self.filtered(lambda policy: not policy.sudo().premium or not policy.sudo().premium_total)
+
     def action_confirm(self):
         today = self._get_today()
         for policy in self:
             policy._check_can_confirm()
+        zero_amounts = self._get_zero_amount_policies()
+        if (
+            zero_amounts
+            and self.env.context.get(AMOUNT_CHECK_CTX)
+            and self.env.user.has_group(AMOUNTS_GROUP)
+        ):
+            # Once confirmed, premiums only change through an endorsement:
+            # warn before, the user may still confirm.
+            return {
+                "type": "ir.actions.act_window",
+                "name": self.env._("Premium at zero"),
+                "res_model": "insurance.policy.confirm.warning",
+                "view_mode": "form",
+                "target": "new",
+                "context": {"default_policy_ids": self.ids},
+            }
         for policy in self:
             issue = policy._get_duration_issue()
             policy.with_context(**{LIFECYCLE_CTX: True}).write({"state": "in_force"})
@@ -1085,6 +1108,8 @@ class InsurancePolicy(models.Model):
                 policy._message_log(
                     body=self.env._("Confirmed with a duration warning: %(issue)s", issue=issue)
                 )
+            if policy in zero_amounts:
+                policy._message_log(body=self.env._("Confirmed with the premium and/or total premium at zero."))
         self._apply_lifecycle_state(today)
         return True
 

@@ -40,7 +40,10 @@ Currently included:
   number and the validity; the state is then set from the dates: a policy
   whose start date is still ahead is Not started (not covered, no expiry
   notices; the daily process starts it on its start date), and a policy
-  confirmed after its end date goes straight to Expired. A policy stays in force on its end
+  confirmed after its end date goes straight to Expired. If the premium
+  and/or the total premium is zero, the Confirm button warns first (once
+  confirmed they only change through an endorsement); the user can go back
+  or confirm anyway, which is logged in the chatter. A policy stays in force on its end
   date and expires the day after. Expired, Renewed, Not renewed and Cancelled
   policies are read-only (the chatter keeps working). Only an Administrator
   can reset a policy to draft. *Covered today* is true for confirmed,

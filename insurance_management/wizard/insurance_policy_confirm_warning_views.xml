@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="insurance_policy_confirm_warning_view_form" model="ir.ui.view">
+        <field name="name">insurance.policy.confirm.warning.form</field>
+        <field name="model">insurance.policy.confirm.warning</field>
+        <field name="arch" type="xml">
+            <form string="Premium at zero">
+                <div class="alert alert-warning" role="alert">
+                    The premium and/or the total premium is zero. Once confirmed, they can only be changed with an endorsement. Go back to complete them, or confirm anyway if they are not known yet.
+                </div>
+                <field name="policy_ids" invisible="1"/>
+                <field name="zero_policy_ids" readonly="1">
+                    <list>
+                        <field name="name"/>
+                        <field name="policy_number"/>
+                        <field name="currency_id" column_invisible="True"/>
+                        <field name="premium"/>
+                        <field name="premium_total"/>
+                    </list>
+                </field>
+                <footer>
+                    <button string="Go back" special="cancel" class="btn-primary" data-hotkey="x"/>
+                    <button name="action_confirm" type="object" string="Confirm anyway" class="btn-secondary" data-hotkey="q"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

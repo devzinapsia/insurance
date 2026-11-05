@@ -29,3 +29,4 @@ access_insurance_policy_accountant,insurance.policy accountant,model_insurance_p
 access_insurance_import_manager,insurance.import manager,model_insurance_import,group_insurance_manager,1,1,1,1
 access_insurance_import_line_manager,insurance.import.line manager,model_insurance_import_line,group_insurance_manager,1,1,1,1
 access_insurance_cost_report_user,insurance.cost.report user,model_insurance_cost_report,group_insurance_user,1,0,0,0
+access_insurance_policy_confirm_warning_user,insurance.policy.confirm.warning user,model_insurance_policy_confirm_warning,group_insurance_user,1,1,1,0

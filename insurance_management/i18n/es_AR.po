@@ -3,8 +3,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 19.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-04 20:08+0000\n"
-"PO-Revision-Date: 2026-11-04 20:08+0000\n"
+"POT-Creation-Date: 2026-11-04 22:41+0000\n"
+"PO-Revision-Date: 2026-11-04 22:41+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: es_AR\n"
@@ -1468,9 +1468,19 @@ msgid "Confirm"
 msgstr "Confirmar"
 
 #. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_confirm_warning_view_form
+msgid "Confirm anyway"
+msgstr "Confirmar igual"
+
+#. module: insurance_management
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_import__confirm_policies
 msgid "Confirm policies"
 msgstr "Confirmar pólizas"
+
+#. module: insurance_management
+#: model:ir.model,name:insurance_management.model_insurance_policy_confirm_warning
+msgid "Confirm policies with a premium at zero"
+msgstr "Confirmar pólizas con prima o premio en cero"
 
 #. module: insurance_management
 #. odoo-python
@@ -1508,6 +1518,12 @@ msgstr ""
 #: code:addons/insurance_management/models/insurance_policy.py:0
 msgid "Confirmed with a duration warning: %(issue)s"
 msgstr "Confirmada con advertencia de duración: %(issue)s"
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy.py:0
+msgid "Confirmed with the premium and/or total premium at zero."
+msgstr "Confirmada con la prima y/o el premio en cero."
 
 #. module: insurance_management
 #: model:ir.model.fields,help:insurance_management.field_insurance_policy__covered_today
@@ -1700,6 +1716,7 @@ msgstr "Crear nota de crédito"
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_payment_mode__create_uid
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__create_uid
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_alert__create_uid
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_confirm_warning__create_uid
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_document_upload__create_uid
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_non_renewal__create_uid
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_object__create_uid
@@ -1723,6 +1740,7 @@ msgstr "Creado por"
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_payment_mode__create_date
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__create_date
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_alert__create_date
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_confirm_warning__create_date
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_document_upload__create_date
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_non_renewal__create_date
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_object__create_date
@@ -1955,6 +1973,7 @@ msgstr "Descartar"
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_payment_mode__display_name
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__display_name
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_alert__display_name
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_confirm_warning__display_name
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_document_upload__display_name
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_non_renewal__display_name
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_object__display_name
@@ -2507,6 +2526,11 @@ msgid "Generic"
 msgstr "Genérico"
 
 #. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_confirm_warning_view_form
+msgid "Go back"
+msgstr "Volver"
+
+#. module: insurance_management
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_settings__go_live_date
 #: model:ir.model.fields,field_description:insurance_management.field_res_company__insurance_go_live_date
 msgid "Go-live date"
@@ -2577,6 +2601,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_payment_mode__id
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__id
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_alert__id
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_confirm_warning__id
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_document_upload__id
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_non_renewal__id
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_object__id
@@ -3252,6 +3277,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_payment_mode__write_uid
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__write_uid
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_alert__write_uid
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_confirm_warning__write_uid
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_document_upload__write_uid
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_non_renewal__write_uid
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_object__write_uid
@@ -3275,6 +3301,7 @@ msgstr "Última actualización por"
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_payment_mode__write_date
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__write_date
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_alert__write_date
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_confirm_warning__write_date
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_document_upload__write_date
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_non_renewal__write_date
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_object__write_date
@@ -4175,6 +4202,7 @@ msgstr "Accidentes personales"
 #: code:addons/insurance_management/models/insurance_import.py:0
 #: model:ir.actions.act_window,name:insurance_management.insurance_policy_action
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_import__line_ids
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_confirm_warning__policy_ids
 #: model:ir.ui.menu,name:insurance_management.menu_insurance_policies
 #: model:ir.ui.menu,name:insurance_management.menu_insurance_policy
 #: model_terms:ir.ui.view,arch_db:insurance_management.insurance_insured_item_view_form
@@ -4218,6 +4246,11 @@ msgstr ""
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_import__line_count
 msgid "Policies to import"
 msgstr "Pólizas a importar"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_confirm_warning__zero_policy_ids
+msgid "Policies with a premium at zero"
+msgstr "Pólizas con prima o premio en cero"
 
 #. module: insurance_management
 #: model:insurance.document.type,name:insurance_management.insurance_document_type_policy
@@ -4504,6 +4537,13 @@ msgstr ""
 #: code:addons/insurance_management/models/insurance_import.py:0
 msgid "Premium (net)"
 msgstr "Prima (neta)"
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy.py:0
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_confirm_warning_view_form
+msgid "Premium at zero"
+msgstr "Prima o premio en cero"
 
 #. module: insurance_management
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement__premium_direction
@@ -5286,6 +5326,17 @@ msgid ""
 msgstr ""
 "La póliza sigue vigente hasta su fecha hasta y después pasa a \"No "
 "renovada\"."
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_confirm_warning_view_form
+msgid ""
+"The premium and/or the total premium is zero. Once confirmed, they can only "
+"be changed with an endorsement. Go back to complete them, or confirm anyway "
+"if they are not known yet."
+msgstr ""
+"La prima y/o el premio están en cero. Una vez confirmada la póliza, solo se "
+"pueden cambiar con un endoso. Vuelva para completarlos, o confirme igual si "
+"todavía no se conocen."
 
 #. module: insurance_management
 #. odoo-python

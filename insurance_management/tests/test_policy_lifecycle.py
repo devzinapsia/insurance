@@ -3,6 +3,7 @@ from datetime import date
 from freezegun import freeze_time
 
 from odoo.exceptions import AccessError, UserError
+from odoo.tests import new_test_user
 
 from .common import InsuranceCommon
 from odoo.tests import tagged
@@ -20,6 +21,37 @@ class TestPolicyLifecycle(InsuranceCommon):
         policy.with_user(self.insurance_user).action_confirm()
         self.assertEqual(policy.state, "in_force")
         self.assertTrue(policy.covered_today)
+
+    def test_confirm_warns_when_premium_is_zero(self):
+        policy = self._create_policy(premium=0, premium_total=0)
+        button = policy.with_context(insurance_check_amounts=True)
+        action = button.action_confirm()
+        self.assertEqual(action["res_model"], "insurance.policy.confirm.warning")
+        self.assertEqual(policy.state, "draft", "Nothing confirmed before the user decides")
+        # As in the web client: the button context reaches the dialog.
+        wizard = self.env[action["res_model"]].with_context(insurance_check_amounts=True, **action["context"]).create({})
+        self.assertEqual(wizard.zero_policy_ids, policy)
+        wizard.action_confirm()
+        self.assertEqual(policy.state, "in_force", "Confirm anyway")
+        self.assertTrue(any("at zero" in (body or "") for body in policy.message_ids.mapped("body")), "Logged in the chatter")
+        # Only the total premium at zero also warns.
+        other = self._create_policy(policy_number="POL-ZERO", premium=1000, premium_total=0)
+        self.assertIsInstance(other.with_context(insurance_check_amounts=True).action_confirm(), dict)
+        # With both amounts, the button confirms directly.
+        normal = self._create_policy(policy_number="POL-OK")
+        self.assertIs(normal.with_context(insurance_check_amounts=True).action_confirm(), True)
+        self.assertEqual(normal.state, "in_force")
+
+    def test_zero_premium_never_blocks_code_or_users_without_amounts(self):
+        imported = self._create_policy(premium=0, premium_total=0)
+        self.assertIs(imported.action_confirm(), True, "Code callers (import) are never asked")
+        self.assertEqual(imported.state, "in_force")
+        self.env.ref("insurance_management.group_insurance_user").sudo()._remove_group(
+            self.env.ref("insurance_management.group_insurance_see_amounts").sudo()
+        )
+        hidden = new_test_user(self.env, login="confirm_no_amounts", groups="base.group_user,insurance_management.group_insurance_user")
+        policy = self._create_policy(policy_number="POL-HIDDEN", premium=0, premium_total=0)
+        self.assertIs(policy.with_user(hidden).with_context(insurance_check_amounts=True).action_confirm(), True)
 
     def test_confirm_past_policy_is_expired(self):
         policy = self._create_policy(date_from=date(2025, 1, 1), date_to=date(2025, 12, 31))

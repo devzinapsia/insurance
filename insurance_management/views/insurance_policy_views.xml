@@ -30,7 +30,7 @@
         <field name="arch" type="xml">
             <form string="Insurance policy">
                 <header>
-                    <button name="action_confirm" type="object" string="Confirm" class="btn-primary" invisible="state != 'draft'" data-hotkey="v"/>
+                    <button name="action_confirm" type="object" string="Confirm" class="btn-primary" invisible="state != 'draft'" data-hotkey="v" context="{'insurance_check_amounts': True}"/>
                     <button name="action_renew" type="object" string="Renew" class="btn-primary" invisible="state not in ('expiring', 'expired') or renewed_by_id" data-hotkey="r"/>
                     <button name="action_open_non_renewal_wizard" type="object" string="Do not renew" invisible="state not in ('in_force', 'expiring') or renewed_by_id or renewal_type == 'no_renew'"/>
                     <button name="action_request_renewal" type="object" string="Request renewal" invisible="state not in ('in_force', 'expiring') or renewed_by_id or renewal_type == 'no_renew'"/>
