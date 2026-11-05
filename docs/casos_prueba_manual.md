@@ -11,13 +11,24 @@ Convenciones:
   Pólizas**.
 - *Hoy* es el día en que se prueba. Las fechas se dan relativas a hoy para
   que los procesos automáticos tengan algo que hacer.
-- **Correr un proceso a mano**: en modo desarrollador, **Ajustes › Técnico ›
-  Acciones planificadas**, abrir la acción y pulsar **Ejecutar manualmente**.
-  Las acciones del módulo son: *Seguros: proceso de vencimiento de pólizas*,
-  *Seguros: cuotas (débitos automáticos e impagas)*, *Seguros: devengamiento
-  mensual* y *Seguros: importación de pólizas*. El proceso de vencimientos
-  también se corre desde **Seguros › Configuración › Ajustes › Ejecutar ahora
-  el proceso de vencimientos**.
+- **Ejecutar un proceso automático a mano**: los procesos automáticos son
+  *acciones planificadas* que Odoo corre solo todos los días. Para no esperar,
+  se ejecutan a mano así:
+  1. Activar el **modo desarrollador** (Ajustes › al pie, *Activar el modo de
+     desarrollador*).
+  2. Ir a **Ajustes › Técnico › Automatización › Acciones planificadas**.
+  3. Buscar la acción por su nombre, abrirla y pulsar **Ejecutar de forma
+     manual** (según el idioma, *Ejecutar manualmente*).
+
+  | En los casos dice… | Nombre de la acción planificada |
+  | --- | --- |
+  | proceso de vencimientos | Seguros: proceso de vencimiento de pólizas |
+  | proceso de cuotas | Seguros: cuotas (débitos automáticos e impagas) |
+  | proceso de devengamiento | Seguros: devengamiento mensual |
+  | proceso de importación | Seguros: importación de pólizas |
+
+  El proceso de vencimientos también se ejecuta desde **Seguros ›
+  Configuración › Ajustes › Ejecutar ahora el proceso de vencimientos**.
 - **Correos**: en odoo.sh, las bases de staging no envían correos reales; se
   ven en **Ajustes › Técnico › Correos** (modo desarrollador) y en el chatter
   de la póliza.
@@ -106,15 +117,24 @@ pendientes, el medio de pago no se guarda y lo explica.
 3. Otra póliza con el mismo número, aseguradora y fecha desde → error de
    duplicado.
 
+### 1.2a Prima o premio en cero
+1. Nueva póliza completa pero con prima y premio en 0. **Confirmar**.
+2. Pulsar **Volver**; cargar el premio y dejar la prima en 0. **Confirmar**.
+3. Pulsar **Confirmar igual**.
+
+**Esperado**: en los pasos 1 y 2 aparece la advertencia *Prima o premio en
+cero* con la póliza y sus importes; **Volver** no confirma nada. En el paso 3
+la póliza se confirma y el historial dice *Confirmada con la prima y/o el
+premio en cero*. Con prima y premio cargados, Confirmar no muestra nada.
+
 ### 1.2b Póliza que empieza más adelante
 1. Nueva póliza con vigencia desde dentro de 2 días hasta dentro de 32 días
    (días de aviso `30`), con un objeto. Confirmar.
-2. Correr el proceso de vencimientos.
+2. Ejecutar a mano el proceso de vencimientos.
 
 **Esperado**: la póliza queda **Por iniciar** (no Vigente ni Por vencer),
 *Cubierta hoy* = No, no figura en el filtro *Vigentes* y el proceso no envía
-avisos. Se le puede agregar un endoso. El día de su fecha desde (o corriendo
-el proceso con esa fecha) pasa a *Por vencer* y recién ahí recibe el aviso.
+avisos. Se le puede agregar un endoso. El día de su fecha desde pasa a *Por vencer* y recién ahí recibe el aviso.
 
 ### 1.3 Póliza bloqueada
 En la póliza 1.1 intentar cambiar el premio, la vigencia o un objeto.
@@ -146,8 +166,8 @@ chatter, resaltado hasta que se le asigna un tipo.
 ### 1.5 Avisos de vencimiento
 1. Crear una póliza que venza dentro de 10 días, con días de aviso
    `30,15,7`, y confirmarla.
-2. Correr el proceso de vencimientos.
-3. Correrlo otra vez.
+2. Ejecutar a mano el proceso de vencimientos.
+3. Ejecutarlo otra vez.
 
 **Esperado**: la póliza pasa a *Por vencer*. Sale **un solo** aviso (umbral
 15) y queda una actividad para el responsable. La segunda corrida no envía
@@ -197,7 +217,8 @@ cuotas* 1.210.000 y *Diferencia con las cuotas* 0.
 - La pestaña **Devengamiento** tiene 12 meses de 83.333,33 (la prima neta).
 
 ### 2.4 Débito automático
-1. Correr *Seguros: cuotas (débitos automáticos e impagas)*.
+1. Ejecutar a mano el proceso de cuotas (acción planificada *Seguros: cuotas
+   (débitos automáticos e impagas)*, ver *Convenciones*).
 2. Ver las cuotas.
 
 **Esperado**:
@@ -219,7 +240,7 @@ pendiente sí se puede cambiar.
 ### 3.1 Pago en borrador para revisar
 1. Nueva póliza vigente (vigencia desde hace 1 mes), medio *Débito banco
    (revisar)*, 12 cuotas, factura publicada.
-2. Correr el proceso de cuotas.
+2. Ejecutar a mano el proceso de cuotas.
 3. Abrir el pago de la primera cuota.
 
 **Esperado**: el pago está en **borrador** y la cuota, **Programada**. Al
@@ -249,7 +270,7 @@ parcial. El proceso automático nunca paga cuotas manuales.
 ### 3.5 Cuota vencida impaga
 1. Póliza con medio *Manual*, vigencia desde hace 2 meses, 12 cuotas, factura
    publicada.
-2. Correr el proceso de cuotas.
+2. Ejecutar a mano el proceso de cuotas.
 
 **Esperado**:
 - Las cuotas vencidas antes de hoy quedan **Vencidas**.
@@ -258,18 +279,18 @@ parcial. El proceso automático nunca paga cuotas manuales.
 - Sale **un** correo *Cuota vencida impaga* por usuario (el responsable y U3),
   en su idioma.
 - En el chatter queda una nota.
-- Al correrlo de nuevo, no se repite el correo.
+- Al ejecutarlo de nuevo, no se repite el correo.
 - Al pagar la cuota, la deuda desaparece.
 
 ### 3.6 Devengamiento mensual
-1. En la póliza 1.1 (vigencia desde hace 2 meses), correr *Seguros:
+1. En la póliza 1.1 (vigencia desde hace 2 meses), ejecutar a mano *Seguros:
    devengamiento mensual*.
 2. Ver la pestaña **Devengamiento** y el reporte **Seguros › Reportes › Plan de
    devengamiento**.
 
 **Esperado**: los meses ya terminados quedan *Devengados*, con un asiento cada
 uno (gasto contra seguros a devengar, con analítica si el ramo la tiene).
-Correrlo otra vez no duplica asientos. Una línea no devengada se puede
+Ejecutarlo otra vez no duplica asientos. Una línea no devengada se puede
 editar; una devengada, no.
 
 ### 3.7 Una factura por cuota
@@ -357,7 +378,7 @@ Con U2, **Volver a borrador** una póliza con factura publicada.
 ### 5.4 Período cerrado
 1. Fijar una fecha de bloqueo contable posterior al fin de un mes pendiente
    de devengar.
-2. Correr el devengamiento.
+2. Ejecutar a mano el proceso de devengamiento.
 
 **Esperado**: el asiento de ese mes se registra el primer día abierto.
 
@@ -366,7 +387,7 @@ Con U2, **Volver a borrador** una póliza con factura publicada.
    otra hoy).
 2. Póliza en USD, premio USD 1.200, 12 cuotas, medio *Débito banco*, factura
    publicada.
-3. Correr el proceso de cuotas.
+3. Ejecutar a mano el proceso de cuotas.
 
 **Esperado**:
 - Las cuotas y la factura están en USD.

@@ -131,7 +131,7 @@ while (i < lines.length) {
     inCase = true; prevWasOl = false; i++; continue;
   }
   if (line === "---") { flush(); i++; continue; }
-  if (line.startsWith("|")) {
+  if (line.trim().startsWith("|")) {
     flush();
     const rows = [];
     while (i < lines.length && lines[i].trim().startsWith("|")) {

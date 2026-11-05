@@ -673,3 +673,19 @@ renewal; allowing Renew from "In force".
   writing a translated field with `with_context(lang="es_AR")` also replaces
   the en_US value (en_US is the fallback). In migrations write en_US first,
   then `record.update_field_translations(field, {lang: value})`.
+
+### 19.0.2.0.2 — warning on zero premium (2026-11-04/05, user bug report)
+
+- The Confirm button (context `insurance_check_amounts`) opens a warning
+  dialog when the premium and/or total premium is zero (once confirmed they
+  only change by endorsement): "Go back" or "Confirm anyway" (logged in the
+  chatter). Never asked from code (import) nor to users without
+  see-amounts.
+- Bug found in the browser: the button context reached the dialog, so
+  "Confirm anyway" opened the warning again and nothing was confirmed. Fixed
+  (dialog confirms with the key off); the test now reproduces the web client
+  context. Lesson: a button `context` propagates to the action it opens and
+  to that dialog's buttons — tests of dialogs must create them with it.
+- Tests: 169 Community, 175 with both bridges. Manual test cases: the
+  conventions now explain step by step how to run a scheduled action by
+  hand, with a table from the names used in the cases to the action names.
