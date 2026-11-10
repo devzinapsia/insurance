@@ -40,7 +40,7 @@ Convenciones:
 
 ### 0.1 Instalación y permisos
 1. Verificar en **Aplicaciones** que estén instalados *Gestión de seguros*
-   (19.0.2.0.0) y, si la base tiene Contabilidad Enterprise y cheques, los
+   (19.0.2.0.3) y, si la base tiene Contabilidad Enterprise y cheques, los
    puentes *Gestión de seguros - Diferidos de Enterprise* y *Gestión de
    seguros - Cheques propios*.
 2. Crear (o elegir) tres usuarios de prueba:
@@ -218,14 +218,16 @@ cuotas* 1.210.000 y *Diferencia con las cuotas* 0.
 
 ### 2.4 Débito automático
 1. Ejecutar a mano el proceso de cuotas (acción planificada *Seguros: cuotas
-   (débitos automáticos e impagas)*, ver *Convenciones*).
+   (débitos automáticos e impagas)*, ver *Convenciones*). Alternativa: en la
+   pestaña Cuotas de la póliza, **Generar pagos**.
 2. Ver las cuotas.
 
 **Esperado**:
 - Las cuotas con vencimiento hasta hoy inclusive quedan **Pagadas**, cada
   una con un pago validado y conciliado.
 - Las demás siguen *Pendiente*.
-- Si se corre de nuevo, no se crean pagos nuevos.
+- Si se corre de nuevo, no se crean pagos nuevos; **Generar pagos** avisa
+  que los débitos que todavía no vencen se pagan en su fecha.
 
 ### 2.5 Cuotas bloqueadas
 Intentar cambiar el importe de una cuota facturada o pagada.
@@ -404,19 +406,45 @@ Con U2, **Volver a borrador** una póliza con factura publicada.
 ### 6.1 Póliza en curso a mano
 1. En Ajustes › Contabilidad, **Fecha de puesta en marcha** = el día 1 del mes
    actual.
-2. Póliza con vigencia desde hace 3 meses, 12 cuotas. En **Contabilidad ›
-   Carga inicial**: *Póliza en curso*, continúa desde la cuota 4, importe a
-   devengar 900.000. Confirmar.
+2. Póliza con vigencia desde hace 3 meses, 12 cuotas, prima 1.200.000 y
+   premio 1.200.000. En **Contabilidad › Carga inicial**: *Póliza en curso*,
+   continúa desde la cuota 4. Confirmar.
 3. **Generar cuotas**, **Crear factura** y publicarla.
 4. **Generar devengamiento inicial**.
+5. Cambiar el importe a devengar a 450.000 y volver a pulsar **Generar
+   devengamiento inicial**.
 
 **Esperado**:
+- Al poner continúa desde la cuota 4, el importe a devengar se completa solo
+  con 900.000 (9 de 12 meses de la prima).
 - Las cuotas 1 a 3 quedan *Pagadas* (históricas, sin pagos ni asientos).
 - La factura es solo por las cuotas 4 a 12 y no genera devengamiento
   propio.
 - El devengamiento inicial reparte 900.000 desde el mes de la puesta en
-  marcha hasta el fin.
-- Un segundo intento de generar el devengamiento inicial da error.
+  marcha hasta el fin (pestaña Devengamiento) y aparece un aviso con los
+  meses y el total. Las cuotas no cambian.
+- El segundo intento reemplaza el plan por 450.000 (no lo suma). Una vez que
+  un mes está devengado, ya no se puede regenerar.
+
+### 6.1a Póliza marcada en curso después de generar las cuotas
+1. Póliza confirmada con 12 cuotas generadas, sin facturar, con la fecha de
+   puesta en marcha anterior a la cuota 3 (o vacía).
+2. En **Contabilidad › Carga inicial**: marcar *Póliza en curso*,
+   continúa desde la cuota 4. Guardar.
+3. Cambiar continúa desde la cuota a 3. Guardar.
+4. **Crear factura** y publicarla. Cambiar continúa desde la cuota a 5.
+5. Pasar la factura a borrador, cancelarla y volver a poner 5.
+6. Desmarcar *Póliza en curso*. Guardar.
+
+**Esperado**:
+- Paso 2: las cuotas 1 a 3 pasan a *Pagadas* (columna *Histórica*
+  marcada) al guardar, y queda nota en el historial.
+- Paso 3: la cuota 3 vuelve a *Pendiente* (o *Vencida impaga*); 1 y 2
+  siguen históricas. Si la cuota 3 vence antes de la puesta en marcha, sigue
+  histórica.
+- Paso 4: error, la cuota 4 ya está facturada. Nada cambia.
+- Paso 5: las cuotas 1 a 4 quedan históricas.
+- Paso 6: ninguna cuota queda histórica.
 
 ### 6.2 Control de saldo de apertura
 1. Ver Ajustes › Contabilidad: *A devengar en pólizas en curso* = 900.000 y

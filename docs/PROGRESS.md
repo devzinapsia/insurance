@@ -690,3 +690,32 @@ renewal; allowing Renew from "In force".
 - Tests: 169 Community, 175 with both bridges. Manual test cases: the
   conventions now explain step by step how to run a scheduled action by
   hand, with a table from the names used in the cases to the action names.
+
+### 19.0.2.0.3 — running policies and payments feedback (2026-11-10, staging2 testing)
+
+- Running policy marked (or "continues from" changed) after generating the
+  installments: on save, the policy installments are marked/unmarked
+  historical with the same rule as the generation (`_is_historical_installment`:
+  number < continues from, or due before go-live). Billed or paid
+  installments that would change block the save (cancel the bill first).
+  The installment wizard only defaults "continues from" for running
+  policies. `in_progress`, `continue_from_installment` and
+  `unaccrued_amount` are `copy=False` (renewal already reset them).
+- Amount still to accrue at go-live: onchange suggestion = net premium
+  share (premium/total premium, as the bill line) of the installments not
+  historical, in company currency; without installments, premium x
+  remaining months / months. A typed amount (not one of the suggestions) is
+  kept.
+- Generate initial accrual: notification with months and total, chatter
+  note; generating again replaces the initial plan while no month is
+  accrued (error after).
+- Generate payments also pays automatic debits already due (same rule as
+  the daily process). Create bill says "already have a bill" when every
+  installment is billed.
+- Open question for the user: with module accrual, a running policy whose
+  remaining installments are billed in Odoo AND whose unaccrued amount also
+  enters with the opening entry puts both in the prepaid account, while
+  only the unaccrued amount is accrued. Depends on whether the old system
+  billed the whole premium up front (then link the opening bill, do not
+  bill 4-12 again) or installment by installment.
+- Tests: 178 Community, 184 with both bridges.

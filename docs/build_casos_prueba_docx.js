@@ -172,7 +172,7 @@ closeCase();
 
 const intro = [
   new Paragraph({ heading: HeadingLevel.TITLE, children: [new TextRun(title)] }),
-  new Paragraph({ spacing: { after: 240 }, children: [new TextRun({ text: "Gestión de seguros · Odoo 19 · versión del módulo 19.0.2.0.0", color: "595959" })] }),
+  new Paragraph({ spacing: { after: 240 }, children: [new TextRun({ text: "Gestión de seguros · Odoo 19 · versión del módulo 19.0.2.0.3", color: "595959" })] }),
   new Paragraph({ heading: HeadingLevel.HEADING_1, children: [new TextRun("Contenido")] }),
   new TableOfContents("Contenido", { hyperlink: true, headingStyleRange: "1-2" }),
   new Paragraph({ children: [new TextRun({ text: "Si el índice aparece vacío, actualícelo en Word (clic derecho › Actualizar campo).", italics: true, color: "7F7F7F", size: 18 })] }),

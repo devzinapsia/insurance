@@ -8,11 +8,12 @@
 <h2>Cargar una póliza en curso a mano</h2>
 <ol>
 <li>Cargue la póliza completa (datos, objetos, coberturas, documentos) y confírmela.</li>
-<li>En la pestaña <strong>Contabilidad</strong>, sección <strong>Carga inicial</strong>, marque <strong>Póliza en curso</strong>, indique <strong>Continúa desde la cuota</strong> (por ejemplo 4) y el <strong>importe a devengar en la puesta en marcha</strong> (en pesos).</li>
+<li>En la pestaña <strong>Contabilidad</strong>, sección <strong>Carga inicial</strong>, marque <strong>Póliza en curso</strong> e indique <strong>Continúa desde la cuota</strong> (por ejemplo 4). El <strong>importe a devengar en la puesta en marcha</strong> (en pesos) se completa solo con la parte de la prima (sin impuestos) de las cuotas que siguen; corríjalo si su saldo contable es otro. Un importe escrito a mano no se reemplaza.</li>
 <li><strong>Generar cuotas</strong>: las cuotas anteriores (1 a 3 en el ejemplo) y las vencidas antes de la puesta en marcha quedan <strong>históricas</strong>, como pagadas, sin pagos ni asientos.</li>
 <li><strong>Crear factura</strong> factura solo las cuotas que siguen. Esa factura no vuelve a devengar.</li>
-<li><strong>Generar devengamiento inicial</strong> reparte el importe a devengar desde el mes de la puesta en marcha hasta el fin de la póliza.</li>
+<li><strong>Generar devengamiento inicial</strong> reparte el importe a devengar desde el mes de la puesta en marcha hasta el fin de la póliza. No cambia las cuotas: el resultado se ve en la pestaña <strong>Devengamiento</strong> y en un aviso. Si corrige el importe, puede generarlo de nuevo mientras no haya ningún mes devengado.</li>
 </ol>
+<div class="alert alert-info" role="status"><p>Si marca la póliza en curso o cambia <strong>Continúa desde la cuota</strong> después de generar las cuotas, al guardar se actualizan solas: con 4, las cuotas 1 a 3 pasan a históricas; si lo baja a 3, la cuota 3 vuelve a gestionarse en Odoo (salvo que venza antes de la puesta en marcha). Las cuotas ya facturadas o pagadas no cambian: primero cancele su factura.</p></div>
 <h2>Importar desde Excel</h2>
 <ol>
 <li><strong>Seguros › Configuración › Importar pólizas en curso</strong> (también desde los ajustes), <strong>Nuevo</strong>.</li>
