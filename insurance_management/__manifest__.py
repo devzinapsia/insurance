@@ -1,6 +1,6 @@
 {
     "name": "Gestión de seguros",
-    "version": "19.0.2.0.4",
+    "version": "19.0.2.0.5",
     "summary": "Pólizas de seguro contratadas por la empresa: vigencias, "
     "renovaciones, alertas, endosos, cuotas, pagos y devengamiento.",
     "author": "Zinapsia",

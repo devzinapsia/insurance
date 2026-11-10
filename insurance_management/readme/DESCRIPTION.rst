@@ -8,10 +8,12 @@ management" (endorsements, installments, vendor bills, payments, accrual,
 foreign currency, initial load and import), are included; fleet and employee
 integrations, claims, surety bonds and the dashboard arrive in phase 3.
 
-Two bridge modules install automatically when their dependency is present:
+Three bridge modules install automatically when their dependency is present:
 ``insurance_management_account_accountant`` (Enterprise deferred expenses as
-accrual method) and ``insurance_management_l10n_latam_check`` (own deferred
-checks for the installments).
+accrual method), ``insurance_management_l10n_latam_check`` (own deferred
+checks for the installments) and
+``insurance_management_account_payment_pro`` (adhoc's payments: the payment
+of an installment lists only that installment line in its debts).
 
 Currently included:
 
@@ -289,6 +291,9 @@ Payments (phase 2)
 * **Manual**: never paid automatically; pay the bill as usual (the
   installment becomes paid when its payable line is reconciled).
 * Generating payments is idempotent: an installment is never paid twice.
+* Each payment pays only its installment line and references its bill.
+  Payments keep no insurance fields: the installment holds the link (its
+  *Payment* field).
 
 Unpaid installments (phase 2)
 -----------------------------

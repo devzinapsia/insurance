@@ -2993,7 +2993,6 @@ msgstr "Línea de importación de seguros"
 #: model:ir.model,name:insurance_management.model_insurance_installment
 #: model:ir.model.fields,field_description:insurance_management.field_account_bank_statement_line__insurance_installment_id
 #: model:ir.model.fields,field_description:insurance_management.field_account_move__insurance_installment_id
-#: model:ir.model.fields,field_description:insurance_management.field_account_payment__insurance_installment_id
 msgid "Insurance installment"
 msgstr "Cuota de seguros"
 
@@ -3029,7 +3028,6 @@ msgstr "Listado de pólizas de seguro vigentes"
 #: model:ir.model,name:insurance_management.model_insurance_policy
 #: model:ir.model.fields,field_description:insurance_management.field_account_bank_statement_line__insurance_policy_id
 #: model:ir.model.fields,field_description:insurance_management.field_account_move__insurance_policy_id
-#: model:ir.model.fields,field_description:insurance_management.field_account_payment__insurance_policy_id
 #: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_form
 msgid "Insurance policy"
 msgstr "Póliza de seguro"

@@ -214,7 +214,10 @@ class TestInstallmentPayments(InsuranceAccountingCommon):
         # statement is reconciled.
         self.assertIn(first.payment_id.state, ("in_process", "paid"))
         self.assertEqual(first.payment_id.amount, first.amount)
-        self.assertEqual(first.payment_id.insurance_installment_id, first)
+        self.assertFalse(
+            {"insurance_installment_id", "insurance_policy_id"} & set(first.payment_id._fields),
+            "Payments keep no insurance fields: the link lives on the installment",
+        )
         self.assertTrue(first.move_line_id.reconciled)
         self.assertEqual(first.state, "paid")
         self.assertFalse(installments[1].payment_id, "Only the installment due")
@@ -222,7 +225,7 @@ class TestInstallmentPayments(InsuranceAccountingCommon):
         payment = first.payment_id
         Installment._process_daily_batch(installments, first.due_date)
         self.assertEqual(first.payment_id, payment)
-        self.assertEqual(self.env["account.payment"].search_count([("insurance_installment_id", "=", first.id)]), 1)
+        self.assertEqual(self.env["insurance.installment"].search_count([("payment_id", "=", payment.id)]), 1)
         # Debit (automatic debit, section 8.4): payable against the bank outstanding account.
         self.assertEqual(self._amls(payment.move_id, self.outstanding), (0.0, first.amount))
 

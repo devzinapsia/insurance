@@ -214,23 +214,13 @@ class AccountMove(models.Model):
 class AccountPayment(models.Model):
     _inherit = "account.payment"
 
-    insurance_installment_id = fields.Many2one(
-        comodel_name="insurance.installment",
-        string="Insurance installment",
-        index="btree_not_null",
-        copy=False,
-        readonly=True,
-    )
-    insurance_policy_id = fields.Many2one(
-        related="insurance_installment_id.policy_id",
-        string="Insurance policy",
-    )
-
     def action_post(self):
         res = super().action_post()
         # Draft payments generated for an installment are reconciled with it
-        # when posted (modules such as account_payment_pro may have done it
-        # already: then the line is reconciled and nothing happens).
-        for payment in self.filtered("insurance_installment_id"):
-            payment.insurance_installment_id._reconcile_with_payment(payment)
+        # when posted. The link lives on the installment only (payments keep
+        # no insurance fields); modules such as account_payment_pro may have
+        # reconciled it already, and then nothing happens.
+        installments = self.env["insurance.installment"].sudo().search([("payment_id", "in", self.ids)])
+        for installment in installments:
+            installment._reconcile_with_payment(installment.payment_id)
         return res

@@ -199,11 +199,15 @@
         <field name="name">account.move.form.insurance</field>
         <field name="model">account.move</field>
         <field name="inherit_id" ref="account.view_move_form"/>
+        <!-- Applied after other modules adding to the left group (e.g. the
+             bill classification), so the insurance fields come last there:
+             below the classification, or below Auto-complete without it. -->
+        <field name="priority">90</field>
         <field name="arch" type="xml">
             <xpath expr="//div[@name='button_box']" position="inside">
                 <button name="action_open_insurance_policy" type="object" class="oe_stat_button" icon="fa-shield" invisible="not insurance_policy_id" string="Policy"/>
             </xpath>
-            <xpath expr="//group[@id='header_right_group']" position="inside">
+            <xpath expr="//group[@id='header_left_group']" position="inside">
                 <field name="insurance_policy_id" invisible="move_type not in ('in_invoice', 'in_refund')" readonly="state == 'cancel'" options="{'no_create': True}"/>
                 <field name="insurance_endorsement_id" invisible="not insurance_policy_id or (not insurance_endorsement_id and state != 'draft')" readonly="state != 'draft'" options="{'no_create': True}"/>
                 <field name="insurance_installment_id" invisible="not insurance_policy_id or (not insurance_installment_id and state != 'draft')" readonly="state != 'draft'" options="{'no_create': True}"/>
@@ -219,18 +223,6 @@
         <field name="arch" type="xml">
             <xpath expr="//field[@name='partner_id']" position="after">
                 <field name="insurance_policy_id"/>
-            </xpath>
-        </field>
-    </record>
-
-    <record id="account_payment_view_form_insurance" model="ir.ui.view">
-        <field name="name">account.payment.form.insurance</field>
-        <field name="model">account.payment</field>
-        <field name="inherit_id" ref="account.view_account_payment_form"/>
-        <field name="arch" type="xml">
-            <xpath expr="//field[@name='memo']" position="after">
-                <field name="insurance_installment_id" invisible="not insurance_installment_id"/>
-                <field name="insurance_policy_id" invisible="not insurance_installment_id"/>
             </xpath>
         </field>
     </record>

@@ -246,7 +246,6 @@ class InsuranceInstallment(models.Model):
             "journal_id": mode.journal_id.id,
             "payment_method_line_id": mode.payment_method_line_id.id,
             "memo": f"{self.policy_id.policy_number or self.policy_id.name} {self.name}",
-            "insurance_installment_id": self.id,
             "invoice_ids": [fields.Command.set(line.move_id.ids)],
         }
 
