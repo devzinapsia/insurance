@@ -20,6 +20,8 @@ COMPANY_FIELDS = {
     "accrual_method": "insurance_accrual_method",
     "billing_mode": "insurance_billing_mode",
     "go_live_date": "insurance_go_live_date",
+    "opening_account_id": "insurance_opening_account_id",
+    "opening_journal_id": "insurance_opening_journal_id",
 }
 ACCOUNTING_GROUP = "account.group_account_manager"
 BATCH_SIZE_PARAM = "insurance_management.cron_batch_size"
@@ -113,6 +115,18 @@ class InsuranceSettings(models.TransientModel):
         groups=ACCOUNTING_GROUP,
     )
     go_live_date = fields.Date(string="Go-live date", groups=ACCOUNTING_GROUP)
+    opening_account_id = fields.Many2one(
+        comodel_name="account.account",
+        string="Opening transitory account",
+        domain="[('account_type', 'not in', ('asset_receivable', 'liability_payable', 'off_balance'))]",
+        groups=ACCOUNTING_GROUP,
+    )
+    opening_journal_id = fields.Many2one(
+        comodel_name="account.journal",
+        string="Opening debt journal",
+        domain="[('type', '=', 'purchase'), ('company_id', '=', company_id)]",
+        groups=ACCOUNTING_GROUP,
+    )
     # Initial load control (section 8.7): read only, never blocks.
     opening_unaccrued_total = fields.Monetary(
         string="Still to accrue in running policies",

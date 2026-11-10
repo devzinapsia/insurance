@@ -61,6 +61,7 @@ class InsuranceCostReport(models.Model):
                  WHERE move.state = 'posted'
                    AND move.move_type IN ('in_invoice', 'in_refund')
                    AND line.display_type = 'product'
+                   AND NOT COALESCE(move.insurance_opening_debt, FALSE)
             )
             """
         )

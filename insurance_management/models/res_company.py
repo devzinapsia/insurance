@@ -109,6 +109,22 @@ class ResCompany(models.Model):
         string="Default payment mode",
         help="Payment mode proposed on new policies.",
     )
+    insurance_opening_account_id = fields.Many2one(
+        comodel_name="account.account",
+        string="Opening transitory account",
+        domain="[('account_type', 'not in', ('asset_receivable', 'liability_payable', 'off_balance'))]",
+        help="Running policies billed up front: the opening debt with the "
+        "insurer (installments left at go-live) is brought in with a bill on "
+        "this account, against the same account in the opening entry, so it "
+        "ends at zero.",
+    )
+    insurance_opening_journal_id = fields.Many2one(
+        comodel_name="account.journal",
+        string="Opening debt journal",
+        domain="[('type', '=', 'purchase')]",
+        help="Purchase journal of the opening debt bills (e.g. one without "
+        "fiscal documents). Empty: the default purchase journal.",
+    )
     insurance_go_live_date = fields.Date(
         string="Go-live date",
         help="Installments due before this date are historical: they are "

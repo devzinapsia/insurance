@@ -58,6 +58,8 @@
                             <field name="prepaid_account_id" invisible="accrual_method != 'module'" options="{'no_create': True}"/>
                             <field name="accrual_journal_id" invisible="accrual_method != 'module'" options="{'no_create': True}"/>
                             <field name="go_live_date"/>
+                            <field name="opening_account_id" invisible="not go_live_date" options="{'no_create': True}"/>
+                            <field name="opening_journal_id" invisible="not go_live_date" options="{'no_create': True}"/>
                             <field name="company_currency_id" invisible="1"/>
                             <field name="opening_unaccrued_total" invisible="not go_live_date"/>
                             <field name="opening_prepaid_balance" invisible="not go_live_date or not prepaid_account_id"/>

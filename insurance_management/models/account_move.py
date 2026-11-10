@@ -34,6 +34,13 @@ class AccountMove(models.Model):
         inverse_name="move_id",
         string="Insurance installments",
     )
+    insurance_opening_debt = fields.Boolean(
+        string="Insurance opening debt",
+        copy=False,
+        readonly=True,
+        help="Bill bringing in the debt with the insurer of a running policy "
+        "billed up front (initial load): it is not a new cost and is not accrued.",
+    )
     insurance_accrual_date = fields.Date(
         string="Insurance accrual period",
         copy=False,

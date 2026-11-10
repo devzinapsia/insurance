@@ -226,6 +226,7 @@
                                 <group string="Initial load">
                                     <field name="in_progress" readonly="is_locked"/>
                                     <field name="continue_from_installment" invisible="not in_progress" readonly="is_locked"/>
+                                    <field name="opening_billing" widget="radio" invisible="not in_progress" readonly="is_locked"/>
                                     <field name="company_currency_id" invisible="1"/>
                                     <field name="unaccrued_amount" invisible="not in_progress or accrual_method != 'module'" readonly="is_locked"/>
                                     <button name="action_generate_initial_accrual" type="object" string="Generate initial accrual" class="btn-link ps-0" colspan="2"

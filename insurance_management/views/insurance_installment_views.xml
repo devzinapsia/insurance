@@ -207,6 +207,7 @@
                 <field name="insurance_policy_id" invisible="move_type not in ('in_invoice', 'in_refund')" readonly="state == 'cancel'" options="{'no_create': True}"/>
                 <field name="insurance_endorsement_id" invisible="not insurance_policy_id or (not insurance_endorsement_id and state != 'draft')" readonly="state != 'draft'" options="{'no_create': True}"/>
                 <field name="insurance_installment_id" invisible="not insurance_policy_id or (not insurance_installment_id and state != 'draft')" readonly="state != 'draft'" options="{'no_create': True}"/>
+                <field name="insurance_opening_debt" invisible="not insurance_opening_debt"/>
             </xpath>
         </field>
     </record>

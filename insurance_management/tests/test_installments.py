@@ -559,6 +559,13 @@ class TestAccrual(InsuranceAccountingCommon):
 
 @tagged("post_install", "-at_install")
 class TestInitialLoad(InsuranceAccountingCommon):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        # Opening debt bills need a go-live date (neutral here: no
+        # installment of the test policies is due before it).
+        cls.company.insurance_go_live_date = date(cls.year, 1, 1)
+
     def test_running_policy_initial_accrual(self):
         self.company.insurance_go_live_date = date(self.year, 4, 1)
         policy = self._policy(in_progress=True, continue_from_installment=4, unaccrued_amount=900000.0)
@@ -589,6 +596,78 @@ class TestInitialLoad(InsuranceAccountingCommon):
         # Historical installments never generate payments.
         self.env["insurance.installment"]._process_daily_batch(installments, date(self.year, 12, 31))
         self.assertFalse(installments.filtered("historical").payment_id)
+
+    def test_opening_debt_bill_billed_up_front(self):
+        """The insurer billed the whole premium before the go-live: Create bill
+        brings in the debt of installments 4 to 12 as one opening bill, gross,
+        without taxes, on the transitory account, dated the day before the
+        go-live, with one due date per installment, not accrued again and not
+        counted as cost."""
+        self.company.insurance_go_live_date = date(self.year, 4, 1)
+        opening_journal = self.env["account.journal"].create(
+            {"name": "Opening balances", "code": "OPEN", "type": "purchase", "company_id": self.company.id}
+        )
+        self.company.insurance_opening_journal_id = opening_journal
+        self.product.supplier_taxes_id = self.company_data["default_tax_purchase"]
+        policy = self._policy(
+            in_progress=True, continue_from_installment=4, premium=1000000.0, billing_mode="installment"
+        )
+        self.assertEqual(policy.opening_billing, "upfront", "Default")
+        installments = self._installments(policy, count=12, continue_from=4)
+        action = policy.action_create_bill()
+        bill = self.env["account.move"].browse(action["res_id"])
+        self.assertEqual(len(bill), 1, "One opening bill whatever the billing mode")
+        self.assertTrue(bill.insurance_opening_debt)
+        self.assertEqual(bill.journal_id, opening_journal)
+        self.assertEqual(bill.invoice_date, date(self.year, 3, 31))
+        self.assertEqual(bill.invoice_line_ids.account_id, self.opening_account)
+        self.assertFalse(bill.invoice_line_ids.tax_ids, "Taxed in the original bill")
+        self.assertFalse(bill.invoice_line_ids.product_id)
+        bill.action_post()
+        self.assertEqual(bill.amount_total, 900000.0, "Gross installments 4 to 12")
+        self.assertEqual(bill.amount_tax, 0.0)
+        billed = installments.filtered(lambda i: not i.historical)
+        self.assertEqual(len(billed.move_line_id), 9, "One due date per installment")
+        self.assertFalse(policy.accrual_line_ids, "The opening debt is not accrued again")
+        self.assertFalse(self.env["insurance.cost.report"].search([("move_id", "=", bill.id)]), "Not a new cost")
+        self.assertEqual(policy.amount_due, 900000.0)
+        # The automatic debits pay the opening debt installment by installment.
+        fourth = billed.sorted("number")[0]
+        self.env["insurance.installment"]._process_daily_batch(billed, fourth.due_date)
+        self.assertEqual(fourth.state, "paid")
+        self.assertEqual(fourth.payment_id.amount, 100000.0)
+
+    def test_opening_debt_bill_needs_the_settings(self):
+        self.company.insurance_opening_account_id = False
+        self.company.insurance_go_live_date = date(self.year, 4, 1)
+        policy = self._policy(in_progress=True, continue_from_installment=4)
+        self._installments(policy, count=12, continue_from=4)
+        with self.assertRaisesRegex(UserError, "opening transitory account"):
+            policy.action_create_bill()
+
+    def test_running_policy_billed_by_installment(self):
+        """The insurer bills the installments left after the go-live: their
+        bills go to the prepaid account and are accrued from the go-live
+        month; nothing to suggest as amount still to accrue."""
+        self.company.insurance_go_live_date = date(self.year, 4, 1)
+        policy = self._policy(in_progress=True, continue_from_installment=4, opening_billing="installments")
+        self._installments(policy, count=12, continue_from=4)
+        bill = self._post_bill(policy, invoice_date=date(self.year, 4, 1))
+        self.assertFalse(bill.insurance_opening_debt)
+        self.assertEqual(bill.invoice_line_ids.account_id, self.prepaid)
+        plan = policy.accrual_line_ids.sorted("date")
+        self.assertEqual(len(plan), 9, "April to December")
+        self.assertEqual(plan[0].date, date(self.year, 4, 30))
+        self.assertEqual(sum(plan.mapped("amount")), 900000.0)
+        form = Form(policy)  # not saved: installment 4 is already billed
+        form.unaccrued_amount = 0.0
+        form.continue_from_installment = 5
+        self.assertEqual(form.unaccrued_amount, 0.0, "Billed by installment: nothing billed before go-live to accrue")
+        # A bill of the previous system linked to the policy is never accrued again.
+        old = self.init_invoice("in_invoice", partner=self.insurer, invoice_date=date(self.year, 3, 1), amounts=[100000.0])
+        old.insurance_policy_id = policy
+        old.action_post()
+        self.assertFalse(policy.accrual_line_ids.filtered(lambda l: l.source_move_id == old))
 
     def _historical_numbers(self, policy):
         return policy.installment_ids.filtered("historical").sorted("number").mapped("number")

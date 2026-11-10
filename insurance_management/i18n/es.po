@@ -1208,6 +1208,14 @@ msgstr ""
 "lugar de cancelarla."
 
 #. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_account_bank_statement_line__insurance_opening_debt
+#: model:ir.model.fields,help:insurance_management.field_account_move__insurance_opening_debt
+msgid ""
+"Bill bringing in the debt with the insurer of a running policy billed up "
+"front (initial load): it is not a new cost and is not accrued."
+msgstr "Factura que trae la deuda con la aseguradora de una póliza en curso facturada al inicio (carga inicial): no es un costo nuevo y no se devenga."
+
+#. module: insurance_management
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__invoice_count
 msgid "Bill count"
 msgstr "Cantidad de facturas"
@@ -1221,6 +1229,16 @@ msgstr "Factura o nota de crédito cuyo importe a devengar devenga esta línea."
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__amount_invoiced
 msgid "Billed"
 msgstr "Facturado"
+
+#. module: insurance_management
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_policy__opening_billing__installments
+msgid "Billed by installment in Odoo"
+msgstr "Se factura por cuota en Odoo"
+
+#. module: insurance_management
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_policy__opening_billing__upfront
+msgid "Billed up front (opening debt)"
+msgstr "Facturada al inicio (deuda de apertura)"
 
 #. module: insurance_management
 #. odoo-python
@@ -2986,6 +3004,12 @@ msgid "Insurance installments"
 msgstr "Cuotas de seguros"
 
 #. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_account_bank_statement_line__insurance_opening_debt
+#: model:ir.model.fields,field_description:insurance_management.field_account_move__insurance_opening_debt
+msgid "Insurance opening debt"
+msgstr "Deuda de apertura de seguros"
+
+#. module: insurance_management
 #: model:ir.model,name:insurance_management.model_insurance_payment_mode
 msgid "Insurance payment mode"
 msgstr "Medio de pago de seguros"
@@ -3166,6 +3190,11 @@ msgstr "Aseguradora"
 #: code:addons/insurance_management/models/insurance_import.py:0
 msgid "Insurer (VAT or name)"
 msgstr "Aseguradora (CUIT o nombre)"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__opening_billing
+msgid "Insurer billing before go-live"
+msgstr "Facturación de la aseguradora antes de la puesta en marcha"
 
 #. module: insurance_management
 #: model_terms:ir.ui.view,arch_db:insurance_management.res_partner_view_search_insurance
@@ -4064,9 +4093,27 @@ msgid "Opening balance of prepaid insurance"
 msgstr "Saldo de apertura de seguros a devengar"
 
 #. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_settings__opening_journal_id
+#: model:ir.model.fields,field_description:insurance_management.field_res_company__insurance_opening_journal_id
+msgid "Opening debt journal"
+msgstr "Diario de deuda de apertura"
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy.py:0
+msgid "Opening debt: %(label)s"
+msgstr "Deuda de apertura: %(label)s"
+
+#. module: insurance_management
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_settings__opening_difference
 msgid "Opening difference"
 msgstr "Diferencia de apertura"
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_settings__opening_account_id
+#: model:ir.model.fields,field_description:insurance_management.field_res_company__insurance_opening_account_id
+msgid "Opening transitory account"
+msgstr "Cuenta transitoria de apertura"
 
 #. module: insurance_management
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement_line__operation
@@ -4374,6 +4421,15 @@ msgstr "La póliza %(policy)s está %(state)s y ya no se puede modificar."
 #. module: insurance_management
 #. odoo-python
 #: code:addons/insurance_management/models/insurance_policy.py:0
+msgid ""
+"Policy %(policy)s is a running policy billed up front: set the go-live date "
+"and the opening transitory account in the insurance settings before creating"
+" its opening debt bill."
+msgstr "La póliza %(policy)s es una póliza en curso facturada al inicio: cargue la fecha de puesta en marcha y la cuenta transitoria de apertura en los ajustes de seguros antes de crear su factura de deuda de apertura."
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy.py:0
 msgid "Policy %(policy)s is already renewed by %(renewal)s."
 msgstr "La póliza %(policy)s ya fue renovada por %(renewal)s."
 
@@ -4661,6 +4717,13 @@ msgid "Property"
 msgstr "Bien"
 
 #. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_res_company__insurance_opening_journal_id
+msgid ""
+"Purchase journal of the opening debt bills (e.g. one without fiscal "
+"documents). Empty: the default purchase journal."
+msgstr "Diario de compras de las facturas de deuda de apertura (por ejemplo, uno sin documentos fiscales). Vacío: el diario de compras predeterminado."
+
+#. module: insurance_management
 #: model:insurance.endorsement.type,description:insurance_management.insurance_endorsement_type_increase_sum
 msgid ""
 "Raises the sum insured of some objects, with an additional premium. E.g. the"
@@ -4908,6 +4971,14 @@ msgid "Run the expiry process now"
 msgstr "Ejecutar ahora el proceso de vencimientos"
 
 #. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_res_company__insurance_opening_account_id
+msgid ""
+"Running policies billed up front: the opening debt with the insurer "
+"(installments left at go-live) is brought in with a bill on this account, "
+"against the same account in the opening entry, so it ends at zero."
+msgstr "Pólizas en curso facturadas al inicio: la deuda de apertura con la aseguradora (cuotas que quedan en la puesta en marcha) entra con una factura en esta cuenta, contra la misma cuenta en el asiento de apertura, así termina en cero."
+
+#. module: insurance_management
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__in_progress
 msgid "Running policy"
 msgstr "Póliza en curso"
@@ -4928,6 +4999,16 @@ msgstr ""
 "crean como históricas (pagadas, sin pagos ni asientos)."
 
 #. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_policy__opening_billing
+msgid ""
+"Running policy. Billed up front: the insurer billed the whole premium before"
+" the go-live; Create bill brings in the debt of the installments left on the"
+" opening transitory account (no taxes, not accrued again). Billed by "
+"installment: the insurer bills the installments left after the go-live; "
+"their bills are accrued from the go-live month."
+msgstr "Póliza en curso. Facturada al inicio: la aseguradora facturó todo el premio antes de la puesta en marcha; Crear factura trae la deuda de las cuotas que quedan en la cuenta transitoria de apertura (sin impuestos, sin volver a devengar). Por cuota: la aseguradora factura las cuotas que quedan después de la puesta en marcha; sus facturas se devengan desde el mes de la puesta en marcha."
+
+#. module: insurance_management
 #: model:ir.model.fields,help:insurance_management.field_insurance_policy__continue_from_installment
 msgid "Running policy: first installment managed in Odoo (e.g. 4 of 12)."
 msgstr "Póliza en curso: primera cuota que se gestiona en Odoo (ej. 4 de 12)."
@@ -4935,13 +5016,11 @@ msgstr "Póliza en curso: primera cuota que se gestiona en Odoo (ej. 4 de 12)."
 #. module: insurance_management
 #: model:ir.model.fields,help:insurance_management.field_insurance_policy__unaccrued_amount
 msgid ""
-"Running policy: premium not accrued yet at the go-live date, in company "
-"currency. It must match its share of the opening balance of the prepaid "
-"insurance account."
-msgstr ""
-"Póliza en curso: premio todavía no devengado a la fecha de puesta en marcha,"
-" en moneda de la compañía. Debe coincidir con su parte del saldo de apertura"
-" de la cuenta de seguros a devengar."
+"Running policy: premium billed before the go-live and not accrued yet, in "
+"company currency (billed up front: the premium of the installments left; "
+"billed by installment: usually zero). It must match its share of the opening"
+" balance of the prepaid insurance account."
+msgstr "Póliza en curso: prima facturada antes de la puesta en marcha y todavía no devengada, en la moneda de la compañía (facturada al inicio: la prima de las cuotas que quedan; por cuota: normalmente cero). Debe coincidir con su parte del saldo de apertura de la cuenta de seguros a devengar."
 
 #. module: insurance_management
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_branch__message_has_sms_error

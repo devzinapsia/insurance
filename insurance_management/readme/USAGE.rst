@@ -61,6 +61,13 @@ Initial load
   download the template, fill it in, upload it, click **Read file** and
   **Process now**. Rows with errors show their message; fix the file, upload
   it again and read it: only the failed rows are replaced.
+* A running policy says how the insurer billed it before the go-live.
+  *Billed up front*: **Create bill** makes one opening debt bill for the
+  installments left (gross, no taxes, on the opening transitory account,
+  dated the day before the go-live, one due date per installment, not
+  accrued and not counted as cost); the opening entry credits the same
+  transitory account. *Billed by installment*: normal bills, accrued from
+  the go-live month.
 * Marking a policy as running, or changing the installment it continues
   from, after generating the installments updates them on save (historical
   or not); billed or paid installments never change. The initial accrual

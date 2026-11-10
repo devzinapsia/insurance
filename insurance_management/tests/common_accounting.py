@@ -30,6 +30,9 @@ class InsuranceAccountingCommon(AccountTestInvoicingCommon):
         cls.prepaid = cls.env["account.account"].create(
             {"name": "Prepaid insurance", "code": "999902", "account_type": "asset_prepayments"}
         )
+        cls.opening_account = cls.env["account.account"].create(
+            {"name": "Opening transitory", "code": "999903", "account_type": "asset_current"}
+        )
         cls.bank_journal = cls.company_data["default_journal_bank"]
         cls.outstanding = cls.env["account.account"].create(
             {"name": "Outstanding payments", "code": "999901", "account_type": "asset_current", "reconcile": True}
@@ -52,6 +55,7 @@ class InsuranceAccountingCommon(AccountTestInvoicingCommon):
             {
                 "insurance_product_id": cls.product.id,
                 "insurance_prepaid_account_id": cls.prepaid.id,
+                "insurance_opening_account_id": cls.opening_account.id,
                 "insurance_accrual_journal_id": cls.company_data["default_journal_misc"].id,
                 "insurance_billing_mode": "policy",
                 "insurance_accrual_method": "module",

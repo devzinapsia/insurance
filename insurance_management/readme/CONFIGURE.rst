@@ -44,7 +44,9 @@
    * For the module accrual: the *Prepaid insurance account* (current
      asset) and the *Accrual journal* (miscellaneous).
    * *Go-live date*, for the initial load of running policies; the section
-     then shows the opening balance control.
+     then shows the opening balance control, the *Opening transitory
+     account* and the *Opening debt journal* (a purchase journal without
+     fiscal documents) used by the opening debt bills.
 #. Create the payment modes in **Insurance ‣ Configuration ‣ Payment modes**
    (journal, payment method with its outstanding payments account, and
    whether payments are posted or left as drafts) and choose the default one

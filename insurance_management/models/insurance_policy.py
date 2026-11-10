@@ -33,6 +33,12 @@ LIFECYCLE_CTX = "insurance_lifecycle_write"
 # Set by the Confirm button: ask before confirming policies whose premium
 # and/or total premium is zero (code callers, e.g. the import, never ask).
 AMOUNT_CHECK_CTX = "insurance_check_amounts"
+# Set while creating the opening debt bill of a running policy billed up front.
+OPENING_DEBT_CTX = "insurance_opening_debt_bill"
+OPENING_BILLING = [
+    ("upfront", "Billed up front (opening debt)"),
+    ("installments", "Billed by installment in Odoo"),
+]
 # Contract data of a confirmed policy: only an endorsement can change them
 # (RF-06; Fase 2 retired the Fase 1 transitional editing rule).
 CONTRACT_FIELDS = {
@@ -472,15 +478,31 @@ class InsurancePolicy(models.Model):
         tracking=True,
         help="Running policy: first installment managed in Odoo (e.g. 4 of 12).",
     )
+    opening_billing = fields.Selection(
+        selection=OPENING_BILLING,
+        string="Insurer billing before go-live",
+        default="upfront",
+        required=True,
+        copy=False,
+        tracking=True,
+        help="Running policy. Billed up front: the insurer billed the whole "
+        "premium before the go-live; Create bill brings in the debt of the "
+        "installments left on the opening transitory account (no taxes, not "
+        "accrued again). Billed by installment: the insurer bills the "
+        "installments left after the go-live; their bills are accrued from "
+        "the go-live month.",
+    )
     unaccrued_amount = fields.Monetary(
         string="Amount still to accrue at go-live",
         copy=False,
         currency_field="company_currency_id",
         tracking=True,
         groups=AMOUNTS_GROUP,
-        help="Running policy: premium not accrued yet at the go-live date, in "
-        "company currency. It must match its share of the opening balance of "
-        "the prepaid insurance account.",
+        help="Running policy: premium billed before the go-live and not "
+        "accrued yet, in company currency (billed up front: the premium of "
+        "the installments left; billed by installment: usually zero). It must "
+        "match its share of the opening balance of the prepaid insurance "
+        "account.",
     )
 
     # Alerts -------------------------------------------------------------------
@@ -914,13 +936,16 @@ class InsurancePolicy(models.Model):
                     self.env._("The days before sending the non-renewal instruction cannot be negative.")
                 )
 
-    def _get_suggested_unaccrued_amount(self, continue_from):
+    def _get_suggested_unaccrued_amount(self, continue_from, opening_billing=None):
         """Amount still to accrue at go-live suggested for a running policy
         continuing from ``continue_from``: the net premium share (as billed)
         of the installments managed in Odoo, in company currency. Without
         installments yet, the premium share of the remaining ones (a monthly
-        installment per month of validity)."""
+        installment per month of validity). Billed by installment: zero (the
+        bills made in Odoo are accrued on their own)."""
         self.ensure_one()
+        if (opening_billing or self.opening_billing) == "installments":
+            return 0.0
         policy = self.sudo()
         installments = policy.installment_ids.filtered(lambda i: not i.endorsement_id and not i.cancelled)
         if installments:
@@ -942,7 +967,7 @@ class InsurancePolicy(models.Model):
         date = company.insurance_go_live_date or fields.Date.context_today(self)
         return currency._convert(amount, company.currency_id, company, date)
 
-    @api.onchange("in_progress", "continue_from_installment")
+    @api.onchange("in_progress", "continue_from_installment", "opening_billing")
     def _onchange_suggest_unaccrued_amount(self):
         """Suggest the amount still to accrue; a value typed by the user (not
         one of the suggestions) is never replaced."""
@@ -952,7 +977,9 @@ class InsurancePolicy(models.Model):
         current = self.sudo().unaccrued_amount
         if not currency.is_zero(current):
             count = max(len(self.installment_ids), 12)
-            suggestions = [self._get_suggested_unaccrued_amount(number) for number in range(1, count + 1)]
+            suggestions = [
+                self._get_suggested_unaccrued_amount(number, "upfront") for number in range(1, count + 1)
+            ]
             if not any(currency.compare_amounts(current, suggestion) == 0 for suggestion in suggestions):
                 return
         self.unaccrued_amount = currency.round(self._get_suggested_unaccrued_amount(self.continue_from_installment))
@@ -1824,6 +1851,16 @@ class InsurancePolicy(models.Model):
         premium share net of taxes, and the account of the accrual method.
         Hook for the bridge modules (e.g. Enterprise deferred dates)."""
         self.ensure_one()
+        if self.env.context.get(OPENING_DEBT_CTX):
+            # Debt of a premium billed (and taxed) before the go-live: gross
+            # installments, no product nor taxes, on the transitory account.
+            return {
+                "name": label,
+                "quantity": 1,
+                "price_unit": amount,
+                "account_id": self.company_id.insurance_opening_account_id.id,
+                "tax_ids": [fields.Command.clear()],
+            }
         product = self._get_insurance_product()
         account = self._get_bill_line_account()
         if not account:
@@ -1849,7 +1886,7 @@ class InsurancePolicy(models.Model):
 
     def _prepare_bill_vals(self, move_type, amount, label, date_from, date_to, endorsement=None, installment=None):
         self.ensure_one()
-        return {
+        vals = {
             "move_type": move_type,
             "partner_id": self.insurer_id.id,
             "currency_id": self.currency_id.id,
@@ -1860,6 +1897,18 @@ class InsurancePolicy(models.Model):
             "insurance_installment_id": installment.id if installment else False,
             "invoice_line_ids": [fields.Command.create(self._prepare_bill_line_vals(amount, label, date_from, date_to))],
         }
+        if self.env.context.get(OPENING_DEBT_CTX):
+            company = self.company_id
+            vals.update(
+                {
+                    "insurance_opening_debt": True,
+                    "insurance_installment_id": False,
+                    "invoice_date": company.insurance_go_live_date - relativedelta(days=1),
+                }
+            )
+            if company.insurance_opening_journal_id:
+                vals["journal_id"] = company.insurance_opening_journal_id.id
+        return vals
 
     def _create_bill(self, installments, endorsement=None):
         """Draft vendor bill of ``installments`` (one bill for all of them, or
@@ -1878,6 +1927,8 @@ class InsurancePolicy(models.Model):
         )
         if endorsement:
             label = f"{label} ({endorsement.display_name})"
+        if self.env.context.get(OPENING_DEBT_CTX):
+            label = self.env._("Opening debt: %(label)s", label=label)
         single = installments if len(installments) == 1 and self.billing_mode == "installment" else None
         if single:
             label = f"{label} {single.name}"
@@ -1903,6 +1954,27 @@ class InsurancePolicy(models.Model):
             action["domain"] = [("id", "in", moves.ids)]
         return action
 
+    def _is_opening_debt(self):
+        """Running policy billed up front: its bill brings in the opening debt."""
+        self.ensure_one()
+        return self.in_progress and self.opening_billing == "upfront"
+
+    def _create_opening_debt_bill(self, installments):
+        """One bill for the installments left at go-live, whatever the
+        billing mode: the debt of a premium already billed up front."""
+        self.ensure_one()
+        company = self.company_id
+        if not company.insurance_go_live_date or not company.insurance_opening_account_id:
+            raise UserError(
+                self.env._(
+                    "Policy %(policy)s is a running policy billed up front: set the go-live date and the "
+                    "opening transitory account in the insurance settings before creating its opening "
+                    "debt bill.",
+                    policy=self.display_name,
+                )
+            )
+        return self.with_context(**{OPENING_DEBT_CTX: True})._create_bill(installments)
+
     def action_create_bill(self):
         """Bills of the policy installments, according to the billing mode."""
         self.ensure_one()
@@ -1916,7 +1988,9 @@ class InsurancePolicy(models.Model):
                 )
             raise UserError(self.env._("Generate the installments first: there are none to bill."))
         moves = self.env["account.move"]
-        if self.billing_mode == "installment":
+        if self._is_opening_debt():
+            moves = self._create_opening_debt_bill(installments)
+        elif self.billing_mode == "installment":
             for installment in installments:
                 moves |= self._create_bill(installment)
         else:
@@ -1999,9 +2073,12 @@ class InsurancePolicy(models.Model):
         if self.accrual_method != "module" or move.state != "posted":
             return self.env["insurance.accrual.line"]
         endorsement = move.insurance_endorsement_id
-        if self.in_progress and not endorsement:
-            # Running policy: its premium is accrued from the amount informed at
-            # the go-live (action_generate_initial_accrual), never twice (RF-11).
+        go_live = self.company_id.insurance_go_live_date
+        running = self.in_progress and not endorsement
+        if running and (move.insurance_opening_debt or (go_live and move.date < go_live)):
+            # Running policy: what was billed before the go-live is accrued from
+            # the amount informed at the go-live (action_generate_initial_accrual),
+            # never twice (RF-11); the opening debt bill is not a new cost.
             return self.env["insurance.accrual.line"]
         prepaid = self._get_prepaid_account()
         amount = sum(move.line_ids.filtered(lambda l: l.account_id == prepaid).mapped("balance"))
@@ -2016,6 +2093,10 @@ class InsurancePolicy(models.Model):
             # Posted again with another amount: rebuild the plan.
             existing.sudo().unlink()
         date_from = endorsement.effective_date if endorsement else self.date_from
+        if running and go_live:
+            # Billed by installment after the go-live: the months before it
+            # were accrued in the previous system.
+            date_from = max(date_from, go_live)
         return self._create_accrual_lines(amount, date_from, self.date_to, endorsement, move)
 
     def action_generate_initial_accrual(self):

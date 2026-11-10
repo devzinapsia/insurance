@@ -1,5 +1,7 @@
 from odoo import fields, models
 
+from odoo.addons.insurance_management.models.insurance_policy import OPENING_DEBT_CTX
+
 DEFERRED = [("deferred", "Enterprise deferred expenses")]
 
 
@@ -26,7 +28,9 @@ class InsurancePolicy(models.Model):
         account and carries the validity; Enterprise creates the deferral
         entries month by month (company "deferred expense" settings)."""
         vals = super()._prepare_bill_line_vals(amount, label, date_from, date_to)
-        if self.accrual_method == "deferred":
+        # The opening debt bill (running policy billed up front) is not a new
+        # cost: never deferred.
+        if self.accrual_method == "deferred" and not self.env.context.get(OPENING_DEBT_CTX):
             go_live = self.company_id.insurance_go_live_date
             if self.in_progress and go_live and date_from < go_live:
                 # Running policy (initial load): the installments billed in

@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 19.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-10 12:04+0000\n"
-"PO-Revision-Date: 2026-11-10 12:04+0000\n"
+"POT-Creation-Date: 2026-11-10 13:14+0000\n"
+"PO-Revision-Date: 2026-11-10 13:14+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -871,6 +871,14 @@ msgid ""
 msgstr ""
 
 #. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_account_bank_statement_line__insurance_opening_debt
+#: model:ir.model.fields,help:insurance_management.field_account_move__insurance_opening_debt
+msgid ""
+"Bill bringing in the debt with the insurer of a running policy billed up "
+"front (initial load): it is not a new cost and is not accrued."
+msgstr ""
+
+#. module: insurance_management
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__invoice_count
 msgid "Bill count"
 msgstr ""
@@ -883,6 +891,16 @@ msgstr ""
 #. module: insurance_management
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__amount_invoiced
 msgid "Billed"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_policy__opening_billing__installments
+msgid "Billed by installment in Odoo"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_policy__opening_billing__upfront
+msgid "Billed up front (opening debt)"
 msgstr ""
 
 #. module: insurance_management
@@ -2560,6 +2578,12 @@ msgid "Insurance installments"
 msgstr ""
 
 #. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_account_bank_statement_line__insurance_opening_debt
+#: model:ir.model.fields,field_description:insurance_management.field_account_move__insurance_opening_debt
+msgid "Insurance opening debt"
+msgstr ""
+
+#. module: insurance_management
 #: model:ir.model,name:insurance_management.model_insurance_payment_mode
 msgid "Insurance payment mode"
 msgstr ""
@@ -2737,6 +2761,11 @@ msgstr ""
 #. odoo-python
 #: code:addons/insurance_management/models/insurance_import.py:0
 msgid "Insurer (VAT or name)"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__opening_billing
+msgid "Insurer billing before go-live"
 msgstr ""
 
 #. module: insurance_management
@@ -3581,8 +3610,26 @@ msgid "Opening balance of prepaid insurance"
 msgstr ""
 
 #. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_settings__opening_journal_id
+#: model:ir.model.fields,field_description:insurance_management.field_res_company__insurance_opening_journal_id
+msgid "Opening debt journal"
+msgstr ""
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy.py:0
+msgid "Opening debt: %(label)s"
+msgstr ""
+
+#. module: insurance_management
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_settings__opening_difference
 msgid "Opening difference"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_settings__opening_account_id
+#: model:ir.model.fields,field_description:insurance_management.field_res_company__insurance_opening_account_id
+msgid "Opening transitory account"
 msgstr ""
 
 #. module: insurance_management
@@ -3876,6 +3923,15 @@ msgstr ""
 #. module: insurance_management
 #. odoo-python
 #: code:addons/insurance_management/models/insurance_policy.py:0
+msgid ""
+"Policy %(policy)s is a running policy billed up front: set the go-live date "
+"and the opening transitory account in the insurance settings before creating"
+" its opening debt bill."
+msgstr ""
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy.py:0
 msgid "Policy %(policy)s is already renewed by %(renewal)s."
 msgstr ""
 
@@ -4143,6 +4199,13 @@ msgid "Property"
 msgstr ""
 
 #. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_res_company__insurance_opening_journal_id
+msgid ""
+"Purchase journal of the opening debt bills (e.g. one without fiscal "
+"documents). Empty: the default purchase journal."
+msgstr ""
+
+#. module: insurance_management
 #: model:insurance.endorsement.type,description:insurance_management.insurance_endorsement_type_increase_sum
 msgid ""
 "Raises the sum insured of some objects, with an additional premium. E.g. the"
@@ -4382,6 +4445,14 @@ msgid "Run the expiry process now"
 msgstr ""
 
 #. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_res_company__insurance_opening_account_id
+msgid ""
+"Running policies billed up front: the opening debt with the insurer "
+"(installments left at go-live) is brought in with a bill on this account, "
+"against the same account in the opening entry, so it ends at zero."
+msgstr ""
+
+#. module: insurance_management
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__in_progress
 msgid "Running policy"
 msgstr ""
@@ -4400,6 +4471,16 @@ msgid ""
 msgstr ""
 
 #. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_policy__opening_billing
+msgid ""
+"Running policy. Billed up front: the insurer billed the whole premium before"
+" the go-live; Create bill brings in the debt of the installments left on the"
+" opening transitory account (no taxes, not accrued again). Billed by "
+"installment: the insurer bills the installments left after the go-live; "
+"their bills are accrued from the go-live month."
+msgstr ""
+
+#. module: insurance_management
 #: model:ir.model.fields,help:insurance_management.field_insurance_policy__continue_from_installment
 msgid "Running policy: first installment managed in Odoo (e.g. 4 of 12)."
 msgstr ""
@@ -4407,9 +4488,10 @@ msgstr ""
 #. module: insurance_management
 #: model:ir.model.fields,help:insurance_management.field_insurance_policy__unaccrued_amount
 msgid ""
-"Running policy: premium not accrued yet at the go-live date, in company "
-"currency. It must match its share of the opening balance of the prepaid "
-"insurance account."
+"Running policy: premium billed before the go-live and not accrued yet, in "
+"company currency (billed up front: the premium of the installments left; "
+"billed by installment: usually zero). It must match its share of the opening"
+" balance of the prepaid insurance account."
 msgstr ""
 
 #. module: insurance_management

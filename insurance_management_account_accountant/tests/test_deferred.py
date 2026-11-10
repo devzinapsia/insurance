@@ -53,11 +53,24 @@ class TestDeferredAccrual(InsuranceAccountingCommon):
 
     def test_running_policy_deferred_from_go_live(self):
         self.company.insurance_go_live_date = date(self.year, 4, 1)
-        policy = self._policy(in_progress=True, continue_from_installment=4)
+        policy = self._policy(in_progress=True, continue_from_installment=4, opening_billing="installments")
         self._installments(policy, count=12, continue_from=4)
         bill = self._post_bill(policy, invoice_date=date(self.year, 4, 1))
         self.assertEqual(bill.amount_total, 900000.0)
         self.assertEqual(bill.invoice_line_ids.deferred_start_date, date(self.year, 4, 1))
+
+    def test_opening_debt_bill_never_deferred(self):
+        """Running policy billed up front: its opening debt bill goes to the
+        transitory account, without deferral dates nor deferral entries."""
+        self.company.insurance_go_live_date = date(self.year, 4, 1)
+        policy = self._policy(in_progress=True, continue_from_installment=4)
+        self._installments(policy, count=12, continue_from=4)
+        bill = self.env["account.move"].browse(policy.action_create_bill()["res_id"])
+        bill.action_post()
+        line = bill.invoice_line_ids
+        self.assertEqual(line.account_id, self.opening_account)
+        self.assertFalse(line.deferred_start_date or line.deferred_end_date)
+        self.assertFalse(bill.deferred_move_ids)
 
     def test_other_methods_untouched(self):
         policy = self._policy(accrual_method="none")
