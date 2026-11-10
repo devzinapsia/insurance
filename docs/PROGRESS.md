@@ -616,6 +616,7 @@ notify the user, then commit and push only with their confirmation.
 
 | Date | Client repo / branch | Client commit | insurance commit | Notes |
 | --- | --- | --- | --- | --- |
+| 2026-11-10 | grupolara / staging2 | 98b330b | 238de5b (19.0.2.0.5: payments without insurance fields, account_payment_pro bridge, insurance fields on the bill left group) | Submodule update only; grupolara staging untouched. The upgrade installs insurance_management_account_payment_pro (post-migrate) and fixes the existing draft installment payments (debts = installment line only). |
 | 2026-11-10 | grupolara / staging2 | b7212a6 | 5fafe80 (19.0.2.0.4: opening debt bill for running policies billed up front) | Submodule update only; grupolara staging untouched. Set the opening transitory account (and optionally an opening debt journal without documents) in Insurance settings before testing running policies. |
 | 2026-11-10 | grupolara / staging2 | 04b0f68 | ba16794 (19.0.2.0.3: running policy installments, suggested amount to accrue, due debits) | Submodule update only; grupolara staging untouched. |
 | 2026-11-05 | grupolara / staging2 | b93128f | 0974ae9 (19.0.2.0.2: warning on zero premium, test cases explain scheduled actions) | Submodule update only; grupolara staging untouched. |
