@@ -8,16 +8,60 @@
 <tr><td>Sin devengamiento</td><td>La factura va directo al gasto. Para pólizas mensuales o de bajo importe.</td></tr>
 </tbody>
 </table>
-<h2>Ejemplo</h2>
-<p>Póliza anual con premio de $ 1.200.000, pagado en 12 cuotas por débito automático:</p>
+<h2>Ejemplo paso a paso</h2>
+<p>Póliza anual del 01/11/2026 al 31/10/2027, con prima de $ 1.000.000 más IVA 21 %, pagada en 12 cuotas, con devengamiento del módulo. Hay tres asientos distintos, y <em>Seguros a devengar</em> solo se mueve en dos de ellos.</p>
+<h3>1. Factura: registra el costo y la deuda</h3>
 <table class="table table-bordered">
-<thead><tr><th>Momento</th><th>Debe</th><th>Haber</th><th>Importe</th></tr></thead>
+<thead><tr><th>Cuenta</th><th>Debe</th><th>Haber</th></tr></thead>
 <tbody>
-<tr><td>Factura</td><td>Seguros a devengar</td><td>Proveedores</td><td>1.200.000</td></tr>
-<tr><td>Cada mes</td><td>Gasto de seguros (con analítica)</td><td>Seguros a devengar</td><td>100.000</td></tr>
-<tr><td>Cada débito</td><td>Proveedores</td><td>Banco (pagos pendientes)</td><td>100.000</td></tr>
+<tr><td>Seguros a devengar</td><td>1.000.000,00</td><td></td></tr>
+<tr><td>IVA crédito fiscal</td><td>210.000,00</td><td></td></tr>
+<tr><td>Proveedores (una línea por cuota, 100.833,33 cada una)</td><td></td><td>1.210.000,00</td></tr>
 </tbody>
 </table>
+<ul>
+<li><strong>Seguros a devengar</strong> es un <strong>activo</strong>: se compraron 12 meses de cobertura y todavía no se consumió ninguno, así que aún no es gasto.</li>
+<li>El IVA va a crédito fiscal: no es costo del seguro.</li>
+<li>La deuda con la aseguradora se abre en una línea por cuota para que cada una tenga su vencimiento.</li>
+</ul>
+<h3>2. Pago de una cuota: cancela parte de la deuda</h3>
+<table class="table table-bordered">
+<thead><tr><th>Cuenta</th><th>Debe</th><th>Haber</th></tr></thead>
+<tbody>
+<tr><td>Proveedores</td><td>100.833,33</td><td></td></tr>
+<tr><td>Pagos pendientes (banco)</td><td></td><td>100.833,33</td></tr>
+</tbody>
+</table>
+<p>El pago <strong>no toca el gasto ni Seguros a devengar</strong>: solo baja la deuda y la plata del banco. <em>Pagos pendientes</em> es la cuenta puente del banco y se vacía al conciliar el extracto.</p>
+<h3>3. Devengamiento de cada mes: el seguro se convierte en gasto</h3>
+<table class="table table-bordered">
+<thead><tr><th>Cuenta</th><th>Debe</th><th>Haber</th></tr></thead>
+<tbody>
+<tr><td>Gasto de seguros (con analítica)</td><td>83.333,33</td><td></td></tr>
+<tr><td>Seguros a devengar</td><td></td><td>83.333,33</td></tr>
+</tbody>
+</table>
+<p>Al publicar la factura se arma el plan: los 1.000.000 en 12 partes iguales, una por mes de la vigencia (la última absorbe el redondeo). El asiento de cada mes se registra el <strong>último día del mes</strong>.</p>
+<h3>Cómo evoluciona Seguros a devengar</h3>
+<table class="table table-bordered">
+<thead><tr><th>Momento</th><th>Movimiento</th><th>Saldo</th></tr></thead>
+<tbody>
+<tr><td>Factura publicada</td><td>+1.000.000,00</td><td>1.000.000,00</td></tr>
+<tr><td>Pago de la cuota 1</td><td>sin cambio</td><td>1.000.000,00</td></tr>
+<tr><td>30/11/2026</td><td>−83.333,33</td><td>916.666,67</td></tr>
+<tr><td>31/12/2026</td><td>−83.333,33</td><td>833.333,34</td></tr>
+<tr><td>…</td><td>…</td><td>…</td></tr>
+<tr><td>31/10/2027</td><td>−83.333,37</td><td>0,00</td></tr>
+</tbody>
+</table>
+<p>En cualquier momento, el saldo de Seguros a devengar es <strong>la parte del seguro ya facturada que todavía no se usó</strong>. Al terminar la vigencia queda en cero y el gasto acumulado es igual a la prima.</p>
+<h3>¿Por qué a fin de mes y no el día del pago?</h3>
+<ul>
+<li>El gasto corresponde al <strong>mes de cobertura que se consumió</strong>, no al momento en que se paga (principio de lo devengado). Pagar en 1 cuota o en 12 no cambia cuánto seguro se usó cada mes.</li>
+<li>Si el gasto siguiera a los pagos, una póliza pagada por adelantado cargaría todo el costo en un mes, y una con cuotas atrasadas mostraría meses sin gasto aunque haya estado cubierta.</li>
+<li>Recién al cierre del mes ese mes de cobertura está consumido por completo. Un asiento por póliza y mes, con fecha de fin de mes, deja cada mes con su costo para el cierre contable y los reportes por centro de costo.</li>
+</ul>
+<p>Si la vigencia empieza a mitad de mes, ese mes cuenta como uno más del plan: una póliza del 15/11 al 14/11 se reparte en 13 partes iguales.</p>
 <h2>El plan de devengamiento</h2>
 <ul>
 <li>Pestaña <strong>Devengamiento</strong> de la póliza (con permiso contable) y <strong>Seguros › Reportes › Plan de devengamiento</strong>.</li>
