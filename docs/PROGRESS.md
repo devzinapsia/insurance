@@ -720,3 +720,29 @@ renewal; allowing Renew from "In force".
   billed the whole premium up front (then link the opening bill, do not
   bill 4-12 again) or installment by installment.
 - Tests: 178 Community, 184 with both bridges.
+
+### 19.0.2.0.4 — opening debt of running policies billed up front (2026-11-10)
+
+- Found while testing: with module accrual, a running policy got its
+  unaccrued amount in the prepaid account from the opening entry AND its
+  bill of installments 4-12 there too, while only the unaccrued amount was
+  accrued (prepaid left with the bill amount forever).
+- New policy field `opening_billing` (required, default `upfront`, existing
+  policies get it on upgrade, verified from a 19.0.2.0.3 database):
+  - `upfront` (user's case: the insurer billed the whole premium before the
+    go-live): Create bill makes ONE opening debt bill whatever the billing
+    mode: gross installments, no product, `tax_ids` cleared (VAT already
+    taken in the original bill), account = company
+    `insurance_opening_account_id`, invoice date = go-live - 1 day, journal
+    = `insurance_opening_journal_id` if set (purchase journal without
+    fiscal documents in Argentina), flag `account.move.insurance_opening_debt`.
+    Not accrued, excluded from the cost report, still in amount due; one
+    payable line per installment so debits/checks pay it. Error if the
+    go-live date or the transitory account is missing. Enterprise bridge
+    never sets deferral dates on it (context `insurance_opening_debt_bill`).
+  - `installments`: normal bills (prepaid), accrued from max(go-live,
+    date from). Bills dated before the go-live (old system, linked) are
+    never accrued. Suggested amount to accrue = 0.
+- Not in search/group-by/list (CLAUDE.md asks; pending user answer). The
+  Excel import has no column for it (default `upfront`).
+- Tests: 181 Community, 188 with both bridges.

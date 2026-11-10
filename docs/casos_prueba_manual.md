@@ -40,7 +40,7 @@ Convenciones:
 
 ### 0.1 Instalación y permisos
 1. Verificar en **Aplicaciones** que estén instalados *Gestión de seguros*
-   (19.0.2.0.3) y, si la base tiene Contabilidad Enterprise y cheques, los
+   (19.0.2.0.4) y, si la base tiene Contabilidad Enterprise y cheques, los
    puentes *Gestión de seguros - Diferidos de Enterprise* y *Gestión de
    seguros - Cheques propios*.
 2. Crear (o elegir) tres usuarios de prueba:
@@ -405,26 +405,47 @@ Con U2, **Volver a borrador** una póliza con factura publicada.
 
 ### 6.1 Póliza en curso a mano
 1. En Ajustes › Contabilidad, **Fecha de puesta en marcha** = el día 1 del mes
-   actual.
-2. Póliza con vigencia desde hace 3 meses, 12 cuotas, prima 1.200.000 y
+   actual, **Cuenta transitoria de apertura** y (opcional) **Diario de deuda
+   de apertura** (compras, sin documentos).
+2. Póliza con vigencia desde hace 3 meses, 12 cuotas, prima 1.000.000 y
    premio 1.200.000. En **Contabilidad › Carga inicial**: *Póliza en curso*,
-   continúa desde la cuota 4. Confirmar.
+   continúa desde la cuota 4, *Facturada al inicio (deuda de apertura)*.
+   Confirmar.
 3. **Generar cuotas**, **Crear factura** y publicarla.
 4. **Generar devengamiento inicial**.
 5. Cambiar el importe a devengar a 450.000 y volver a pulsar **Generar
    devengamiento inicial**.
 
 **Esperado**:
-- Al poner continúa desde la cuota 4, el importe a devengar se completa solo
-  con 900.000 (9 de 12 meses de la prima).
+- Al poner continúa desde la cuota 4 y generar las cuotas, el importe a
+  devengar sugerido es 750.000 (la prima, sin impuestos, de las cuotas 4 a
+  12).
 - Las cuotas 1 a 3 quedan *Pagadas* (históricas, sin pagos ni asientos).
-- La factura es solo por las cuotas 4 a 12 y no genera devengamiento
-  propio.
-- El devengamiento inicial reparte 900.000 desde el mes de la puesta en
-  marcha hasta el fin (pestaña Devengamiento) y aparece un aviso con los
-  meses y el total. Las cuotas no cambian.
+- **Crear factura** arma una sola *factura de deuda de apertura* por 900.000
+  (el premio de las cuotas 4 a 12): fecha = día anterior a la puesta en
+  marcha, cuenta transitoria de apertura, **sin impuestos**, diario de deuda
+  de apertura si está cargado, campo *Deuda de apertura de seguros*
+  marcado. Al publicarla tiene un vencimiento por cuota, no genera
+  devengamiento y no aparece en el reporte de costo.
+- El devengamiento inicial reparte el importe a devengar desde el mes de la
+  puesta en marcha hasta el fin (pestaña Devengamiento) y aparece un aviso
+  con los meses y el total. Las cuotas no cambian.
+- Sin la cuenta transitoria en los ajustes, **Crear factura** da un error que
+  pide cargarla.
 - El segundo intento reemplaza el plan por 450.000 (no lo suma). Una vez que
   un mes está devengado, ya no se puede regenerar.
+
+### 6.1b Póliza en curso que se factura por cuota
+1. Igual que 6.1, pero en *Carga inicial* elegir *Se factura por cuota en
+   Odoo*.
+2. **Generar cuotas**, **Crear factura** y publicarla.
+
+**Esperado**:
+- El importe a devengar sugerido es 0.
+- La factura es normal: producto de seguros, impuestos, cuenta Seguros a
+  devengar, sin la marca de deuda de apertura.
+- Genera su devengamiento desde el mes de la puesta en marcha hasta el fin
+  (no antes).
 
 ### 6.1a Póliza marcada en curso después de generar las cuotas
 1. Póliza confirmada con 12 cuotas generadas, sin facturar, con la fecha de
@@ -447,19 +468,25 @@ Con U2, **Volver a borrador** una póliza con factura publicada.
 - Paso 6: ninguna cuota queda histórica.
 
 ### 6.2 Control de saldo de apertura
-1. Ver Ajustes › Contabilidad: *A devengar en pólizas en curso* = 900.000 y
-   diferencia −900.000.
+1. Ver Ajustes › Contabilidad: *A devengar en pólizas en curso* = 750.000 y
+   diferencia −750.000.
 2. Registrar un asiento de apertura con fecha anterior a la puesta en marcha:
-   debe *Seguros a devengar* 900.000.
+   debe *Seguros a devengar* 750.000, debe una cuenta de patrimonio 150.000
+   (el IVA ya tomado, en este ejemplo), haber *Transitoria de apertura*
+   900.000.
 
-**Esperado**: la diferencia de apertura pasa a 0.
+**Esperado**:
+- La diferencia de apertura pasa a 0.
+- Con la factura de deuda de apertura de 6.1 publicada, la cuenta
+  *Transitoria de apertura* queda en 0.
 
-### 6.3 Factura de apertura
-Publicar una factura de la aseguradora (deuda previa) y, ya publicada, cargarle
-la **Póliza de seguros** de 6.1.
+### 6.3 Factura del sistema anterior vinculada
+Publicar una factura de la aseguradora con fecha anterior a la puesta en
+marcha y, ya publicada, cargarle la **Póliza de seguros** de 6.1b.
 
 **Esperado**: la póliza muestra la factura en el botón *Facturas* con su
-saldo.
+saldo, y la factura no genera devengamiento (lo anterior a la puesta en
+marcha se devenga con el importe a devengar).
 
 ### 6.4 Importación desde Excel
 1. **Seguros › Configuración › Importar pólizas en curso › Nuevo › Descargar

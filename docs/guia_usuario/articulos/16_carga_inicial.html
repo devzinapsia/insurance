@@ -2,18 +2,30 @@
 <p>Al arrancar con Odoo hay pólizas que ya estaban vigentes. Se cargan como <strong>pólizas en curso</strong>: continúan desde una cuota y devengan solo lo que falta, sin duplicar el gasto ya registrado.</p>
 <h2>Antes de empezar</h2>
 <ol>
-<li>Un administrador de Contabilidad carga la <strong>fecha de puesta en marcha</strong> en <strong>Seguros › Configuración › Ajustes</strong>.</li>
+<li>Un administrador de Contabilidad carga en <strong>Seguros › Configuración › Ajustes</strong> la <strong>fecha de puesta en marcha</strong>, la <strong>cuenta transitoria de apertura</strong> y, si corresponde, el <strong>diario de deuda de apertura</strong> (ver <em>Parametrización contable</em>).</li>
 <li>Deben existir las aseguradoras, productores, ramos y medios de pago.</li>
 </ol>
 <h2>Cargar una póliza en curso a mano</h2>
 <ol>
 <li>Cargue la póliza completa (datos, objetos, coberturas, documentos) y confírmela.</li>
-<li>En la pestaña <strong>Contabilidad</strong>, sección <strong>Carga inicial</strong>, marque <strong>Póliza en curso</strong> e indique <strong>Continúa desde la cuota</strong> (por ejemplo 4). El <strong>importe a devengar en la puesta en marcha</strong> (en pesos) se completa solo con la parte de la prima (sin impuestos) de las cuotas que siguen; corríjalo si su saldo contable es otro. Un importe escrito a mano no se reemplaza.</li>
+<li>En la pestaña <strong>Contabilidad</strong>, sección <strong>Carga inicial</strong>, marque <strong>Póliza en curso</strong>, indique <strong>Continúa desde la cuota</strong> (por ejemplo 4) y cómo facturaba la aseguradora (ver la tabla de abajo). El <strong>importe a devengar en la puesta en marcha</strong> (en pesos) se completa solo con la parte de la prima (sin impuestos) de las cuotas que siguen; corríjalo si su saldo contable es otro. Un importe escrito a mano no se reemplaza.</li>
 <li><strong>Generar cuotas</strong>: las cuotas anteriores (1 a 3 en el ejemplo) y las vencidas antes de la puesta en marcha quedan <strong>históricas</strong>, como pagadas, sin pagos ni asientos.</li>
-<li><strong>Crear factura</strong> factura solo las cuotas que siguen. Esa factura no vuelve a devengar.</li>
+<li><strong>Crear factura</strong> factura solo las cuotas que siguen; qué factura arma depende de cómo facturaba la aseguradora (tabla de abajo).</li>
 <li><strong>Generar devengamiento inicial</strong> reparte el importe a devengar desde el mes de la puesta en marcha hasta el fin de la póliza. No cambia las cuotas: el resultado se ve en la pestaña <strong>Devengamiento</strong> y en un aviso. Si corrige el importe, puede generarlo de nuevo mientras no haya ningún mes devengado.</li>
 </ol>
 <div class="alert alert-info" role="status"><p>Si marca la póliza en curso o cambia <strong>Continúa desde la cuota</strong> después de generar las cuotas, al guardar se actualizan solas: con 4, las cuotas 1 a 3 pasan a históricas; si lo baja a 3, la cuota 3 vuelve a gestionarse en Odoo (salvo que venza antes de la puesta en marcha). Las cuotas ya facturadas o pagadas no cambian: primero cancele su factura.</p></div>
+<h2>¿Cómo facturaba la aseguradora?</h2>
+<table class="table table-bordered">
+<thead><tr><th></th><th>Facturada al inicio (deuda de apertura)</th><th>Se factura por cuota en Odoo</th></tr></thead>
+<tbody>
+<tr><td>Cuándo</td><td>La aseguradora facturó todo el premio al comienzo de la vigencia, en el sistema anterior.</td><td>La aseguradora factura cada cuota (o lo que queda) después de la puesta en marcha.</td></tr>
+<tr><td>Asiento de apertura</td><td>Debe <em>Seguros a devengar</em> por lo que falta devengar; la deuda de las cuotas que quedan, contra la <em>cuenta transitoria de apertura</em> (no contra Proveedores).</td><td>Debe <em>Seguros a devengar</em> solo por lo facturado antes y no devengado (normalmente nada).</td></tr>
+<tr><td>Importe a devengar</td><td>La prima de las cuotas que quedan (se sugiere solo).</td><td>Normalmente cero.</td></tr>
+<tr><td>Crear factura</td><td>Una sola <strong>factura de deuda de apertura</strong>: fechada el día anterior a la puesta en marcha, en la cuenta transitoria, <strong>sin impuestos</strong> (el IVA ya se tomó en la factura original), con un vencimiento por cuota. No es costo nuevo ni se devenga.</td><td>Factura normal (producto e impuestos, cuenta Seguros a devengar). Se devenga desde el mes de la puesta en marcha.</td></tr>
+<tr><td>Devengamiento inicial</td><td>Sí: reparte el importe a devengar.</td><td>Solo si hay importe a devengar.</td></tr>
+</tbody>
+</table>
+<p>En los dos casos los débitos automáticos, cheques y transferencias pagan cuota por cuota, y la cuenta <em>Seguros a devengar</em> termina en cero.</p>
 <h2>Importar desde Excel</h2>
 <ol>
 <li><strong>Seguros › Configuración › Importar pólizas en curso</strong> (también desde los ajustes), <strong>Nuevo</strong>.</li>

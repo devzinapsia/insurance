@@ -19,6 +19,7 @@
 <tr><td>Contabilidad analítica</td><td>Plan y cuentas analíticas</td><td>Opcional</td></tr>
 <tr><td>Cuenta y diario de gastos diferidos</td><td>Prepagos / Varios</td><td>Solo con <em>Gastos diferidos de Enterprise</em></td></tr>
 <tr><td>Moneda extranjera y diferencia de cambio</td><td>Moneda / cuentas de diferencia de cambio</td><td>Pólizas en dólares</td></tr>
+<tr><td>Cuenta transitoria de apertura y diario de deuda de apertura</td><td>Cuenta – Activos corrientes / Diario – Compras sin documentos</td><td>Carga inicial de pólizas en curso facturadas al inicio</td></tr>
 </tbody>
 </table>
 
@@ -31,6 +32,7 @@
 <tr><td><strong>Seguros a devengar</strong></td><td>Prepagos (activo)</td><td>No</td><td>Lo pagado o facturado por adelantado que todavía no es gasto. Solo con <em>Devengamiento del módulo</em>. El ajuste acepta cuentas de tipo Prepagos, Activos corrientes o Activos no corrientes.</td></tr>
 <tr><td><strong>Proveedores</strong></td><td>Por pagar (pasivo)</td><td>Sí</td><td>La deuda con las aseguradoras. Normalmente se usa la cuenta de proveedores que ya trae el plan. Si quiere separar la deuda con aseguradoras, cree una cuenta de este tipo y asígnela en cada aseguradora (ficha del contacto, pestaña <em>Contabilidad</em>, cuenta a pagar).</td></tr>
 <tr><td><strong>Pagos pendientes</strong></td><td>Activos corrientes</td><td><strong>Sí</strong></td><td>Puente entre el pago y el extracto bancario: el pago generado queda ahí hasta conciliarlo con el banco. El plan suele traerla; tiene que estar cargada en cada método de pago saliente del banco (ver punto 2).</td></tr>
+<tr><td><strong>Transitoria de apertura</strong></td><td>Activos corrientes</td><td>No</td><td>Solo para la carga inicial. En el asiento de apertura, la deuda con la aseguradora de las pólizas en curso <strong>facturadas al inicio</strong> va contra esta cuenta, no contra Proveedores. Después, cada póliza trae esa deuda con su <em>factura de deuda de apertura</em> (debe esta cuenta, haber Proveedores con un vencimiento por cuota). Cuando todo está cargado, la cuenta queda en cero. Puede ser la misma transitoria que se use para el resto de la apertura.</td></tr>
 <tr><td><strong>Cheques diferidos emitidos</strong></td><td>Pasivos corrientes</td><td>Sí</td><td>Solo si se pagan cuotas con cheques propios: es la cuenta pendiente del método <em>Cheques Propios</em>. En Argentina el plan de cuentas suele traerla; si no, créela.</td></tr>
 </tbody>
 </table>
@@ -59,6 +61,7 @@
 <tbody>
 <tr><td><strong>Devengamiento de seguros</strong> (prefijo de secuencia <code>DSEG</code>)</td><td>Varios (Misceláneo)</td><td><strong>Cuenta predeterminada</strong>: vacía. <strong>Moneda</strong>: vacía (la de la compañía). Recibe un asiento por póliza y por mes (gasto contra seguros a devengar); cada asiento ya trae sus dos cuentas. Puede usarse el de <em>Operaciones misceláneas</em>, pero un diario propio facilita controlarlo. Es <strong>uno solo</strong> aunque haya pólizas en dólares (ver punto 7).</td></tr>
 <tr><td><strong>Facturas de proveedores</strong></td><td>Compras</td><td>Ya existe. Las facturas de seguros usan el diario de compras por defecto (en Argentina, el que maneja los comprobantes de proveedor).</td></tr>
+<tr><td><strong>Saldos iniciales</strong> (opcional)</td><td>Compras</td><td>Para las facturas de deuda de apertura de la carga inicial. En Argentina, <strong>sin</strong> la opción <em>Usa documentos</em>: no son comprobantes nuevos de la aseguradora, no llevan IVA ni van al libro de IVA compras. Si se deja vacío en los ajustes, se usa el diario de compras por defecto.</td></tr>
 <tr><td><strong>Banco</strong> (cada cuenta bancaria desde la que se paga)</td><td>Banco</td><td>Pestaña <strong>Pagos salientes</strong>: cada método de pago (Manual, Cheques Propios, etc.) tiene que tener su <strong>Cuenta pendiente</strong> (la de pagos pendientes, o la de cheques diferidos para Cheques Propios). Sin esa cuenta, el medio de pago de Seguros no se puede guardar.</td></tr>
 <tr><td><strong>Tarjeta de crédito</strong> (si hay pólizas debitadas de una tarjeta)</td><td>Tarjeta de crédito</td><td>Igual que el banco: el método de pago saliente necesita una <strong>Cuenta pendiente</strong>, que en este tipo de diario no viene cargada.</td></tr>
 </tbody>
@@ -138,6 +141,7 @@
 <tr><td>Cuenta de seguros a devengar</td><td>La cuenta <em>Seguros a devengar</em> del punto 1</td></tr>
 <tr><td>Diario de devengamiento</td><td>El diario <em>Devengamiento de seguros</em> del punto 2</td></tr>
 <tr><td>Medio de pago › Diario y método de pago</td><td>Un diario de banco o tarjeta y un método saliente con cuenta pendiente (punto 2)</td></tr>
+<tr><td>Cuenta transitoria de apertura / Diario de deuda de apertura</td><td>Solo para la carga inicial: la cuenta <em>Transitoria de apertura</em> (punto 1) y el diario <em>Saldos iniciales</em> (punto 2). Aparecen al cargar la fecha de puesta en marcha.</td></tr>
 <tr><td>Ramo › Cuenta de gasto / analítica</td><td>Opcional: cuenta de gasto por ramo (punto 1) y distribución analítica (punto 5)</td></tr>
 </tbody>
 </table>
