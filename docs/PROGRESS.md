@@ -616,6 +616,7 @@ notify the user, then commit and push only with their confirmation.
 
 | Date | Client repo / branch | Client commit | insurance commit | Notes |
 | --- | --- | --- | --- | --- |
+| 2026-11-10 | grupolara / staging2 | b7212a6 | 5fafe80 (19.0.2.0.4: opening debt bill for running policies billed up front) | Submodule update only; grupolara staging untouched. Set the opening transitory account (and optionally an opening debt journal without documents) in Insurance settings before testing running policies. |
 | 2026-11-10 | grupolara / staging2 | 04b0f68 | ba16794 (19.0.2.0.3: running policy installments, suggested amount to accrue, due debits) | Submodule update only; grupolara staging untouched. |
 | 2026-11-05 | grupolara / staging2 | b93128f | 0974ae9 (19.0.2.0.2: warning on zero premium, test cases explain scheduled actions) | Submodule update only; grupolara staging untouched. |
 | 2026-11-04 | grupolara / staging2 | 2d2d069 | 41396b9 (19.0.2.0.1: Not started state, insurable item history, type descriptions) | Submodule update only; grupolara staging untouched (user: "no actualizar staging"). |
@@ -743,6 +744,6 @@ renewal; allowing Renew from "In force".
   - `installments`: normal bills (prepaid), accrued from max(go-live,
     date from). Bills dated before the go-live (old system, linked) are
     never accrued. Suggested amount to accrue = 0.
-- Not in search/group-by/list (CLAUDE.md asks; pending user answer). The
+- Not in search/group-by/list (user: no, 2026-11-10). The
   Excel import has no column for it (default `upfront`).
 - Tests: 181 Community, 188 with both bridges.
