@@ -40,9 +40,10 @@ Convenciones:
 
 ### 0.1 Instalación y permisos
 1. Verificar en **Aplicaciones** que estén instalados *Gestión de seguros*
-   (19.0.2.0.4) y, si la base tiene Contabilidad Enterprise y cheques, los
-   puentes *Gestión de seguros - Diferidos de Enterprise* y *Gestión de
-   seguros - Cheques propios*.
+   (19.0.2.0.5) y, si la base tiene Contabilidad Enterprise, cheques y los
+   pagos de adhoc, los puentes *Gestión de seguros - Diferidos de
+   Enterprise*, *Gestión de seguros - Cheques propios* y *Gestión de
+   seguros - Pagos de adhoc*.
 2. Crear (o elegir) tres usuarios de prueba:
    - **U1**: Seguros / Usuario, sin permisos de Contabilidad.
    - **U2**: Seguros / Administrador.
@@ -245,8 +246,12 @@ pendiente sí se puede cambiar.
 2. Ejecutar a mano el proceso de cuotas.
 3. Abrir el pago de la primera cuota.
 
-**Esperado**: el pago está en **borrador** y la cuota, **Programada**. Al
-validar el pago, la cuota pasa a *Pagada*.
+**Esperado**: el pago está en **borrador** y la cuota, **Programada**. El
+pago no tiene campos de seguros; en la pestaña *Deudas* figura solo el
+vencimiento de la cuota 1 de esa factura (no las demás deudas con la
+aseguradora) y el importe a pagar es el de la cuota. Al validar el pago, la
+cuota pasa a *Pagada* y el pago muestra *1 Factura*; las otras facturas de la
+aseguradora siguen impagas.
 
 ### 3.2 Transferencia programada
 1. Póliza con medio *Transferencia programada* y factura publicada.
@@ -482,7 +487,7 @@ Con U2, **Volver a borrador** una póliza con factura publicada.
 
 ### 6.3 Factura del sistema anterior vinculada
 Publicar una factura de la aseguradora con fecha anterior a la puesta en
-marcha y, ya publicada, cargarle la **Póliza de seguros** de 6.1b.
+marcha y, ya publicada, cargarle la **Póliza de seguro** de 6.1b.
 
 **Esperado**: la póliza muestra la factura en el botón *Facturas* con su
 saldo, y la factura no genera devengamiento (lo anterior a la puesta en

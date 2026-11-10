@@ -747,3 +747,39 @@ renewal; allowing Renew from "In force".
 - Not in search/group-by/list (user: no, 2026-11-10). The
   Excel import has no column for it (default `upfront`).
 - Tests: 181 Community, 188 with both bridges.
+
+### 19.0.2.0.5 — installment payments with adhoc's payments (2026-11-10, staging2 testing)
+
+- Found while testing case 3.1 on grupolara staging2: the draft payment of
+  an installment showed in *Debts* every open payable line of the insurer
+  (44 lines, 4.497.166,68): `account_payment_pro` auto-fills
+  `to_pay_move_line_ids` from the partner and reconciles the oldest first
+  on post. Reconciliation happened to be right (the user confirmed the
+  posted OP) because our `action_post` sits under adhoc's and reconciles
+  the installment line first, but only by MRO order, and the draft payment
+  showed a wrong amount to pay.
+- User decision: payments keep no insurance fields ("yo no tocaría los
+  pagos"): `account.payment.insurance_installment_id` and the related
+  `insurance_policy_id` removed (model, form view, i18n references). The
+  link lives on `insurance.installment.payment_id`; `action_post` looks the
+  installments up by it. Upgrade drops the column and the field records
+  (verified).
+- New bridge `insurance_management_account_payment_pro` (auto_install, user
+  confirmed): `_get_payment_values` sets `to_pay_move_line_ids` to the
+  installment line only; post_init_hook fixes the existing draft payments
+  of installments. The base post-migrate 19.0.2.0.5 installs new bridges
+  whose dependencies are all installed, now checking the dependency state
+  (`unknown` for unavailable modules: the 19.0.2.0.0 version would try to
+  install the Enterprise bridge on Community databases).
+- Tests: 187 with account_payment_pro (grupolara ingadhoc submodules,
+  read-only) including 4 bridge tests (draft and posted payments pay their
+  installment while an older bill of the insurer stays open; install fixes
+  existing drafts; manual payments keep adhoc's auto-fill). Upgrade from
+  19.0.2.0.4 with account_payment_pro installs the bridge, drops the
+  payment column. Install / uninstall / reinstall of the bridge: clean.
+- Bill form (user request, 2026-11-10): Insurance policy / endorsement /
+  installment moved from the right group to the end of `header_left_group`,
+  view priority 90 so they land after `account_move_classification`'s
+  field (below Classification) or, without it, below Auto-complete (core or
+  purchase). Checked with get_view on both setups; 185 tests with
+  account_payment_pro + classification + purchase.

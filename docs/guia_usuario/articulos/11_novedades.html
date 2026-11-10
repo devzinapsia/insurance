@@ -1,4 +1,10 @@
 <h1>Novedades por versión</h1>
+<h2>19.0.2.0.5</h2>
+<ul>
+<li>Los pagos de las cuotas ya no tienen los campos <em>Cuota de seguros</em> y <em>Póliza de seguro</em>: quedan como cualquier pago, vinculados a su factura. La cuota sigue mostrando su pago.</li>
+<li>En la factura de proveedor, <em>Póliza de seguro</em>, <em>Endoso de seguro</em> y <em>Cuota de seguros</em> pasan a la columna izquierda, debajo de <em>Clasificación</em> (o de <em>Autocompletar</em> si no se usa la clasificación de comprobantes).</li>
+<li>Con los pagos de adhoc (<em>account_payment_pro</em>), la orden de pago de una cuota lista en <em>Deudas</em> solo el vencimiento de esa cuota, en lugar de todas las deudas con la aseguradora. Los pagos en borrador ya creados se corrigen al actualizar (nuevo puente <em>Gestión de seguros - Pagos de adhoc</em>, se instala solo).</li>
+</ul>
 <h2>19.0.2.0.4</h2>
 <ul>
 <li>Pólizas en curso: nuevo dato <strong>Facturación de la aseguradora antes de la puesta en marcha</strong>. <em>Facturada al inicio</em>: <strong>Crear factura</strong> arma la factura de deuda de apertura (cuenta transitoria, sin impuestos, fechada antes de la puesta en marcha, un vencimiento por cuota, no se devenga ni cuenta como costo). <em>Por cuota</em>: las facturas se devengan desde el mes de la puesta en marcha.</li>
