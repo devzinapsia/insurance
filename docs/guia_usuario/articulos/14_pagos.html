@@ -11,6 +11,56 @@
 </table>
 <p>Cada pago generado para una cuota paga <strong>solo esa cuota</strong>: queda vinculado a su factura y, con los pagos de adhoc (pestaña <em>Deudas</em> de la orden de pago), lista únicamente el vencimiento de esa cuota, no todas las deudas con la aseguradora. Al validarlo se concilia con la cuota y las demás facturas de la aseguradora siguen abiertas. El vínculo con la cuota se ve en la cuota (campo <em>Pago</em>), no en el pago.</p>
 <p>Si hace falta, <strong>Generar pagos</strong> (en la pestaña Cuotas, o desde la lista de cuotas en el menú Acciones) crea los pagos que falten: los de cheque diferido y transferencia programada, y los débitos automáticos ya vencidos (sin esperar al proceso diario). Los débitos que todavía no vencen se pagan en su fecha. Nunca se paga dos veces la misma cuota.</p>
+<h2>Vencimientos, pagos e imputación</h2>
+<p>Los vencimientos de la factura <strong>no son pagos</strong>: son la <strong>deuda</strong> con la aseguradora, partida en fechas. Los pagos son asientos aparte que se <strong>imputan</strong> contra esa deuda.</p>
+<h3>1. La factura: una deuda con un vencimiento por cuota</h3>
+<p>Ejemplo: prima de $ 1.000.000 más IVA 21 %, en 12 cuotas.</p>
+<table class="table table-bordered">
+<thead><tr><th>Cuenta</th><th>Debe</th><th>Haber</th><th>Vencimiento</th></tr></thead>
+<tbody>
+<tr><td>Seguros a devengar</td><td>1.000.000,00</td><td></td><td></td></tr>
+<tr><td>IVA crédito fiscal</td><td>210.000,00</td><td></td><td></td></tr>
+<tr><td>Proveedores — plazo #1</td><td></td><td>100.833,33</td><td>01/11/2026</td></tr>
+<tr><td>Proveedores — plazo #2</td><td></td><td>100.833,33</td><td>01/12/2026</td></tr>
+<tr><td>…</td><td></td><td>…</td><td>…</td></tr>
+<tr><td>Proveedores — plazo #12</td><td></td><td>100.833,37</td><td>01/10/2027</td></tr>
+</tbody>
+</table>
+<ul>
+<li>La deuda con la aseguradora es una sola (1.210.000), pero queda en <strong>una línea por cuota</strong> con su fecha, igual que una factura con términos de pago en cuotas (30/60/90 días).</li>
+<li>Así el vencimiento de proveedores y el flujo de fondos muestran la deuda mes a mes, y cada cuota sabe si está pagada mirando <strong>su</strong> línea.</li>
+</ul>
+<h3>2. El pago: un asiento aparte</h3>
+<table class="table table-bordered">
+<thead><tr><th>Cuenta</th><th>Debe</th><th>Haber</th></tr></thead>
+<tbody>
+<tr><td>Proveedores</td><td>100.833,33</td><td></td></tr>
+<tr><td>Banco (pagos pendientes)</td><td></td><td>100.833,33</td></tr>
+</tbody>
+</table>
+<h3>3. La imputación une el pago con un vencimiento</h3>
+<p>Imputar (conciliar) es indicar qué vencimiento de la factura cancela el pago:</p>
+<table class="table table-bordered">
+<thead><tr><th>Situación</th><th>Resultado</th></tr></thead>
+<tbody>
+<tr><td>Pago imputado al plazo #1</td><td>El plazo #1 queda conciliado: la <strong>cuota 1 pasa a Pagada</strong> y la factura queda <strong>pagada parcialmente</strong>.</td></tr>
+<tr><td>Pago menor que la cuota</td><td>El plazo #1 queda con saldo: la cuota sigue impaga, con su saldo pendiente.</td></tr>
+<tr><td>Pago sin imputar</td><td>Es un <strong>pago a cuenta</strong>: baja el saldo con la aseguradora pero no cancela ningún vencimiento, y la cuota sigue impaga hasta imputarlo.</td></tr>
+</tbody>
+</table>
+<p>Para imputar un pago a cuenta, abra la factura: Odoo lo muestra entre los pagos pendientes de la aseguradora. Pulse <strong>Agregar</strong> y la cuota pasa a Pagada.</p>
+<h3>Quién imputa, según el medio de pago</h3>
+<ul>
+<li><strong>Débito automático, transferencia programada y cheque diferido</strong>: el módulo crea la orden de pago con la deuda de su cuota y, al validarla, queda imputada. No hay que hacer nada más.</li>
+<li><strong>Manual</strong>: se imputa como cualquier factura.</li>
+</ul>
+<p>Para pagar una cuota con medio Manual:</p>
+<ol>
+<li>En la factura, pulse <strong>Pagar</strong>. La orden de pago trae en <em>Deudas</em> todos los vencimientos de la factura.</li>
+<li>Deje solo el vencimiento de la cuota que paga: elimine los demás con la ✕. También puede dejarlos todos y poner como importe el de la cuota: al validar se imputa primero el vencimiento más antiguo.</li>
+<li>Valide la orden de pago: la cuota pasa a <strong>Pagada</strong> y el resto sigue pendiente.</li>
+</ol>
+<p>Una orden de pago puede pagar vencimientos de varias facturas o pólizas a la vez: cada cuota queda pagada cuando se concilia su vencimiento, sin importar desde dónde se pagó.</p>
 <h2>Cuotas vencidas impagas</h2>
 <p>El día siguiente al vencimiento de una cuota sin pago, el proceso diario:</p>
 <ul>
