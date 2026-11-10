@@ -979,6 +979,14 @@ msgstr "Avisos enviados"
 
 #. module: insurance_management
 #. odoo-python
+#: code:addons/insurance_management/models/insurance_policy.py:0
+msgid ""
+"All the installments of the policy already have a bill: see the Bills smart "
+"button."
+msgstr "Todas las cuotas de la póliza ya tienen factura: véala en el botón inteligente Facturas."
+
+#. module: insurance_management
+#. odoo-python
 #: code:addons/insurance_management/models/insurance_endorsement.py:0
 msgid "All the lines of this endorsement type must be of the same operation."
 msgstr ""
@@ -2284,6 +2292,12 @@ msgid "Engine number"
 msgstr "Número de motor"
 
 #. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy.py:0
+msgid "Enter the amount still to accrue at go-live first."
+msgstr "Primero ingrese el importe a devengar en la puesta en marcha."
+
+#. module: insurance_management
 #: model:ir.model.fields.selection,name:insurance_management.selection__insurance_insured_item__item_type__equipment
 msgid "Equipment"
 msgstr "Equipo"
@@ -2711,6 +2725,14 @@ msgid "In force"
 msgstr "Vigente"
 
 #. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy.py:0
+msgid ""
+"Initial accrual plan: %(months)s months, %(amount)s in total (see the "
+"Accrual tab)."
+msgstr "Devengamiento inicial: %(months)s meses, %(amount)s en total (vea la pestaña Devengamiento)."
+
+#. module: insurance_management
 #: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_form
 msgid "Initial load"
 msgstr "Carga inicial"
@@ -2805,6 +2827,18 @@ msgid ""
 msgstr ""
 "Las cuotas que vencen antes de esta fecha son históricas: se registran como "
 "pagadas, sin pagos ni asientos."
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy.py:0
+msgid "Installments marked as historical (running policy): %(installments)s."
+msgstr "Cuotas marcadas como históricas (póliza en curso): %(installments)s."
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy.py:0
+msgid "Installments no longer historical: %(installments)s."
+msgstr "Cuotas que dejan de ser históricas: %(installments)s."
 
 #. module: insurance_management
 #: model:ir.actions.act_window,name:insurance_management.insurance_installment_report_action
@@ -3681,11 +3715,11 @@ msgstr "Todavía no hay facturas de seguros publicadas"
 #. odoo-python
 #: code:addons/insurance_management/models/insurance_policy.py:0
 msgid ""
-"No payment to generate: they need a posted bill and a deferred check or "
-"scheduled transfer payment mode."
-msgstr ""
-"No hay pagos para generar: las cuotas necesitan una factura publicada y un "
-"medio de pago cheque diferido o transferencia programada."
+"No payment to generate: the installments need a posted bill and a deferred "
+"check or scheduled transfer payment mode, or an automatic debit already due."
+" Automatic debits not due yet are paid by the daily process on their due "
+"date."
+msgstr "No hay pagos para generar: las cuotas necesitan una factura publicada y un medio de pago cheque diferido o transferencia programada, o un débito automático ya vencido. Los débitos automáticos que todavía no vencen los paga el proceso diario en su fecha de vencimiento."
 
 #. module: insurance_management
 #. odoo-python
@@ -4376,6 +4410,14 @@ msgstr ""
 "Póliza %(policy)s: configure el producto de seguros y su cuenta de gasto, o "
 "la cuenta de seguros a devengar, en los ajustes de seguros antes de crear "
 "facturas."
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy.py:0
+msgid ""
+"Policy %(policy)s: installments %(installments)s are already billed or paid."
+" Cancel their bill (or payment) first, then change the running policy data."
+msgstr "Póliza %(policy)s: las cuotas %(installments)s ya están facturadas o pagadas. Primero cancele su factura (o pago) y luego cambie los datos de póliza en curso."
 
 #. module: insurance_management
 #. odoo-python
@@ -5251,8 +5293,10 @@ msgstr "El archivo no es un Excel (.xlsx) válido: %(error)s"
 #. module: insurance_management
 #. odoo-python
 #: code:addons/insurance_management/models/insurance_policy.py:0
-msgid "The initial accrual plan already exists."
-msgstr "El plan de devengamiento inicial ya existe."
+msgid ""
+"The initial accrual plan already has accrued months: it can no longer be "
+"generated again. Adjust its open months in the Accrual tab instead."
+msgstr "El devengamiento inicial ya tiene meses devengados: no se puede volver a generar. Ajuste sus meses abiertos en la pestaña Devengamiento."
 
 #. module: insurance_management
 #. odoo-python

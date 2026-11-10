@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 19.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-04 22:41+0000\n"
-"PO-Revision-Date: 2026-11-04 22:41+0000\n"
+"POT-Creation-Date: 2026-11-10 12:04+0000\n"
+"PO-Revision-Date: 2026-11-10 12:04+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -652,6 +652,14 @@ msgstr ""
 #. module: insurance_management
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__alert_ids
 msgid "Alerts sent"
+msgstr ""
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy.py:0
+msgid ""
+"All the installments of the policy already have a bill: see the Bills smart "
+"button."
 msgstr ""
 
 #. module: insurance_management
@@ -1885,6 +1893,12 @@ msgid "Engine number"
 msgstr ""
 
 #. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy.py:0
+msgid "Enter the amount still to accrue at go-live first."
+msgstr ""
+
+#. module: insurance_management
 #: model:ir.model.fields.selection,name:insurance_management.selection__insurance_insured_item__item_type__equipment
 msgid "Equipment"
 msgstr ""
@@ -2296,6 +2310,14 @@ msgid "In force"
 msgstr ""
 
 #. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy.py:0
+msgid ""
+"Initial accrual plan: %(months)s months, %(amount)s in total (see the "
+"Accrual tab)."
+msgstr ""
+
+#. module: insurance_management
 #: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_form
 msgid "Initial load"
 msgstr ""
@@ -2378,6 +2400,18 @@ msgstr ""
 msgid ""
 "Installments due before this date are historical: they are recorded as paid,"
 " without payments nor journal entries."
+msgstr ""
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy.py:0
+msgid "Installments marked as historical (running policy): %(installments)s."
+msgstr ""
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy.py:0
+msgid "Installments no longer historical: %(installments)s."
 msgstr ""
 
 #. module: insurance_management
@@ -3219,8 +3253,10 @@ msgstr ""
 #. odoo-python
 #: code:addons/insurance_management/models/insurance_policy.py:0
 msgid ""
-"No payment to generate: they need a posted bill and a deferred check or "
-"scheduled transfer payment mode."
+"No payment to generate: the installments need a posted bill and a deferred "
+"check or scheduled transfer payment mode, or an automatic debit already due."
+" Automatic debits not due yet are paid by the daily process on their due "
+"date."
 msgstr ""
 
 #. module: insurance_management
@@ -3870,6 +3906,14 @@ msgid ""
 "Policy %(policy)s: configure the insurance product and its expense account, "
 "or the prepaid insurance account, in the insurance settings before creating "
 "bills."
+msgstr ""
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy.py:0
+msgid ""
+"Policy %(policy)s: installments %(installments)s are already billed or paid."
+" Cancel their bill (or payment) first, then change the running policy data."
 msgstr ""
 
 #. module: insurance_management
@@ -4691,7 +4735,9 @@ msgstr ""
 #. module: insurance_management
 #. odoo-python
 #: code:addons/insurance_management/models/insurance_policy.py:0
-msgid "The initial accrual plan already exists."
+msgid ""
+"The initial accrual plan already has accrued months: it can no longer be "
+"generated again. Adjust its open months in the Accrual tab instead."
 msgstr ""
 
 #. module: insurance_management

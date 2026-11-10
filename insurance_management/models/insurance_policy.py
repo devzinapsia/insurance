@@ -459,6 +459,7 @@ class InsurancePolicy(models.Model):
     company_currency_id = fields.Many2one(related="company_id.currency_id", string="Company currency")
     in_progress = fields.Boolean(
         string="Running policy",
+        copy=False,
         tracking=True,
         help="Policy already running at the go-live (initial load): its "
         "installments before the one it continues from are historical, and "
@@ -466,12 +467,14 @@ class InsurancePolicy(models.Model):
     )
     continue_from_installment = fields.Integer(
         string="Continues from installment",
+        copy=False,
         default=1,
         tracking=True,
         help="Running policy: first installment managed in Odoo (e.g. 4 of 12).",
     )
     unaccrued_amount = fields.Monetary(
         string="Amount still to accrue at go-live",
+        copy=False,
         currency_field="company_currency_id",
         tracking=True,
         groups=AMOUNTS_GROUP,
@@ -911,6 +914,49 @@ class InsurancePolicy(models.Model):
                     self.env._("The days before sending the non-renewal instruction cannot be negative.")
                 )
 
+    def _get_suggested_unaccrued_amount(self, continue_from):
+        """Amount still to accrue at go-live suggested for a running policy
+        continuing from ``continue_from``: the net premium share (as billed)
+        of the installments managed in Odoo, in company currency. Without
+        installments yet, the premium share of the remaining ones (a monthly
+        installment per month of validity)."""
+        self.ensure_one()
+        policy = self.sudo()
+        installments = policy.installment_ids.filtered(lambda i: not i.endorsement_id and not i.cancelled)
+        if installments:
+            amount = sum(
+                installments.filtered(
+                    lambda i: not policy._is_historical_installment(i.number, i.due_date, None, continue_from)
+                ).mapped("amount")
+            )
+            if policy.premium and policy.premium_total:
+                amount = amount * policy.premium / policy.premium_total
+        else:
+            if not (policy.date_from and policy.date_to):
+                return 0.0
+            months, days = policy._get_duration_parts(policy.date_from, policy.date_to)
+            count = max(months + (1 if days else 0), 1)
+            amount = policy.premium * max(count - (continue_from or 1) + 1, 0) / count
+        currency = policy.currency_id or policy.company_id.currency_id
+        company = policy.company_id or self.env.company
+        date = company.insurance_go_live_date or fields.Date.context_today(self)
+        return currency._convert(amount, company.currency_id, company, date)
+
+    @api.onchange("in_progress", "continue_from_installment")
+    def _onchange_suggest_unaccrued_amount(self):
+        """Suggest the amount still to accrue; a value typed by the user (not
+        one of the suggestions) is never replaced."""
+        if not self.in_progress or not self.env.user.has_group(AMOUNTS_GROUP):
+            return
+        currency = self.company_id.currency_id or self.env.company.currency_id
+        current = self.sudo().unaccrued_amount
+        if not currency.is_zero(current):
+            count = max(len(self.installment_ids), 12)
+            suggestions = [self._get_suggested_unaccrued_amount(number) for number in range(1, count + 1)]
+            if not any(currency.compare_amounts(current, suggestion) == 0 for suggestion in suggestions):
+                return
+        self.unaccrued_amount = currency.round(self._get_suggested_unaccrued_amount(self.continue_from_installment))
+
     @api.onchange("date_from", "date_to")
     def _onchange_dates_duration(self):
         issue = self._get_duration_issue()
@@ -977,6 +1023,8 @@ class InsurancePolicy(models.Model):
         res = super().write(vals)
         if "date_to" in vals or "date_from" in vals:
             self.filtered(lambda p: p.state not in UNCOVERED_STATES)._apply_lifecycle_state()
+        if {"in_progress", "continue_from_installment"}.intersection(vals):
+            self._sync_historical_installments()
         return res
 
     @api.ondelete(at_uninstall=False)
@@ -1657,6 +1705,56 @@ class InsurancePolicy(models.Model):
             },
         }
 
+    def _is_historical_installment(self, number, due_date, endorsement=None, continue_from=1):
+        """Installments before ``continue_from`` (running policy) or due before
+        the go-live date are historical: paid before Odoo, never billed."""
+        self.ensure_one()
+        go_live = self.company_id.insurance_go_live_date
+        return number < (continue_from or 1) or bool(
+            go_live and not endorsement and due_date < go_live and self.in_progress
+        )
+
+    def _sync_historical_installments(self):
+        """The running policy data changed after generating the installments:
+        mark (or unmark) the policy installments as historical with the same
+        rule as the generation. Billed or paid installments cannot change."""
+        for policy in self:
+            continue_from = policy.continue_from_installment if policy.in_progress else 1
+            installments = policy.installment_ids.filtered(lambda i: not i.endorsement_id and not i.cancelled)
+            changed = installments.filtered(
+                lambda i: i.historical != policy._is_historical_installment(i.number, i.due_date, None, continue_from)
+            )
+            if not changed:
+                continue
+            blocked = changed.filtered(lambda i: i.move_id or i.payment_id)
+            if blocked:
+                raise UserError(
+                    self.env._(
+                        "Policy %(policy)s: installments %(installments)s are already billed or paid. Cancel "
+                        "their bill (or payment) first, then change the running policy data.",
+                        policy=policy.display_name,
+                        installments=", ".join(blocked.sorted("number").mapped("name")),
+                    )
+                )
+            to_mark = changed.filtered(lambda i: not i.historical)
+            system = {"insurance_installment_system": True}
+            to_mark.with_context(**system).write({"historical": True, "overdue": False})
+            (changed - to_mark).with_context(**system).write({"historical": False})
+            if to_mark:
+                policy._message_log(
+                    body=self.env._(
+                        "Installments marked as historical (running policy): %(installments)s.",
+                        installments=", ".join(to_mark.sorted("number").mapped("name")),
+                    )
+                )
+            if changed - to_mark:
+                policy._message_log(
+                    body=self.env._(
+                        "Installments no longer historical: %(installments)s.",
+                        installments=", ".join((changed - to_mark).sorted("number").mapped("name")),
+                    )
+                )
+
     def _generate_installments(self, count, first_due_date, total_amount, payment_mode=None, endorsement=None, continue_from=1):
         """Create ``count`` monthly installments of equal amounts (the last
         one absorbs the rounding), replacing the ones not billed yet.
@@ -1680,13 +1778,12 @@ class InsurancePolicy(models.Model):
         existing.unlink()
         currency = self.currency_id
         base = currency.round(total_amount / count)
-        go_live = self.company_id.insurance_go_live_date
         values = []
         for index in range(count):
             number = index + 1
             amount = base if number < count else currency.round(total_amount - base * (count - 1))
             due_date = first_due_date + relativedelta(months=index)
-            historical = number < (continue_from or 1) or bool(go_live and not endorsement and due_date < go_live and self.in_progress)
+            historical = self._is_historical_installment(number, due_date, endorsement, continue_from)
             values.append(
                 {
                     "policy_id": self.id,
@@ -1813,6 +1910,10 @@ class InsurancePolicy(models.Model):
             lambda i: not i.endorsement_id and not i.move_id and not i.historical and not i.cancelled
         )
         if not installments:
+            if self.installment_ids.filtered(lambda i: not i.endorsement_id and i.move_id):
+                raise UserError(
+                    self.env._("All the installments of the policy already have a bill: see the Bills smart button.")
+                )
             raise UserError(self.env._("Generate the installments first: there are none to bill."))
         moves = self.env["account.move"]
         if self.billing_mode == "installment":
@@ -1838,11 +1939,20 @@ class InsurancePolicy(models.Model):
 
     def action_generate_payments(self):
         """(Re)generate the payments of the installments ready to be paid by
-        deferred check or scheduled transfer."""
+        deferred check or scheduled transfer, and the automatic debits already
+        due (what the daily process would pay, without waiting for it)."""
         self.ensure_one()
-        payments = self.env["insurance.installment"]._process_scheduled_payments(self.installment_ids)
+        Installment = self.env["insurance.installment"]
+        payments = Installment._process_scheduled_payments(self.installment_ids)
+        payments |= Installment._process_due_debits(self.installment_ids, self._get_today())
         if not payments:
-            raise UserError(self.env._("No payment to generate: they need a posted bill and a deferred check or scheduled transfer payment mode."))
+            raise UserError(
+                self.env._(
+                    "No payment to generate: the installments need a posted bill and a deferred check or "
+                    "scheduled transfer payment mode, or an automatic debit already due. Automatic debits "
+                    "not due yet are paid by the daily process on their due date."
+                )
+            )
         return True
 
     # -------------------------------------------------------------------------
@@ -1915,10 +2025,35 @@ class InsurancePolicy(models.Model):
         go_live = self.company_id.insurance_go_live_date
         if not self.in_progress or not go_live:
             raise UserError(self.env._("Only for running policies, with the go-live date set in the insurance settings."))
-        if self.accrual_line_ids.filtered(lambda l: not l.source_move_id and not l.endorsement_id):
-            raise UserError(self.env._("The initial accrual plan already exists."))
-        self._create_accrual_lines(self.sudo().unaccrued_amount, max(go_live, self.date_from), self.date_to)
-        return True
+        initial = self.accrual_line_ids.filtered(lambda l: not l.source_move_id and not l.endorsement_id)
+        if initial.filtered("move_id"):
+            raise UserError(
+                self.env._(
+                    "The initial accrual plan already has accrued months: it can no longer be "
+                    "generated again. Adjust its open months in the Accrual tab instead."
+                )
+            )
+        # Generated again (e.g. after correcting the amount): it replaces the
+        # previous plan, nothing was accrued yet.
+        initial.sudo().unlink()
+        lines = self._create_accrual_lines(self.sudo().unaccrued_amount, max(go_live, self.date_from), self.date_to)
+        if not lines:
+            raise UserError(self.env._("Enter the amount still to accrue at go-live first."))
+        message = self.env._(
+            "Initial accrual plan: %(months)s months, %(amount)s in total (see the Accrual tab).",
+            months=len(lines),
+            amount=format_amount(self.env, sum(lines.mapped("amount")), self.company_currency_id),
+        )
+        self._message_log(body=message)
+        return {
+            "type": "ir.actions.client",
+            "tag": "display_notification",
+            "params": {
+                "type": "success",
+                "message": message,
+                "next": {"type": "ir.actions.client", "tag": "soft_reload"},
+            },
+        }
 
     def _close_accrual_plan(self, date):
         """Early end (cancellation): the months after ``date`` still to accrue

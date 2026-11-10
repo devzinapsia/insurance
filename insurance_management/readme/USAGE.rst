@@ -42,8 +42,9 @@ Installments, bills and payments
   date in the *Installments* tab until the difference is zero.
 * Click **Create bill**, complete the insurer's document data (date, number)
   and post it. Automatic debits are paid by the daily process on each due
-  date; deferred checks and scheduled transfers get their payments when the
-  bill is posted (drafts to review if so configured).
+  date (or right away with **Generate payments** once due); deferred checks
+  and scheduled transfers get their payments when the bill is posted (drafts
+  to review if so configured).
 * For an endorsement with additional premium, use **Generate installments**
   and **Create bill** on the endorsement; for a refund, **Create credit
   note**.
@@ -54,12 +55,16 @@ Initial load
 ------------
 
 * Set the go-live date in the settings, then either load each running
-  policy by hand (mark *Running policy*, the installment it continues from
-  and the amount still to accrue, generate the installments and the initial
-  accrual) or use **Insurance ‣ Configuration ‣ Import running policies**:
+  policy by hand (mark *Running policy* and the installment it continues
+  from; the amount still to accrue is suggested from the installments that
+  follow; generate the installments and the initial accrual) or use **Insurance ‣ Configuration ‣ Import running policies**:
   download the template, fill it in, upload it, click **Read file** and
   **Process now**. Rows with errors show their message; fix the file, upload
   it again and read it: only the failed rows are replaced.
+* Marking a policy as running, or changing the installment it continues
+  from, after generating the installments updates them on save (historical
+  or not); billed or paid installments never change. The initial accrual
+  can be generated again until a month is accrued.
 * Post the opening entry (prepaid insurance balance) and check that the
   *Opening difference* of the settings is zero. Link the opening bills of
   the insurers to their policies from the bill (*Insurance policy* field).

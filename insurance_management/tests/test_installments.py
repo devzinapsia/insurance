@@ -240,6 +240,17 @@ class TestInstallmentPayments(InsuranceAccountingCommon):
         self.assertEqual(first.state, "paid")
         self.assertEqual(installments[1].state, "pending")
 
+    def test_generate_payments_button_pays_due_debits(self):
+        policy = self._policy()
+        installments = self._installments(policy, count=3)
+        self._post_bill(policy)
+        first = installments[0]
+        policy.with_context(insurance_today=first.due_date).action_generate_payments()
+        self.assertEqual(first.state, "paid")
+        self.assertFalse(installments[1:].payment_id, "Debits not due yet wait for their due date")
+        with self.assertRaisesRegex(UserError, "daily process"):
+            policy.with_context(insurance_today=first.due_date).action_generate_payments()
+
     def test_scheduled_transfer_generated_when_bill_posted(self):
         policy = self._policy(payment_mode_id=self.transfer_mode.id)
         installments = self._installments(policy, count=3)
@@ -565,11 +576,130 @@ class TestInitialLoad(InsuranceAccountingCommon):
         self.assertEqual(len(plan), 9, "April to December")
         self.assertEqual(sum(plan.mapped("amount")), 900000.0)
         self.assertEqual(plan[0].date, date(self.year, 4, 30))
-        with self.assertRaises(UserError):
+        # Generated again (amount corrected): the plan is replaced, not added.
+        policy.unaccrued_amount = 450000.0
+        action = policy.action_generate_initial_accrual()
+        self.assertEqual(action["tag"], "display_notification", "The user sees what was generated")
+        self.assertEqual(len(policy.accrual_line_ids), 9)
+        self.assertEqual(sum(policy.accrual_line_ids.mapped("amount")), 450000.0)
+        # Once a month is accrued, it can no longer be generated again.
+        self.env["insurance.accrual.line"]._process_accrual_batch(policy.accrual_line_ids.sorted("date")[:1])
+        with self.assertRaisesRegex(UserError, "accrued months"):
             policy.action_generate_initial_accrual()
         # Historical installments never generate payments.
         self.env["insurance.installment"]._process_daily_batch(installments, date(self.year, 12, 31))
         self.assertFalse(installments.filtered("historical").payment_id)
+
+    def _historical_numbers(self, policy):
+        return policy.installment_ids.filtered("historical").sorted("number").mapped("number")
+
+    def test_continue_from_marks_previous_installments_on_save(self):
+        """Installments generated first, policy marked as running afterwards
+        (as in the form): 1 to 3 become historical as soon as it is saved."""
+        policy = self._policy()
+        installments = self._installments(policy, count=12)
+        self.assertFalse(self._historical_numbers(policy))
+        with Form(policy) as form:
+            form.in_progress = True
+            form.continue_from_installment = 4
+        self.assertEqual(self._historical_numbers(policy), [1, 2, 3])
+        self.assertEqual(set(installments.filtered("historical").mapped("state")), {"paid"})
+        self.assertFalse(installments.filtered(lambda i: i.number >= 4).filtered("historical"))
+        self.assertTrue(any("historical" in (body or "") for body in policy.message_ids.mapped("body")), "Logged")
+        bill = self._post_bill(policy, invoice_date=date(self.year, 4, 1))
+        self.assertEqual(bill.amount_total, 900000.0, "Only installments 4 to 12 are billed")
+        # Historical installments are never debited.
+        self.env["insurance.installment"]._process_daily_batch(installments, date(self.year, 12, 31))
+        self.assertFalse(installments.filtered("historical").payment_id)
+
+    def test_lowering_continue_from_releases_the_installment(self):
+        """From 4 to 3: installment 3 is managed in Odoo again (to bill and
+        pay); back to 4: historical again."""
+        policy = self._policy(in_progress=True, continue_from_installment=4)
+        self._installments(policy, count=12, continue_from=4)
+        third = policy.installment_ids.filtered(lambda i: i.number == 3)
+        self.assertTrue(third.historical)
+        policy.continue_from_installment = 3
+        self.assertEqual(self._historical_numbers(policy), [1, 2])
+        self.assertFalse(third.historical)
+        self.assertIn(third.state, ("pending", "overdue"))
+        policy.continue_from_installment = 4
+        self.assertEqual(self._historical_numbers(policy), [1, 2, 3])
+        self.assertEqual(third.state, "paid")
+
+    def test_continue_from_after_billing(self):
+        """Lowering it releases an installment not billed (it gets its own
+        bill); raising it over a billed installment is refused until its bill
+        is cancelled."""
+        policy = self._policy(in_progress=True, continue_from_installment=4)
+        self._installments(policy, count=12, continue_from=4)
+        bill = self._post_bill(policy, invoice_date=date(self.year, 4, 1))
+        policy.continue_from_installment = 3
+        self.assertEqual(self._historical_numbers(policy), [1, 2])
+        second_bill = self._post_bill(policy, invoice_date=date(self.year, 4, 1))
+        self.assertEqual(second_bill.amount_total, 100000.0, "Only installment 3")
+        with self.assertRaisesRegex(UserError, "already billed or paid"):
+            policy.continue_from_installment = 5
+        self.assertEqual(self._historical_numbers(policy), [1, 2], "Nothing changed")
+        for move in second_bill | bill:
+            move.button_draft()
+            move.button_cancel()
+        policy.continue_from_installment = 5
+        self.assertEqual(self._historical_numbers(policy), [1, 2, 3, 4])
+
+    def test_go_live_date_keeps_installments_due_before_it(self):
+        """Lowering "continues from" does not release an installment due
+        before the go-live date: it was paid before Odoo either way."""
+        self.company.insurance_go_live_date = date(self.year, 4, 1)
+        policy = self._policy(in_progress=True, continue_from_installment=4)
+        self._installments(policy, count=12, continue_from=4)
+        policy.continue_from_installment = 3
+        self.assertEqual(self._historical_numbers(policy), [1, 2, 3], "Installment 3 is due on March 1st")
+        self.company.insurance_go_live_date = date(self.year, 1, 15)
+        policy.continue_from_installment = 2
+        self.assertEqual(self._historical_numbers(policy), [1], "Installments 2 and 3 are due after the go-live")
+
+    def test_suggested_amount_to_accrue(self):
+        """Running policy: the amount still to accrue is suggested from the
+        installments managed in Odoo (as billed, net of taxes), follows
+        "continues from" and never replaces a typed amount."""
+        policy = self._policy(confirm=False, premium=1000000.0, premium_total=1200000.0)
+        with Form(policy) as form:
+            form.in_progress = True
+            form.continue_from_installment = 4
+            self.assertEqual(form.unaccrued_amount, 750000.0, "No installments yet: 9 months of 12 of the premium")
+        self._installments(policy, count=12)
+        with Form(policy) as form:
+            form.continue_from_installment = 3
+            self.assertEqual(form.unaccrued_amount, 833333.33, "10 installments of 100.000, net of taxes")
+            form.unaccrued_amount = 512345.0
+            form.continue_from_installment = 5
+            self.assertEqual(form.unaccrued_amount, 512345.0, "A typed amount is kept")
+
+    def test_running_data_not_copied_to_renewal_or_duplicate(self):
+        policy = self._policy(in_progress=True, continue_from_installment=4, unaccrued_amount=900000.0)
+        copied = policy.copy_data()[0]
+        self.assertFalse({"in_progress", "continue_from_installment", "unaccrued_amount"}.intersection(copied))
+        renewal = self.env["insurance.policy"].create(policy._prepare_renewal_vals())
+        self.assertEqual((renewal.in_progress, renewal.continue_from_installment, renewal.unaccrued_amount), (False, 1, 0.0))
+
+    def test_not_running_anymore_unmarks_installments(self):
+        policy = self._policy(in_progress=True, continue_from_installment=4)
+        self._installments(policy, count=12, continue_from=4)
+        policy.in_progress = False
+        self.assertFalse(self._historical_numbers(policy))
+        action = policy.action_open_installment_generator()
+        wizard = self.env[action["res_model"]].with_context(action["context"]).create({})
+        self.assertEqual(wizard.continue_from, 1, "The installment it continues from only applies to running policies")
+
+    def test_bill_message_when_everything_is_billed(self):
+        policy = self._policy()
+        with self.assertRaisesRegex(UserError, "Generate the installments first"):
+            policy.action_create_bill()
+        self._installments(policy, count=2)
+        self._post_bill(policy)
+        with self.assertRaisesRegex(UserError, "already have a bill"):
+            policy.action_create_bill()
 
     def test_go_live_date_marks_previous_installments_historical(self):
         self.company.insurance_go_live_date = date(self.year, 3, 15)

@@ -309,6 +309,21 @@ class InsuranceInstallment(models.Model):
                 _logger.exception("Insurance payment generation failed for installment %s", installment.id)
         return created
 
+    @api.model
+    def _process_due_debits(self, installments, today):
+        """Payments of the automatic debits due by ``today``, each in its own
+        savepoint (the same ones the daily process pays)."""
+        created = self.env["account.payment"]
+        for installment in installments.filtered(
+            lambda i: i.payment_mode_id.payment_type == "automatic_debit" and i.due_date <= today
+        ):
+            try:
+                with self.env.cr.savepoint():
+                    created |= installment._generate_payment()
+            except Exception:
+                _logger.exception("Insurance automatic debit failed for installment %s", installment.id)
+        return created
+
     # -------------------------------------------------------------------------
     # Daily process: automatic debits and overdue installments (stages e, f)
     # -------------------------------------------------------------------------
@@ -440,7 +455,7 @@ class InsuranceInstallmentGenerate(models.TransientModel):
                 values.setdefault("total_amount", amount)
             values.setdefault("payment_mode_id", policy.payment_mode_id.id)
             if "default_continue_from" not in context:
-                values["continue_from"] = 1 if endorsement else (policy.continue_from_installment or 1)
+                values["continue_from"] = (policy.continue_from_installment or 1) if policy.in_progress and not endorsement else 1
         return values
 
     def action_generate(self):
