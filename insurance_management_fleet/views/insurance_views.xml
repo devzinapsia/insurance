@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="insurance_policy_view_form_fleet" model="ir.ui.view">
+        <field name="name">insurance.policy.form.fleet</field>
+        <field name="model">insurance.policy</field>
+        <field name="inherit_id" ref="insurance_management.insurance_policy_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='object_ids']/list/field[@name='name']" position="after">
+                <field name="vehicle_id" column_invisible="parent.object_type != 'vehicle'" optional="show" options="{'no_create': True}"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="insurance_policy_view_search_fleet" model="ir.ui.view">
+        <field name="name">insurance.policy.search.fleet</field>
+        <field name="model">insurance.policy</field>
+        <field name="inherit_id" ref="insurance_management.insurance_policy_view_search"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='object_ids']" position="attributes">
+                <attribute name="filter_domain">['|', '|', '|', ('object_ids.name', 'ilike', self), ('object_ids.license_plate', 'ilike', self), ('object_ids.insured_item_id.name', 'ilike', self), ('object_ids.vehicle_id.name', 'ilike', self)]</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="insurance_endorsement_view_form_fleet" model="ir.ui.view">
+        <field name="name">insurance.endorsement.form.fleet</field>
+        <field name="model">insurance.endorsement</field>
+        <field name="inherit_id" ref="insurance_management.insurance_endorsement_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='line_ids']/list/field[@name='license_plate']" position="before">
+                <field name="vehicle_id" column_invisible="parent.object_type != 'vehicle'" readonly="operation != 'add'" options="{'no_create': True}"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="insurance_branch_view_form_fleet" model="ir.ui.view">
+        <field name="name">insurance.branch.form.fleet</field>
+        <field name="model">insurance.branch</field>
+        <field name="inherit_id" ref="insurance_management.insurance_branch_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='object_type']" position="after">
+                <field name="requires_fleet_vehicle" invisible="object_type != 'vehicle'"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="insurance_claim_view_form_fleet" model="ir.ui.view">
+        <field name="name">insurance.claim.form.fleet</field>
+        <field name="model">insurance.claim</field>
+        <field name="inherit_id" ref="insurance_management.insurance_claim_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='object_id']" position="before">
+                <field name="vehicle_id" readonly="workflow_state not in ('draft', 'reported', 'analysis')" options="{'no_create': True}"
+                       invisible="object_type not in (False, 'vehicle')"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="insurance_claim_view_list_fleet" model="ir.ui.view">
+        <field name="name">insurance.claim.list.fleet</field>
+        <field name="model">insurance.claim</field>
+        <field name="inherit_id" ref="insurance_management.insurance_claim_view_list"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='object_id']" position="after">
+                <field name="vehicle_id" optional="hide"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="insurance_claim_view_search_fleet" model="ir.ui.view">
+        <field name="name">insurance.claim.search.fleet</field>
+        <field name="model">insurance.claim</field>
+        <field name="inherit_id" ref="insurance_management.insurance_claim_view_search"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='object_id']" position="after">
+                <field name="vehicle_id"/>
+            </xpath>
+            <xpath expr="//filter[@name='group_by_policy']" position="after">
+                <filter name="group_by_vehicle" string="Fleet vehicle" context="{'group_by': 'vehicle_id'}"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="insurance_dashboard_view_form_fleet" model="ir.ui.view">
+        <field name="name">insurance.dashboard.form.fleet</field>
+        <field name="model">insurance.dashboard</field>
+        <field name="inherit_id" ref="insurance_management.insurance_dashboard_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='policies']" position="inside">
+                <div class="col-6 col-lg-3">
+                    <button name="action_open" type="object" context="{'dashboard_key': 'uninsured_vehicles'}" class="btn btn-light border w-100 h-100 text-start p-3">
+                        <div class="fs-2 fw-bold text-danger"><field name="uninsured_vehicle_count"/></div>
+                        <div>Vehicles without insurance in force</div>
+                    </button>
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>

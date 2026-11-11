@@ -1,0 +1,61 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* insurance_management_project
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-11 17:44+0000\n"
+"PO-Revision-Date: 2026-11-11 17:44+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: insurance_management_project
+#: model:ir.model.fields,field_description:insurance_management_project.field_insurance_policy__display_name
+#: model:ir.model.fields,field_description:insurance_management_project.field_project_project__display_name
+msgid "Display Name"
+msgstr ""
+
+#. module: insurance_management_project
+#: model:ir.model.fields,field_description:insurance_management_project.field_insurance_policy__surety_project_id
+msgid "Guaranteed project"
+msgstr ""
+
+#. module: insurance_management_project
+#: model:ir.model.fields,field_description:insurance_management_project.field_insurance_policy__id
+#: model:ir.model.fields,field_description:insurance_management_project.field_project_project__id
+msgid "ID"
+msgstr ""
+
+#. module: insurance_management_project
+#: model:ir.model,name:insurance_management_project.model_insurance_policy
+msgid "Insurance policy"
+msgstr ""
+
+#. module: insurance_management_project
+#: model:ir.model,name:insurance_management_project.model_project_project
+msgid "Project"
+msgstr ""
+
+#. module: insurance_management_project
+#: model:ir.model.fields,help:insurance_management_project.field_insurance_policy__surety_project_id
+msgid ""
+"Project whose fulfilment the surety bond guarantees (e.g. a public work "
+"guaranteed with a performance bond)."
+msgstr ""
+
+#. module: insurance_management_project
+#: model:ir.model.fields,field_description:insurance_management_project.field_project_project__insurance_surety_count
+msgid "Surety bond count"
+msgstr ""
+
+#. module: insurance_management_project
+#: model:ir.model.fields,field_description:insurance_management_project.field_project_project__insurance_surety_ids
+#: model_terms:ir.ui.view,arch_db:insurance_management_project.project_view_form_insurance
+msgid "Surety bonds"
+msgstr ""

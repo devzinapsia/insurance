@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="insurance_policy_view_form_sale" model="ir.ui.view">
+        <field name="name">insurance.policy.form.sale</field>
+        <field name="model">insurance.policy</field>
+        <field name="inherit_id" ref="insurance_management.insurance_policy_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='surety_obligation']" position="after">
+                <field name="surety_sale_order_id" readonly="is_locked" options="{'no_create': True}"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="sale_view_form_insurance" model="ir.ui.view">
+        <field name="name">sale.order.form.insurance</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_view_insurance_sureties" type="object" class="oe_stat_button" icon="fa-handshake-o"
+                        groups="insurance_management.group_insurance_user" invisible="not insurance_surety_count">
+                    <field name="insurance_surety_count" widget="statinfo" string="Surety bonds"/>
+                </button>
+            </xpath>
+        </field>
+    </record>
+</odoo>

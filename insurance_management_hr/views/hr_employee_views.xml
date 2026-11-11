@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="hr_employee_view_form_insurance" model="ir.ui.view">
+        <field name="name">hr.employee.form.insurance</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_view_insurance_policies" type="object" class="oe_stat_button" icon="fa-shield"
+                        groups="insurance_management.group_insurance_user" invisible="not insurance_policy_count">
+                    <div class="o_stat_info">
+                        <span class="o_stat_value"><field name="insurance_policy_count"/></span>
+                        <span class="o_stat_text text-success" invisible="not insured_today">Insured</span>
+                        <span class="o_stat_text" invisible="insured_today">Insurance</span>
+                    </div>
+                </button>
+                <button name="action_view_insurance_claims" type="object" class="oe_stat_button" icon="fa-exclamation-triangle"
+                        groups="insurance_management.group_insurance_user" invisible="not insurance_claim_count">
+                    <field name="insurance_claim_count" widget="statinfo" string="Claims"/>
+                </button>
+                <field name="insured_today" invisible="1" groups="insurance_management.group_insurance_user"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="hr_employee_view_tree_insurance" model="ir.ui.view">
+        <field name="name">hr.employee.list.insurance</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='work_email']" position="after">
+                <field name="insured_today" optional="hide" groups="insurance_management.group_insurance_user"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="hr_employee_view_search_insurance" model="ir.ui.view">
+        <field name="name">hr.employee.search.insurance</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='newly_hired']" position="after">
+                <filter name="insured_today" string="Insured today" domain="[('insured_today', '=', True)]" groups="insurance_management.group_insurance_user"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

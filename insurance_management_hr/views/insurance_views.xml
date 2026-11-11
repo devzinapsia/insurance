@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="insurance_policy_view_form_hr" model="ir.ui.view">
+        <field name="name">insurance.policy.form.hr</field>
+        <field name="model">insurance.policy</field>
+        <field name="inherit_id" ref="insurance_management.insurance_policy_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='object_ids']/list/field[@name='name']" position="after">
+                <field name="employee_id" column_invisible="parent.object_type != 'person'" optional="show" options="{'no_create': True}"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="insurance_endorsement_view_form_hr" model="ir.ui.view">
+        <field name="name">insurance.endorsement.form.hr</field>
+        <field name="model">insurance.endorsement</field>
+        <field name="inherit_id" ref="insurance_management.insurance_endorsement_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='line_ids']/list/field[@name='name']" position="after">
+                <field name="employee_id" column_invisible="parent.object_type != 'person'" readonly="operation != 'add'" options="{'no_create': True}"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="insurance_claim_view_form_hr" model="ir.ui.view">
+        <field name="name">insurance.claim.form.hr</field>
+        <field name="model">insurance.claim</field>
+        <field name="inherit_id" ref="insurance_management.insurance_claim_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='object_id']" position="before">
+                <field name="employee_id" readonly="workflow_state not in ('draft', 'reported', 'analysis')" options="{'no_create': True}"
+                       invisible="object_type not in (False, 'person')"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="insurance_claim_view_list_hr" model="ir.ui.view">
+        <field name="name">insurance.claim.list.hr</field>
+        <field name="model">insurance.claim</field>
+        <field name="inherit_id" ref="insurance_management.insurance_claim_view_list"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='object_id']" position="after">
+                <field name="employee_id" optional="hide"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="insurance_claim_view_search_hr" model="ir.ui.view">
+        <field name="name">insurance.claim.search.hr</field>
+        <field name="model">insurance.claim</field>
+        <field name="inherit_id" ref="insurance_management.insurance_claim_view_search"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='object_id']" position="after">
+                <field name="employee_id"/>
+            </xpath>
+            <xpath expr="//filter[@name='group_by_policy']" position="after">
+                <filter name="group_by_employee" string="Employee" context="{'group_by': 'employee_id'}"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

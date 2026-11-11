@@ -1,0 +1,127 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* insurance_management_hr
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-11 17:44+0000\n"
+"PO-Revision-Date: 2026-11-11 17:44+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: insurance_management_hr
+#: model_terms:ir.ui.view,arch_db:insurance_management_hr.hr_employee_view_form_insurance
+msgid ""
+"<span class=\"o_stat_text text-success\" invisible=\"not insured_today\">Insured</span>\n"
+"                        <span class=\"o_stat_text\" invisible=\"insured_today\">Insurance</span>"
+msgstr ""
+
+#. module: insurance_management_hr
+#: model:ir.model.fields,help:insurance_management_hr.field_hr_employee__insured_today
+msgid ""
+"An active insured object of a policy covering today is linked to the "
+"employee."
+msgstr ""
+
+#. module: insurance_management_hr
+#: model_terms:ir.ui.view,arch_db:insurance_management_hr.hr_employee_view_form_insurance
+msgid "Claims"
+msgstr ""
+
+#. module: insurance_management_hr
+#: model:ir.model.fields,field_description:insurance_management_hr.field_hr_employee__display_name
+#: model:ir.model.fields,field_description:insurance_management_hr.field_insurance_claim__display_name
+#: model:ir.model.fields,field_description:insurance_management_hr.field_insurance_endorsement_line__display_name
+#: model:ir.model.fields,field_description:insurance_management_hr.field_insurance_policy_object__display_name
+msgid "Display Name"
+msgstr ""
+
+#. module: insurance_management_hr
+#: model:ir.model,name:insurance_management_hr.model_hr_employee
+#: model:ir.model.fields,field_description:insurance_management_hr.field_insurance_claim__employee_id
+#: model:ir.model.fields,field_description:insurance_management_hr.field_insurance_endorsement_line__employee_id
+#: model:ir.model.fields,field_description:insurance_management_hr.field_insurance_policy_object__employee_id
+#: model_terms:ir.ui.view,arch_db:insurance_management_hr.insurance_claim_view_search_hr
+msgid "Employee"
+msgstr ""
+
+#. module: insurance_management_hr
+#: model:ir.model.fields,help:insurance_management_hr.field_insurance_endorsement_line__employee_id
+msgid "Employee added to the policy by this line."
+msgstr ""
+
+#. module: insurance_management_hr
+#: model:ir.model.fields,help:insurance_management_hr.field_insurance_claim__employee_id
+msgid ""
+"Employee affected. Choosing it proposes the policy and the insured object "
+"covering them on the date of occurrence."
+msgstr ""
+
+#. module: insurance_management_hr
+#: model:ir.model.fields,help:insurance_management_hr.field_insurance_policy_object__employee_id
+msgid ""
+"Employee insured by this line (personal accident, life). The insurance "
+"history and claims are shown on the employee."
+msgstr ""
+
+#. module: insurance_management_hr
+#: model:ir.model.fields,field_description:insurance_management_hr.field_hr_employee__id
+#: model:ir.model.fields,field_description:insurance_management_hr.field_insurance_claim__id
+#: model:ir.model.fields,field_description:insurance_management_hr.field_insurance_endorsement_line__id
+#: model:ir.model.fields,field_description:insurance_management_hr.field_insurance_policy_object__id
+msgid "ID"
+msgstr ""
+
+#. module: insurance_management_hr
+#: model:ir.model,name:insurance_management_hr.model_insurance_claim
+msgid "Insurance claim"
+msgstr ""
+
+#. module: insurance_management_hr
+#: model:ir.model.fields,field_description:insurance_management_hr.field_hr_employee__insurance_claim_count
+msgid "Insurance claims"
+msgstr ""
+
+#. module: insurance_management_hr
+#: model:ir.model,name:insurance_management_hr.model_insurance_endorsement_line
+msgid "Insurance endorsement line"
+msgstr ""
+
+#. module: insurance_management_hr
+#: model:ir.model.fields,field_description:insurance_management_hr.field_hr_employee__insurance_object_ids
+msgid "Insurance lines"
+msgstr ""
+
+#. module: insurance_management_hr
+#: model:ir.model.fields,field_description:insurance_management_hr.field_hr_employee__insurance_policy_count
+msgid "Insurance policies"
+msgstr ""
+
+#. module: insurance_management_hr
+#: model:ir.model,name:insurance_management_hr.model_insurance_policy_object
+msgid "Insured object"
+msgstr ""
+
+#. module: insurance_management_hr
+#: model:ir.model.fields,field_description:insurance_management_hr.field_hr_employee__insured_today
+#: model_terms:ir.ui.view,arch_db:insurance_management_hr.hr_employee_view_search_insurance
+msgid "Insured today"
+msgstr ""
+
+#. module: insurance_management_hr
+#. odoo-python
+#: code:addons/insurance_management_hr/models/insurance_policy_object.py:0
+msgid "Only policies of a branch of type Person can insure employees."
+msgstr ""
+
+#. module: insurance_management_hr
+#. odoo-python
+#: code:addons/insurance_management_hr/models/insurance_claim.py:0
+msgid "The employee of the claim must be the one of the affected object."
+msgstr ""
