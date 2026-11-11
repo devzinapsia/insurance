@@ -1,4 +1,4 @@
-# Casos de prueba manual — Gestión de seguros (Fases 1 y 2)
+# Casos de prueba manual — Gestión de seguros (Fases 1, 2 y 3)
 
 Guía para probar el módulo a mano en un entorno de prueba (por ejemplo,
 grupolara `staging2`), de lo más simple a lo más complejo. Cada caso indica
@@ -26,6 +26,7 @@ Convenciones:
   | proceso de cuotas | Seguros: cuotas (débitos automáticos e impagas) |
   | proceso de devengamiento | Seguros: devengamiento mensual |
   | proceso de importación | Seguros: importación de pólizas |
+  | proceso de siniestros | Seguros: siniestros sin movimiento |
 
   El proceso de vencimientos también se ejecuta desde **Seguros ›
   Configuración › Ajustes › Ejecutar ahora el proceso de vencimientos**.
@@ -40,10 +41,12 @@ Convenciones:
 
 ### 0.1 Instalación y permisos
 1. Verificar en **Aplicaciones** que estén instalados *Gestión de seguros*
-   (19.0.2.0.5) y, si la base tiene Contabilidad Enterprise, cheques y los
+   (19.0.3.0.0) y, si la base tiene Contabilidad Enterprise, cheques y los
    pagos de adhoc, los puentes *Gestión de seguros - Diferidos de
    Enterprise*, *Gestión de seguros - Cheques propios* y *Gestión de
-   seguros - Pagos de adhoc*.
+   seguros - Pagos de adhoc*. Con Flota, Empleados, Ventas y Proyectos
+   instalados, también *Gestión de seguros - Flota*, *- Empleados*,
+   *- Ventas* y *- Proyectos* (se instalan solos al actualizar).
 2. Crear (o elegir) tres usuarios de prueba:
    - **U1**: Seguros / Usuario, sin permisos de Contabilidad.
    - **U2**: Seguros / Administrador.
@@ -568,6 +571,158 @@ Con un usuario en inglés como responsable y U3 en español, repetir 3.5.
 - Sale una orden de pago con su talonario, conciliada con la cuota.
 - Si la compañía tiene retenciones configuradas, el pago las aplica y la
   cuota igual queda pagada. *Este punto no se pudo probar localmente.*
+
+---
+
+## Nivel 8 — Siniestros, cauciones e integraciones (Fase 3)
+
+### 8.0 Configuración de siniestros
+Antes, el contador crea el diario y las cuentas del punto 9 de
+**Parametrización contable**. En **Seguros › Configuración › Ajustes**:
+1. Sección **Contabilidad de siniestros**: diario *Siniestros* (varios),
+   cuenta *Siniestros a cobrar* (tipo A cobrar), *Recupero de siniestros* y
+   *Pérdida por ejecución de cauciones*.
+2. Sección **Siniestros y cauciones**: *Siniestros sin movimiento* = 30,
+   *Pedir la liberación* = 30, envío *Manual*.
+
+**Esperado**: la cuenta de siniestros a cobrar solo acepta cuentas de tipo A
+cobrar.
+
+### 8.1 Siniestro cobrado a la empresa
+1. En una póliza de automotor vigente, **Nuevo siniestro**: objeto afectado,
+   tipo *Daño propio*, efecto *Sin efecto*, destino *Cobro a la empresa*,
+   daño 500.000, franquicia 50.000, reclamado 500.000.
+2. **Denunciar a la aseguradora**, cargar el número de la aseguradora,
+   **En análisis**.
+3. Cargar aprobado 450.000 y fecha estimada de cobro; **Aprobar** (con U3 o
+   su usuario).
+4. Abrir **Asientos contables** del siniestro.
+5. **Registrar cobro** por 450.000 en el banco.
+
+**Esperado**:
+- El asiento de aprobación debita *Siniestros a cobrar* (aseguradora,
+  vencimiento = fecha estimada) y acredita *Recupero*; su referencia es
+  `SIN/... - <número de la aseguradora>`.
+- Antes del cobro, el crédito aparece en la antigüedad de saldos de la
+  aseguradora.
+- Al cobrar, el siniestro pasa solo a **Cobrado**, con fecha de cobro;
+  *Reclamado menos cobrado* = 50.000. **Cerrar** lo pasa a *Cerrado*.
+
+### 8.2 Cobro desde la conciliación bancaria (Enterprise)
+1. Otro siniestro aprobado por 300.000 (sin registrar el cobro).
+2. Cargar en el extracto del banco una línea de 300.000 con el concepto
+   "TRANSF SINIESTRO <número de la aseguradora>".
+
+**Esperado**: la conciliación bancaria propone el crédito del siniestro; al
+conciliar, el siniestro pasa a *Cobrado*.
+
+### 8.3 Cobro parcial y cierre con diferencia
+1. Siniestro aprobado por 200.000; **Registrar cobro** por 150.000.
+2. **Cerrar con diferencia**.
+
+**Esperado**: tras el cobro sigue *Aprobado* con 50.000 pendientes; al cerrar
+se genera un asiento contra *Recupero* por 50.000 y el siniestro queda
+*Cerrado*.
+
+### 8.4 Compensaciones
+1. Siniestro con destino *Pago directo al taller*, taller cargado, aprobado
+   por 450.000. Cargar la factura del taller por 500.000.
+2. **Compensar** › *Pago directo al taller*, elegir la factura, **Compensar**.
+3. En otra póliza de la misma aseguradora con una cuota impaga (pago en
+   borrador), siniestro aprobado; **Compensar** › *Premio impago*, elegir el
+   vencimiento de la cuota.
+
+**Esperado**: la factura del taller queda con 50.000 pendientes y el
+siniestro *Cobrado*; la cuota compensada queda *Pagada* y su pago en borrador
+*Cancelado*, el siniestro sigue aprobado por la diferencia.
+
+### 8.5 Pérdida total y reemplazo
+1. Póliza de automotor con un solo vehículo y cuotas sin facturar. Siniestro
+   tipo *Robo*, efecto *Pérdida total del objeto*, aprobado.
+2. **Dar de baja el objeto** y confirmar el endoso.
+3. **Asegurar reemplazo**.
+
+**Esperado**: el objeto queda dado de baja con el siniestro como motivo; sin
+objetos, la póliza pasa a *Anulada* con el motivo *Pérdida total por el
+siniestro…*, las cuotas no facturadas a *Anulada* y el devengamiento se cierra;
+el reemplazo abre una póliza nueva en borrador copiada (sin objetos). Con dos
+vehículos, la póliza sigue vigente y el reemplazo es un endoso de alta.
+
+### 8.6 Suma reducida y rehabilitación
+1. Póliza de incendio vigente; siniestro efecto *Reduce la suma asegurada*,
+   aprobado por 300.000.
+2. En la póliza, mostrar la columna opcional *Suma disponible* de los objetos.
+3. **Rehabilitar la suma asegurada** en el siniestro y confirmar el endoso.
+
+**Esperado**: la suma disponible baja 300.000 y vuelve a la suma asegurada
+al confirmar el endoso.
+
+### 8.7 Siniestro sin movimiento
+1. Bajar el ajuste *Siniestros sin movimiento* a 1 día y denunciar un
+   siniestro.
+2. Al día siguiente, ejecutar el **proceso de siniestros**.
+
+**Esperado**: el responsable recibe un correo (en Correos) y queda una nota
+en el chatter; al ejecutarlo otra vez el mismo día no se repite.
+
+### 8.8 Caución hasta liberación
+1. Póliza en el ramo *Caución*, tipo de renovación **Hasta liberación**,
+   pestaña **Caución**: beneficiario con correo, tipo *Cumplimiento de
+   contrato*, obligación, monto garantizado, fin de la obligación = hoy + 20
+   días. Vigencia que terminó ayer. Confirmar.
+2. **Entregada al beneficiario**.
+3. Ejecutar el **proceso de vencimientos**.
+4. **Liberar** sin documento; luego cargar un documento tipo *Constancia de
+   liberación de caución* y **Liberar**.
+5. **Devuelta a la aseguradora**.
+
+**Esperado**:
+- La póliza no pasa a *Vencida*: queda *Por vencer*, con un aviso y una
+  actividad para renovar o liberar, y una actividad para pedir la liberación
+  (fin de la obligación dentro de 30 días).
+- Liberar sin constancia da error; con constancia la garantía pasa a
+  *Liberada*, se abre el correo al productor y la póliza termina como *No
+  renovada*.
+- **Seguros › Pólizas › Cauciones** y **Reportes › Cauciones por
+  beneficiario** la muestran con su monto garantizado.
+
+### 8.9 Ejecución de caución
+1. Otra caución vigente con cuotas sin facturar. **Nuevo siniestro** (tipo
+   *Ejecución de caución*), aprobado por lo que pagó la aseguradora.
+
+**Esperado**: el asiento debita *Pérdida por ejecución de cauciones* y
+acredita la cuenta a pagar de la aseguradora; la garantía pasa a *Ejecutada*
+y la póliza a *Anulada*; *Cancelar aprobación* no está permitido.
+
+### 8.10 Flota
+1. En Flota, dos vehículos con patentes `AB 123 CD` y `XY999ZZ`.
+2. Póliza de automotor con objetos de patente `ab-123cd` y `XY 999 ZZ`.
+3. Abrir el vehículo: botones **Seguros** y **Siniestros**.
+4. En Flota, filtro **Sin seguro vigente**.
+5. En el ramo *Automotor*, marcar **Requiere vehículo de flota** y confirmar
+   una póliza con un objeto de patente inexistente.
+
+**Esperado**: los objetos quedan vinculados a sus vehículos; el vehículo
+dice *Asegurado* y lista la póliza; el filtro muestra los vehículos sin
+póliza vigente; la póliza con patente inexistente no se confirma. Los
+objetos cargados antes de actualizar quedaron vinculados solos.
+
+### 8.11 Empleados, ventas y proyectos
+1. Póliza de *Accidentes personales* con objetos que eligen empleados.
+2. Caución con *Orden de venta garantizada* y otra con *Proyecto
+   garantizado*.
+
+**Esperado**: el empleado muestra sus botones **Seguros** y **Siniestros**;
+la orden de venta y el proyecto muestran el botón **Cauciones**.
+
+### 8.12 Tablero y permisos
+1. **Seguros › Tablero** con su usuario y con U1.
+2. Con U1 (sin Contabilidad), intentar **Aprobar** un siniestro con importe
+   aprobado.
+
+**Esperado**: cada número abre sus registros; U1 no ve importes si *Ocultar
+costos* está activo; U1 no puede aprobar con asiento (mensaje de permisos),
+sí puede aprobar uno sin importe.
 
 ---
 

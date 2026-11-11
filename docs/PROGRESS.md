@@ -16,7 +16,7 @@ Branch: `19.0` (never touch `main` or `20.0`). Odoo source: `ODOO_19_SRC` from
 | --- | --- |
 | Fase 1 — Control de vencimientos | Complete on branch 19.0, deployed to grupolara staging2 for testing — Hito 1 pending (the user confirms production use) |
 | Fase 2 — Gestión económica y contable | All stages (a)-(i) done 2026-11-03 + Knowledge guide updated; awaiting the user's commit/push confirmation, then grupolara staging2 testing. Ran IN PARALLEL with Fase 1 testing (Hito 1 not confirmed yet) |
-| Fase 3 — Siniestros, cauciones e integraciones | Started 2026-11-11 ("arrancá la Fase 3") in parallel with Fase 2 staging tests, Hito 2 NOT confirmed yet. Developed directly on `19.0` (user 2026-11-11: "mergea todo a 19.0... este módulo no está en producción"; the temporary `19.0-fase3` branch was merged and deleted). Paso 0 delivered, waiting for the user's answers |
+| Fase 3 — Siniestros, cauciones e integraciones | Started 2026-11-11 ("arrancá la Fase 3") in parallel with Fase 2 staging tests, Hito 2 NOT confirmed yet. Developed directly on `19.0` (user 2026-11-11: "mergea todo a 19.0... este módulo no está en producción"). All stages (a)-(j) done 2026-11-11 (19.0.3.0.0 + 4 bridges + guide + test cases); awaiting the user's commit/push confirmation, then grupolara staging2. Hito 2 still pending (accounting validates the claim entries) |
 
 ### Fase 1 stages
 
@@ -637,23 +637,84 @@ TO VERIFY in the stages:
 Paso 0 answers (user, 2026-11-11):
 - Q2 surety execution entry: debit "Loss on surety executions" (configurable
   account), credit payable to the insurer (partner = insurer). Confirmed.
+- 2026-11-11 "arrancá y terminá con toda la fase 3": run every stage without
+  stopping (like Fase 2), notify at the end, commit/push only with the user's
+  confirmation. The other Paso 0 proposals are taken as accepted:
+  1 deductible: no entry nor account (net expense = repair bill - recovery),
+    informative amount on the claim;
+  3 "Until release": the policy does not expire while the guarantee is open
+    (stays Expiring, activity to renew), renewal with the usual button;
+  4 total loss: pending installments are cancelled (real cancellation
+    endorsement); unpaid premium discounted from the indemnity -> offset entry;
+  5 HR: link, smart buttons and history only; automatic insured payroll
+    deferred (backlog);
+  6 dashboard native in the base module (no dashboards_base dependency);
+  7 claims: insurance users load and move states; approving (entry) and
+    closing with difference also need account.group_account_invoice; claim
+    amounts under the "see amounts" group;
+  8 surety obligation: text in base + bridges for sale.order and
+    project.project (4.7 / RF-13 name both);
+  9 fleet auto-link by normalized plate, chassis fallback, same company, skip
+    ambiguous / archived and report; no vehicle creation; "requires fleet
+    vehicle" blocks confirming;
+  10 vehicles without insurance: filter + dashboard counter, no emails;
+  11 search / group-by / optional columns as proposed.
+- Claim entries ship BEFORE Hito 2: accounting must still validate them.
+- Implementation notes (2026-11-11): claim `state` is a stored compute over
+  `workflow_state` + the claim line reconciliation (Collected, like the
+  installment Paid); approval entry ref = "<SIN/...> - <insurer number>";
+  offsets cancel the draft payments of offset installments (a posted one
+  blocks); total loss -> remove endorsement (claim_id), the last object ->
+  real cancellation endorsement + `cancel_reason`; base hooks for bridges:
+  `insurance.policy.object._prepare_renewal_vals()`,
+  `insurance.endorsement.line._prepare_object_vals()`; surety chains: only
+  the policy without `renewed_by_id` counts (`_surety_is_open`, actions);
+  until-release past date_to stays Expiring and counts as covered.
 - Guide: new child article "Qué es una caución" under "Conceptos y alcance"
   (`01a_cauciones.html`, concept + module summary flagged as Fase 3 in
   development), user request.
 
-Proposed stages (pending confirmation):
-| Stage | Scope |
-| --- | --- |
-| (a) | Claim settings (accounts, journal, days without movement), branch overrides, `insurance.claim` model, sequence, security, views, menus, documents |
-| (b) | Claim accounting: approval entry, collection, close with difference, offsets (unpaid premium, direct payment to the workshop) |
-| (c) | Claim effect on the policy: none / reduces the sum insured / total loss / surety execution, replacement |
-| (d) | Surety data (4.7), guarantee states, release with mandatory document, renewal type "Until release", release request and producer notice templates |
-| (e) | Crons and alerts (claims without movement, surety release), reports: claims and recoveries, sureties by beneficiary |
-| (f) | Bridge `insurance_management_fleet` |
-| (g) | Bridge `insurance_management_hr` |
-| (h) | Surety obligation bridges for sale / project (only if confirmed) |
-| (i) | Dashboard |
-| (j) | i18n, migration, upgrade with data, guide (claims, sureties, fleet, HR, accounting setup), manual test cases |
+Fase 3 verification (2026-11-11):
+- Community + fleet/hr/sale/project bridges: 227 tests OK. Enterprise
+  (account_accountant, l10n_latam_check, all Fase 3 bridges): 234 OK.
+  account_payment_pro DB: 218 OK.
+- Cycle on a fresh DB (insurance_cycle_f3, dropped): install base +
+  fleet/hr/sale/project (4 bridges auto-installed), data (vehicle policy
+  auto-linked, claim approved with entry, surety with sale order and
+  project), uninstall the 4 bridges (0 ir_model_data, columns dropped),
+  reinstall (post_init_hook relinked the vehicle; employee links are lost on
+  uninstall, expected), uninstall base with claims and entries (0 tables,
+  sequences, attachments, ir_model_data, account_move columns; no retry),
+  reinstall base (bridges auto-installed).
+- Upgrade with data 19.0.2.0.5 (worktree f81f7d2) -> 19.0.3.0.0 with fleet
+  and hr installed: the post-migrate installed the fleet and hr bridges
+  (not sale/project, their apps absent), the object was linked by
+  normalized plate, new document types / cron / templates / rule created.
+- i18n: pots re-exported, es/es_AR complete (0 empty msgstr), templates
+  fully translated; verified in es_AR (states, menus, template body).
+- Guide: 4 new articles (Siniestros, Cauciones, Flota y empleados, Tablero),
+  inicio/conceptos/puesta en marcha/parametrización contable (point 9)/
+  consultas/permisos/documentos/renovación/novedades updated; ZIP 23
+  articles. Manual test cases: level 8 (8.0-8.12), docx rebuilt.
+- Findings fixed during verification: group-restricted sale/project links
+  must be copy=False and copied on renewal only when set (copy_data and
+  renewal by code otherwise raise AccessError for users without the app);
+  "Register collection" button added (Odoo has no register-payment action
+  on journal items).
+
+Stages (confirmed 2026-11-11; status updated at the end of each stage):
+| Stage | Scope | Status |
+| --- | --- | --- |
+| (a) | Claim settings (accounts, journal, days without movement), branch overrides, `insurance.claim` model, sequence, security, views, menus, documents | Done 2026-11-11 (code + tests, 213 Community tests OK; i18n/docs in (j)) |
+| (b) | Claim accounting: approval entry, collection, close with difference, offsets (unpaid premium, direct payment to the workshop) | Done 2026-11-11 (code + tests, 213 Community tests OK; i18n/docs in (j)) |
+| (c) | Claim effect on the policy: none / reduces the sum insured / total loss / surety execution, replacement | Done 2026-11-11 (code + tests, 213 Community tests OK; i18n/docs in (j)) |
+| (d) | Surety data (4.7), guarantee states, release with mandatory document, renewal type "Until release", release request and producer notice templates | Done 2026-11-11 (code + tests, 213 Community tests OK; i18n/docs in (j)) |
+| (e) | Crons and alerts (claims without movement, surety release), reports: claims and recoveries, sureties by beneficiary | Done 2026-11-11 (code + tests, 213 Community tests OK; i18n/docs in (j)) |
+| (f) | Bridge `insurance_management_fleet` | Done 2026-11-11 (227 Community tests OK with every bridge installed; i18n/docs in (j)) |
+| (g) | Bridge `insurance_management_hr` | Done 2026-11-11 (227 Community tests OK with every bridge installed; i18n/docs in (j)) |
+| (h) | Surety obligation bridges `insurance_management_sale` / `insurance_management_project` | Done 2026-11-11 (227 Community tests OK with every bridge installed; i18n/docs in (j)) |
+| (i) | Dashboard | Done 2026-11-11 (227 Community tests OK with every bridge installed; i18n/docs in (j)) |
+| (j) | i18n, migration, upgrade with data, guide (claims, sureties, fleet, HR, accounting setup), manual test cases | Done 2026-11-11 |
 
 ## User guide (Knowledge)
 
@@ -694,6 +755,7 @@ Proposed stages (pending confirmation):
 | 2026-11-10 | grupolara / staging2 | 04b0f68 | ba16794 (19.0.2.0.3: running policy installments, suggested amount to accrue, due debits) | Submodule update only; grupolara staging untouched. |
 | 2026-11-05 | grupolara / staging2 | b93128f | 0974ae9 (19.0.2.0.2: warning on zero premium, test cases explain scheduled actions) | Submodule update only; grupolara staging untouched. |
 | 2026-11-04 | grupolara / staging2 | 2d2d069 | 41396b9 (19.0.2.0.1: Not started state, insurable item history, type descriptions) | Submodule update only; grupolara staging untouched (user: "no actualizar staging"). |
+| — | grupolara / staging2 | — | 19.0.3.0.0 (Fase 3) | NOT deployed yet: waiting for the user's confirmation. |
 | 2026-11-03 | grupolara / staging2 | 17f835f | 02e32c8 (19.0.2.0.0: Fase 2 + 2 bridges) | Submodule update only. The 19.0.2.0.0 upgrade installs the bridges insurance_management_account_accountant and insurance_management_l10n_latam_check when their dependencies are installed. To test with docs/casos_prueba_manual.md. |
 | 2026-11-03 | grupolara / staging2 | 0c62ef0 | 40cdbed (19.0.1.0.1: staging bugs 1-2) | Submodule update only (`git submodule update --remote --merge -- zinapsia/insurance`). |
 | 2026-11-03 | grupolara / staging2 | a6bd5ef | 32b5ce7 (Fase 1) | New submodule `zinapsia/insurance` (branch 19.0, public repo, no deploy key needed). Module `insurance_management` 19.0.1.0.0 is NOT auto-installed: install "Gestión de seguros" from Apps. main and staging untouched. |

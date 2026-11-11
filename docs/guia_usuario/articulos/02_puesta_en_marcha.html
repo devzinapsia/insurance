@@ -28,7 +28,7 @@
 <h2>5. Ramos</h2>
 <p>En <strong>Seguros › Configuración › Ramos</strong> vienen cargados diez ramos (Automotor, Caución, Accidentes personales, Vida colectivo, Incendio, Integral de comercio, Robo, Equipos electrónicos, Transporte de mercaderías y Responsabilidad civil). Puede renombrarlos, archivarlos o crear otros. En cada ramo se pueden definir <strong>días de aviso</strong> propios (Caución viene con 60) y <strong>usuarios a notificar</strong> adicionales.</p>
 <h2>6. Tipos de documento</h2>
-<p>En <strong>Seguros › Configuración › Tipos de documento</strong> vienen: Póliza, Endoso, Certificado de cobertura, Comprobante de pago, Factura, Denuncia de siniestro y Otro. Ajústelos si hace falta.</p>
+<p>En <strong>Seguros › Configuración › Tipos de documento</strong> vienen: Póliza, Endoso, Certificado de cobertura, Comprobante de pago, Factura, Denuncia de siniestro, Fotos del siniestro, Presupuesto de reparación, Informe del liquidador, Constancia de liberación de caución y Otro. Ajústelos si hace falta; la <em>Constancia de liberación de caución</em> es la que se exige para liberar una caución.</p>
 <h2>7. Aseguradoras y productores</h2>
 <p>Los selectores de la póliza <strong>solo muestran contactos marcados</strong>. En <strong>Contactos</strong>, abra cada aseguradora y productor, pestaña <strong>Ventas y compras</strong>, grupo <strong>Seguros</strong>, y marque <strong>Es aseguradora</strong> o <strong>Es productor de seguros</strong>. Cargue también su <strong>correo electrónico</strong>: el productor lo necesita para recibir instrucciones.</p>
 <div class="alert alert-info" role="status"><p><strong>Atajo:</strong> también puede crearlos directamente desde el campo de la póliza; el contacto queda marcado solo.</p></div>
@@ -46,7 +46,8 @@
 <tr><td>Fecha de puesta en marcha</td><td>Solo para la carga inicial de pólizas en curso. Con la fecha cargada aparece el control del saldo de apertura.</td></tr>
 </tbody>
 </table>
-<p>En cada <strong>ramo</strong>, pestaña <strong>Contabilidad</strong>, se puede definir producto, cuenta de gasto, distribución analítica y modo de facturación propios.</p>
+<p>En la misma pantalla, sección <strong>Contabilidad de siniestros</strong> (también solo para administradores de Contabilidad): <strong>diario de siniestros</strong>, <strong>cuenta de siniestros a cobrar</strong> (tipo A cobrar), <strong>cuenta de recupero de siniestros</strong> y <strong>cuenta de pérdida por ejecución de cauciones</strong> (ver <em>Parametrización contable</em>, punto 9).</p>
+<p>En cada <strong>ramo</strong>, pestaña <strong>Contabilidad</strong>, se puede definir producto, cuenta de gasto, distribución analítica, modo de facturación y cuentas de siniestros propios.</p>
 <h2>9. Medios de pago</h2>
 <p>En <strong>Seguros › Configuración › Medios de pago</strong> cree uno por cada forma de pagar las cuotas:</p>
 <ul>
@@ -55,5 +56,16 @@
 <li><strong>Estado de los pagos</strong>: <em>Validado</em> o <em>Borrador</em> para revisarlos antes (recomendado en pagos en pesos de pólizas en dólares, porque el banco puede aplicar otro tipo de cambio).</li>
 </ul>
 <p>Después, en la sección <strong>Pagos</strong> de los ajustes, elija el <strong>medio de pago por defecto</strong> y los <strong>usuarios de contabilidad a notificar</strong> de las cuotas impagas.</p>
-<h2>10. Correo saliente</h2>
+<h2>10. Siniestros y cauciones</h2>
+<p>En <strong>Seguros › Configuración › Ajustes</strong>, sección <strong>Siniestros y cauciones</strong>:</p>
+<table class="table table-bordered">
+<thead><tr><th>Ajuste</th><th>Valor inicial</th><th>Para qué</th></tr></thead>
+<tbody>
+<tr><td>Siniestros sin movimiento (días)</td><td>30</td><td>Un siniestro abierto que no cambia de estado en esa cantidad de días se le recuerda a su responsable, y otra vez cada esa cantidad de días. Cero: nunca.</td></tr>
+<tr><td>Pedir la liberación de la caución (días antes)</td><td>30</td><td>Días antes del fin de la obligación garantizada en los que se pide la liberación.</td></tr>
+<tr><td>Envío de la solicitud de liberación</td><td>Manual</td><td><em>Manual</em>: el responsable recibe una actividad y la envía con <strong>Pedir liberación</strong>. <em>Automático</em>: el proceso diario la manda por correo al beneficiario (o al productor si el beneficiario no tiene correo).</td></tr>
+</tbody>
+</table>
+<p>Con el puente de <strong>Flota</strong> instalado, en los ramos de vehículos puede marcar <strong>Requiere vehículo de flota</strong>: la póliza no se confirma si algún objeto no tiene vehículo.</p>
+<h2>11. Correo saliente</h2>
 <p>Los avisos se envían por correo. Verifique con el administrador de Odoo que el servidor de correo saliente esté configurado. <strong>En una base de prueba</strong>, asegúrese de que no envíe correos reales a los productores antes de probar.</p>

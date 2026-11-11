@@ -1,0 +1,29 @@
+<h1>Flota y empleados</h1>
+<p>Con las aplicaciones <strong>Flota</strong> y <strong>Empleados</strong> instaladas, se instalan solos dos puentes que vinculan los objetos asegurados con el vehículo o el empleado. Así cada vehículo y cada empleado muestra en qué pólizas está, si está asegurado hoy y sus siniestros.</p>
+
+<h2>Vehículos de Flota</h2>
+<h3>Vincular el vehículo</h3>
+<ul>
+<li>En las pólizas de ramos de tipo <em>Vehículo</em>, cada objeto asegurado tiene la columna <strong>Vehículo de flota</strong>. Puede elegirlo, o cargar la <strong>patente</strong>: el vehículo se vincula solo.</li>
+<li>La vinculación automática compara la patente (o, si no coincide ninguna patente, el número de chasis) en mayúsculas y sin espacios, guiones ni puntos: <code>ab-123 cd</code> es lo mismo que <code>AB123CD</code>. Busca en los vehículos de la compañía de la póliza.</li>
+<li>Si coinciden varios vehículos, o solo uno archivado, <strong>no se vincula</strong> y el chatter de la póliza dice por qué. Nunca se crean vehículos.</li>
+<li>Al instalar el puente, los objetos cargados antes se vinculan igual. Las renovaciones y los endosos conservan el vehículo.</li>
+<li>Si en un ramo marca <strong>Requiere vehículo de flota</strong>, la póliza (o el endoso que agrega objetos) no se confirma si algún objeto queda sin vehículo.</li>
+</ul>
+<h3>Qué muestra el vehículo</h3>
+<ul>
+<li>Botón <strong>Seguros</strong>: todas las pólizas en las que estuvo, de la más reciente a la más antigua, con la indicación <em>Asegurado</em> o <em>Sin seguro</em> hoy.</li>
+<li>Botón <strong>Siniestros</strong>: los siniestros del vehículo en todas sus pólizas. Desde ahí, <strong>Nuevo</strong> propone la póliza y el objeto que lo cubrían en la fecha de ocurrencia.</li>
+<li>En la lista de vehículos, las columnas opcionales <em>Póliza de seguro vigente</em> y <em>Asegurado hoy</em>, y los filtros <strong>Asegurado hoy</strong> y <strong>Sin seguro vigente</strong>.</li>
+<li>El <strong>Tablero</strong> muestra la cantidad de vehículos sin seguro vigente.</li>
+</ul>
+<div class="alert alert-info" role="status"><p>Los usuarios de Seguros ven los vehículos de las pólizas aunque no tengan permisos de Flota (solo lectura). Los botones del vehículo solo los ven los usuarios de Seguros.</p></div>
+
+<h2>Empleados</h2>
+<ul>
+<li>En las pólizas de ramos de tipo <em>Persona</em> (accidentes personales, vida colectivo), cada objeto asegurado tiene la columna <strong>Empleado</strong>. Las renovaciones y los endosos lo conservan.</li>
+<li>El empleado muestra los botones <strong>Seguros</strong> y <strong>Siniestros</strong>, y el filtro <strong>Asegurado hoy</strong>.</li>
+<li>En un siniestro, elegir el empleado propone la póliza y el objeto que lo cubrían.</li>
+<li>Los usuarios de Seguros sin permisos de Empleados ven solo el nombre del empleado.</li>
+</ul>
+<p>La nómina de asegurados automática (endosos al dar de alta o de baja un empleado) no está incluida: las altas y bajas se cargan con endosos.</p>

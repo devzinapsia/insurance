@@ -1,0 +1,96 @@
+<h1>Siniestros</h1>
+<p>Un <strong>siniestro</strong> es un hecho cubierto por una póliza que da lugar a un reclamo a la aseguradora: un choque, un robo, un incendio, un accidente de un empleado. La aplicación lo sigue desde la denuncia hasta el cobro de la indemnización y registra su contabilidad.</p>
+<div class="alert alert-info" role="status"><p>Antes de aprobar el primer siniestro con dinero, Contabilidad tiene que configurar el <strong>diario</strong> y las <strong>cuentas de siniestros</strong> (ver <em>Parametrización contable</em>, punto 9).</p></div>
+
+<h2>Cargar un siniestro</h2>
+<ol>
+<li>En la póliza, pulse <strong>Nuevo siniestro</strong>. También desde <strong>Seguros › Pólizas › Siniestros</strong>, o desde el botón <strong>Siniestros</strong> de un vehículo de Flota o de un empleado (con los puentes instalados).</li>
+<li>Elija el <strong>objeto afectado</strong> (si la póliza tiene un solo objeto, se propone solo). Si carga el vehículo o el empleado, se proponen la póliza y el objeto que lo cubrían en la fecha de ocurrencia.</li>
+<li>Complete el <strong>tipo</strong>, la <strong>fecha de ocurrencia</strong>, el <strong>efecto sobre la póliza</strong> y el <strong>destino del recupero</strong> (ver las tablas).</li>
+<li>Cargue el relato, el lugar, los terceros involucrados, el liquidador, el taller o proveedor y los importes: daño estimado, franquicia y reclamado.</li>
+<li>En la pestaña <strong>Documentos</strong>, pulse <strong>Cargar documento</strong>: denuncia, fotos, presupuestos, informe del liquidador.</li>
+</ol>
+<p>Si la póliza no estaba vigente en la fecha de ocurrencia, el siniestro muestra un aviso (se puede guardar igual).</p>
+<table class="table table-bordered">
+<thead><tr><th>Tipo</th><th>Ejemplo</th></tr></thead>
+<tbody>
+<tr><td>Daño propio</td><td>Choque o daño de un bien de la empresa.</td></tr>
+<tr><td>Robo</td><td>Robo de un vehículo o de mercadería.</td></tr>
+<tr><td>Responsabilidad civil</td><td>Reclamo de un tercero dañado por la empresa: la aseguradora le paga al tercero.</td></tr>
+<tr><td>Accidente de persona</td><td>Accidente personal o vida de un empleado.</td></tr>
+<tr><td>Ejecución de caución</td><td>El beneficiario ejecuta la garantía (ver <em>Cauciones</em>).</td></tr>
+</tbody>
+</table>
+<table class="table table-bordered">
+<thead><tr><th>Destino del recupero</th><th>Qué pasa con la indemnización</th></tr></thead>
+<tbody>
+<tr><td>Cobro a la empresa</td><td>La aseguradora le paga a la empresa: queda un crédito a cobrar hasta que entra al banco.</td></tr>
+<tr><td>Pago directo al taller o proveedor</td><td>La aseguradora le paga al taller: el crédito se compensa contra la factura del taller, sin movimiento de fondos.</td></tr>
+<tr><td>Reposición del bien</td><td>La aseguradora repone el bien: no hay asiento.</td></tr>
+</tbody>
+</table>
+
+<h2>Estados</h2>
+<table class="table table-bordered">
+<thead><tr><th>Estado</th><th>Cómo se llega</th></tr></thead>
+<tbody>
+<tr><td>Borrador</td><td>Al crearlo. Solo se pueden eliminar los siniestros en borrador.</td></tr>
+<tr><td>Denunciado</td><td>Botón <strong>Denunciar a la aseguradora</strong> (guarda la fecha de denuncia). Cargue el número de siniestro de la aseguradora.</td></tr>
+<tr><td>En análisis</td><td>Botón <strong>En análisis</strong>, mientras la aseguradora liquida.</td></tr>
+<tr><td>Aprobado</td><td>Botón <strong>Aprobar</strong>, con el importe aprobado y la fecha estimada de cobro de la liquidación. Genera el asiento de aprobación.</td></tr>
+<tr><td>Rechazado</td><td>Botón <strong>Rechazar</strong>. Se puede <strong>Reabrir</strong>.</td></tr>
+<tr><td>Cobrado</td><td><strong>Solo</strong>, cuando la indemnización queda conciliada por completo (cobro en el banco, pago registrado, compensación).</td></tr>
+<tr><td>Cerrado</td><td>Botón <strong>Cerrar</strong> (cobrado, rechazado, o aprobado sin nada para cobrar) o <strong>Cerrar con diferencia</strong>.</td></tr>
+</tbody>
+</table>
+
+<h2>La contabilidad del siniestro</h2>
+<h3>Aprobación</h3>
+<p>Al aprobar un siniestro con importe aprobado y destino <em>Cobro a la empresa</em> o <em>Pago directo</em>, se registra en el diario de siniestros:</p>
+<table class="table table-bordered">
+<thead><tr><th>Cuenta</th><th>Debe</th><th>Haber</th></tr></thead>
+<tbody>
+<tr><td>Siniestros a cobrar (partner: aseguradora; vencimiento: fecha estimada de cobro)</td><td>450.000</td><td></td></tr>
+<tr><td>Recupero de siniestros (con la analítica de la póliza)</td><td></td><td>450.000</td></tr>
+</tbody>
+</table>
+<p>La referencia del asiento lleva el número interno y el de la aseguradora (por ejemplo <code>SIN/2026/0001 - 778899</code>). Hasta que se cobra, el crédito aparece en la antigüedad de saldos y en el flujo de fondos.</p>
+<p>Aprobar con asiento requiere el permiso de <strong>Contabilidad (Facturación)</strong>. Sin dinero (reposición, o nada aprobado), lo aprueba cualquier usuario de seguros. <strong>Cancelar aprobación</strong> revierte el asiento mientras no haya cobros ni compensaciones.</p>
+<h3>Cobro</h3>
+<ul>
+<li><strong>En la conciliación bancaria</strong>: cuando entra la transferencia, Odoo propone el crédito solo, si el concepto del banco menciona el número interno o el de la aseguradora, o por aseguradora e importe exacto. Al conciliar, el siniestro pasa a <strong>Cobrado</strong> y guarda la fecha de cobro.</li>
+<li><strong>Registrando el cobro</strong>: botón <strong>Registrar cobro</strong> del siniestro (elija el diario de banco y la fecha). También sirve el recibo de cliente de adhoc a nombre de la aseguradora, que toma ese crédito.</li>
+<li><strong>Cobro parcial</strong>: el siniestro sigue aprobado con el resto pendiente.</li>
+<li><strong>Cobro menor</strong>: si la aseguradora no va a pagar el resto, <strong>Cerrar con diferencia</strong> ajusta lo pendiente contra la cuenta de recupero y cierra el siniestro.</li>
+<li><strong>En moneda extranjera</strong>: el cobro en pesos al tipo de cambio del día genera la diferencia de cambio al conciliar.</li>
+</ul>
+<h3>Compensaciones (sin movimiento de fondos)</h3>
+<p>Botón <strong>Compensar</strong> del siniestro aprobado:</p>
+<ul>
+<li><strong>Premio impago descontado por la aseguradora</strong>: elija los vencimientos impagos de las facturas de la aseguradora. Las cuotas quedan pagadas y sus pagos en borrador se cancelan (si una cuota ya tiene un pago validado, no se puede compensar).</li>
+<li><strong>Pago directo al taller o proveedor</strong>: elija la factura del taller del siniestro. La deuda con el taller se cancela contra el crédito con la aseguradora.</li>
+</ul>
+<p>Solo el neto que paga la aseguradora llega al banco.</p>
+<h3>La franquicia</h3>
+<p>Es informativa: no se contabiliza. Queda como gasto neto, la factura de la reparación menos el recupero.</p>
+
+<h2>Efecto sobre la póliza</h2>
+<p>La póliza no siempre se consume. El campo <strong>Efecto sobre la póliza</strong> dice qué propone el siniestro aprobado:</p>
+<table class="table table-bordered">
+<thead><tr><th>Efecto</th><th>Caso típico</th><th>Qué hace</th></tr></thead>
+<tbody>
+<tr><td>Sin efecto</td><td>Daño parcial de un auto, responsabilidad civil</td><td>Nada: la póliza y el objeto siguen igual.</td></tr>
+<tr><td>Reduce la suma asegurada</td><td>Incendio, robo o equipos con daño parcial</td><td>El objeto muestra la <strong>suma disponible</strong> (suma asegurada menos lo indemnizado). <strong>Rehabilitar la suma asegurada</strong> prepara un endoso de aumento de suma; al confirmarlo, la suma vuelve a estar disponible.</td></tr>
+<tr><td>Pérdida total del objeto</td><td>Destrucción o robo del vehículo; muerte o incapacidad total</td><td><strong>Dar de baja el objeto</strong> prepara un endoso de baja con el siniestro como motivo. Si no quedan objetos, al confirmarlo la póliza pasa a <strong>Anulada</strong> con un endoso de anulación: se cancelan las cuotas no facturadas, se cierra el devengamiento y la póliza muestra el motivo. <strong>Asegurar reemplazo</strong> prepara un endoso de alta en la misma póliza o, si la póliza ya terminó, una póliza nueva en borrador copiada.</td></tr>
+<tr><td>Ejecución de caución</td><td>El beneficiario ejecuta la garantía</td><td>La garantía pasa a <strong>Ejecutada</strong> y la póliza se anula (ver <em>Cauciones</em>).</td></tr>
+</tbody>
+</table>
+<p>Si la póliza ya venció cuando se aprueba el siniestro, el efecto queda registrado pero no se generan endosos.</p>
+
+<h2>Seguimiento</h2>
+<ul>
+<li>El proceso diario <em>Seguros: siniestros sin movimiento</em> le manda un recordatorio al responsable de cada siniestro abierto que no cambia de estado en los días de los ajustes, y lo repite cada esa cantidad de días. El correo muestra importes solo a quien puede verlos.</li>
+<li>Filtros: <em>Abiertos</em>, <em>Sin movimiento</em>, <em>A cobrar</em>, <em>Cobrados</em>, <em>Mis siniestros</em>; agrupar por estado, tipo, aseguradora, ramo o póliza.</li>
+<li><strong>Seguros › Reportes › Siniestros y recuperos</strong>: reclamado, aprobado, cobrado y la diferencia entre lo reclamado y lo cobrado, por aseguradora y estado.</li>
+<li>La póliza, el objeto asegurado y el bien asegurable muestran el botón <strong>Siniestros</strong>.</li>
+</ul>

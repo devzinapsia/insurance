@@ -1,0 +1,63 @@
+<h1>Cauciones</h1>
+<p>Cómo se carga y se sigue una caución en la aplicación. Para el concepto (tomador, beneficiario, tipos, por qué la contabilidad se invierte), vea <em>Conceptos y alcance › Qué es una caución</em>.</p>
+
+<h2>Cargar una caución</h2>
+<ol>
+<li>Cree la póliza en el ramo <strong>Caución</strong> (o cualquier ramo de tipo de objeto <em>Contrato</em>): aparece la pestaña <strong>Caución</strong>.</li>
+<li>En <strong>Tipo de renovación</strong>, elija <strong>Hasta liberación</strong> (solo existe para cauciones).</li>
+<li>En la pestaña <strong>Caución</strong> complete:
+<ul>
+<li><strong>Beneficiario</strong>: el tercero ante quien se garantiza (municipio, cliente, locador, aduana). Es un contacto; cargue su correo si se le va a pedir la liberación.</li>
+<li><strong>Tipo de caución</strong>: mantenimiento de oferta, cumplimiento de contrato, anticipo financiero, fondo de reparo, alquiler, aduanera o judicial.</li>
+<li><strong>Obligación garantizada</strong>: licitación, contrato o expediente. Con los puentes de Ventas y Proyectos, también la <strong>orden de venta</strong> o el <strong>proyecto</strong> garantizados.</li>
+<li><strong>Monto garantizado</strong> y <strong>Fin de la obligación</strong> (puede ser posterior a la vigencia de la póliza).</li>
+</ul></li>
+<li>Como objeto asegurado, cargue el contrato garantizado (por ejemplo, "Cumplimiento del contrato 12/2026").</li>
+<li>Confirme la póliza. Cuotas, factura, pagos y devengamiento funcionan como en cualquier póliza.</li>
+</ol>
+
+<h2>El estado de la garantía</h2>
+<table class="table table-bordered">
+<thead><tr><th>Estado</th><th>Cómo se llega</th></tr></thead>
+<tbody>
+<tr><td>Emitida</td><td>Al crear la póliza.</td></tr>
+<tr><td>Entregada al beneficiario</td><td>Botón <strong>Entregada al beneficiario</strong>.</td></tr>
+<tr><td>Liberada</td><td>Botón <strong>Liberar</strong>. Exige adjuntar antes la constancia de liberación (pestaña <em>Documentos</em>, tipo <strong>Constancia de liberación de caución</strong>). Después se abre el correo al productor para que corte la facturación.</td></tr>
+<tr><td>Devuelta a la aseguradora</td><td>Botón <strong>Devuelta a la aseguradora</strong>, cuando la aseguradora la dio de baja.</td></tr>
+<tr><td>Ejecutada</td><td>Al aprobar un siniestro de tipo <em>Ejecución de caución</em>.</td></tr>
+</tbody>
+</table>
+
+<h2>Hasta liberación: la caución no vence sola</h2>
+<ul>
+<li>Antes de la fecha de fin, la póliza recibe los avisos de vencimiento de siempre y se puede <strong>Renovar</strong>. La renovación copia la garantía (beneficiario, monto, obligación y estado) y el tipo de renovación.</li>
+<li>Si llega la fecha de fin con la garantía abierta y sin renovar, la póliza <strong>no pasa a Vencida</strong>: sigue <strong>Por vencer</strong>, cuenta como cubierta y muestra un aviso. El responsable recibe una actividad (una sola vez) para renovarla o conseguir la liberación.</li>
+<li>Al liberarla, la póliza termina como <strong>No renovada</strong>.</li>
+<li>Solo cuenta la <strong>última póliza</strong> de cada cadena de renovaciones: las anteriores no se listan ni generan avisos, y los montos garantizados no se suman dos veces.</li>
+</ul>
+
+<h2>Pedir la liberación</h2>
+<p>Los días de los ajustes (<em>Pedir la liberación de la caución</em>, 30 por defecto) antes del <strong>fin de la obligación</strong>, el proceso diario:</p>
+<ul>
+<li>con envío <strong>Manual</strong>: crea una actividad para el responsable, que envía el pedido con el botón <strong>Pedir liberación</strong>;</li>
+<li>con envío <strong>Automático</strong>: manda el correo <em>Solicitud de liberación de caución</em> al beneficiario (o al productor si el beneficiario no tiene correo), con copia al responsable.</li>
+</ul>
+<p>Se hace una sola vez por fecha de fin de la obligación; si la obligación se extiende, cambie la fecha y el pedido se vuelve a hacer. El correo queda en el chatter.</p>
+
+<h2>Ejecución de la caución</h2>
+<p>Si el beneficiario ejecuta la garantía, cargue un siniestro desde la póliza (<strong>Nuevo siniestro</strong> propone el tipo <em>Ejecución de caución</em>) con lo que la aseguradora le pagó al beneficiario como <strong>importe aprobado</strong>. Al aprobarlo:</p>
+<table class="table table-bordered">
+<thead><tr><th>Cuenta</th><th>Debe</th><th>Haber</th></tr></thead>
+<tbody>
+<tr><td>Pérdida por ejecución de cauciones</td><td>Lo pagado</td><td></td></tr>
+<tr><td>Proveedores – Aseguradora (vencimiento: fecha estimada)</td><td></td><td>Lo pagado</td></tr>
+</tbody>
+</table>
+<p>La garantía pasa a <strong>Ejecutada</strong> y la póliza se anula con un endoso de anulación (se cancelan las cuotas no facturadas y se cierra el devengamiento). La deuda con la aseguradora se paga como cualquier deuda con un proveedor. La aprobación de una ejecución no se puede deshacer.</p>
+
+<h2>Consultas</h2>
+<ul>
+<li><strong>Seguros › Pólizas › Cauciones</strong>: las cauciones vigentes con su beneficiario, monto garantizado, fin de la obligación y estado de la garantía. Filtros <em>Garantías abiertas</em>, <em>A liberar (la obligación termina en 30 días)</em> y <em>Ejecutadas</em>; agrupar por beneficiario, tipo o estado.</li>
+<li><strong>Seguros › Reportes › Cauciones por beneficiario</strong>: tabla dinámica de los montos garantizados por beneficiario y estado.</li>
+<li>Con los puentes, la orden de venta y el proyecto muestran el botón <strong>Cauciones</strong>.</li>
+</ul>

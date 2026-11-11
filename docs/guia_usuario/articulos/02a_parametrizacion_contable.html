@@ -1,6 +1,6 @@
 <h1>Parametrización contable</h1>
 <p>Qué tiene que existir en Contabilidad <strong>antes</strong> de completar la sección <em>Contabilidad</em> de los Ajustes de Seguros y de crear los medios de pago. Lo hace el contador o un administrador de Contabilidad, una sola vez por compañía.</p>
-<div class="alert alert-info" role="status"><p>Este artículo se completa en cada fase. Hoy cubre la <strong>Fase 2</strong> (facturas, pagos y devengamiento). La Fase 3 agregará lo que haga falta para siniestros (crédito con la aseguradora, recuperos) y cauciones.</p></div>
+<div class="alert alert-info" role="status"><p>Este artículo se completa en cada fase. Cubre la <strong>Fase 2</strong> (facturas, pagos y devengamiento) y la <strong>Fase 3</strong> (siniestros y cauciones, punto 9).</p></div>
 <p>Los nombres y códigos son ejemplos: use los de su plan de cuentas. Los tipos de cuenta y de diario son los que muestra Odoo en el campo <strong>Tipo</strong>.</p>
 
 <h2>Resumen</h2>
@@ -20,6 +20,10 @@
 <tr><td>Cuenta y diario de gastos diferidos</td><td>Prepagos / Varios</td><td>Solo con <em>Gastos diferidos de Enterprise</em></td></tr>
 <tr><td>Moneda extranjera y diferencia de cambio</td><td>Moneda / cuentas de diferencia de cambio</td><td>Pólizas en dólares</td></tr>
 <tr><td>Cuenta transitoria de apertura y diario de deuda de apertura</td><td>Cuenta – Activos corrientes / Diario – Compras sin documentos</td><td>Carga inicial de pólizas en curso facturadas al inicio</td></tr>
+<tr><td>Diario de siniestros</td><td>Diario – Varios</td><td>Siniestros con indemnización y cauciones ejecutadas</td></tr>
+<tr><td>Cuenta de siniestros a cobrar</td><td>Cuenta – A cobrar, conciliable</td><td>Siniestros con indemnización</td></tr>
+<tr><td>Cuenta de recupero de siniestros</td><td>Cuenta – Otros ingresos (o gasto, en negativo)</td><td>Siniestros con indemnización</td></tr>
+<tr><td>Cuenta de pérdida por ejecución de cauciones</td><td>Cuenta – Gastos</td><td>Cauciones ejecutadas</td></tr>
 </tbody>
 </table>
 
@@ -132,6 +136,35 @@
 <h2>8. Fechas de bloqueo</h2>
 <p>El devengamiento respeta las fechas de bloqueo contable: si un mes ya está cerrado, su asiento se registra el primer día abierto. No hace falta configurar nada; conviene saberlo antes de cerrar períodos.</p>
 
+<h2>9. Siniestros y cauciones (Fase 3)</h2>
+<p>El siniestro aprobado genera un <strong>asiento de aprobación</strong> en el diario de siniestros. La indemnización no se factura: sin ese asiento, el cobro llegaría al banco sin nada contra qué conciliar.</p>
+<table class="table table-bordered">
+<thead><tr><th>Qué (ejemplo)</th><th>Tipo</th><th>Permitir conciliación</th><th>Para qué</th></tr></thead>
+<tbody>
+<tr><td><strong>Siniestros</strong> (diario)</td><td>Diario – Varios</td><td>—</td><td>Asientos de aprobación, compensaciones y diferencias de cierre de los siniestros.</td></tr>
+<tr><td><strong>Siniestros a cobrar</strong></td><td><strong>A cobrar</strong></td><td><strong>Sí</strong> (lo exige el tipo)</td><td>Lo que la aseguradora debe pagar por el siniestro (partner = aseguradora, vencimiento = fecha estimada de cobro). Tiene que ser de tipo <em>A cobrar</em>: así aparece en la antigüedad de saldos y en el flujo de fondos, y se cobra como cualquier crédito (con una cuenta de activo corriente conciliable, Odoo no deja registrar el cobro).</td></tr>
+<tr><td><strong>Recupero de siniestros</strong></td><td>Otros ingresos</td><td>No</td><td>Contrapartida de la aprobación. Si el contador prefiere neutralizar el gasto de la reparación, puede ser una cuenta de gastos (el recupero queda en negativo).</td></tr>
+<tr><td><strong>Pérdida por ejecución de cauciones</strong></td><td>Gastos</td><td>No</td><td>Cuando el beneficiario ejecuta una caución: la aseguradora le paga y luego le reclama a la empresa. Debe esta cuenta, haber la deuda con la aseguradora (su cuenta a pagar).</td></tr>
+</tbody>
+</table>
+<p>Las cuentas de siniestros se pueden cambiar por <strong>ramo</strong> (pestaña <em>Contabilidad</em>, grupo <em>Siniestros y cauciones</em>).</p>
+<h3>Asientos de ejemplo</h3>
+<p>Daño de 500.000, franquicia de 50.000, indemnización aprobada de 450.000 cobrada por la empresa:</p>
+<table class="table table-bordered">
+<thead><tr><th>Momento</th><th>Debe</th><th>Haber</th><th>Importe</th></tr></thead>
+<tbody>
+<tr><td>Factura del taller por la reparación</td><td>Gasto de reparaciones</td><td>Proveedores – Taller</td><td>500.000</td></tr>
+<tr><td>Aprobación del siniestro</td><td>Siniestros a cobrar – Aseguradora</td><td>Recupero de siniestros</td><td>450.000</td></tr>
+<tr><td>Cobro de la indemnización</td><td>Banco</td><td>Siniestros a cobrar – Aseguradora</td><td>450.000</td></tr>
+<tr><td>Pago directo al taller (en lugar del cobro)</td><td>Proveedores – Taller</td><td>Siniestros a cobrar – Aseguradora</td><td>450.000</td></tr>
+<tr><td>Premio impago descontado de la indemnización</td><td>Proveedores – Aseguradora</td><td>Siniestros a cobrar – Aseguradora</td><td>El de la cuota</td></tr>
+<tr><td>Cobro menor: cierre con diferencia</td><td>Recupero de siniestros</td><td>Siniestros a cobrar – Aseguradora</td><td>Lo no cobrado</td></tr>
+<tr><td>Ejecución de una caución</td><td>Pérdida por ejecución de cauciones</td><td>Proveedores – Aseguradora</td><td>Lo pagado al beneficiario</td></tr>
+</tbody>
+</table>
+<p>La <strong>franquicia</strong> (50.000) no tiene asiento ni cuenta propia: queda como gasto neto (500.000 de la reparación menos 450.000 del recupero).</p>
+<div class="alert alert-warning" role="alert"><p>Estos asientos todavía tienen que ser validados por el equipo contable (Hito 2): revise las cuentas elegidas antes de aprobar siniestros reales.</p></div>
+
 <h2>Después: cargar los Ajustes de Seguros</h2>
 <p>Con todo lo anterior creado, siga con los pasos <strong>8. Contabilidad de seguros</strong> y <strong>9. Medios de pago</strong> de <em>Puesta en marcha</em>:</p>
 <table class="table table-bordered">
@@ -143,10 +176,6 @@
 <tr><td>Medio de pago › Diario y método de pago</td><td>Un diario de banco o tarjeta y un método saliente con cuenta pendiente (punto 2)</td></tr>
 <tr><td>Cuenta transitoria de apertura / Diario de deuda de apertura</td><td>Solo para la carga inicial: la cuenta <em>Transitoria de apertura</em> (punto 1) y el diario <em>Saldos iniciales</em> (punto 2). Aparecen al cargar la fecha de puesta en marcha.</td></tr>
 <tr><td>Ramo › Cuenta de gasto / analítica</td><td>Opcional: cuenta de gasto por ramo (punto 1) y distribución analítica (punto 5)</td></tr>
+<tr><td>Contabilidad de siniestros: diario, cuenta de siniestros a cobrar, de recupero y de pérdida por ejecución de cauciones</td><td>El diario y las cuentas del punto 9</td></tr>
 </tbody>
 </table>
-
-<h2>Próximas fases</h2>
-<ul>
-<li><strong>Fase 3 – Siniestros y cauciones</strong>: se agregarán aquí las cuentas para el crédito con la aseguradora por siniestros, los recuperos y lo que requieran las cauciones.</li>
-</ul>

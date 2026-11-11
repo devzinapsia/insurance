@@ -1,6 +1,6 @@
 <h1>Conceptos y alcance</h1>
 <h2>Para qué sirve</h2>
-<p>La aplicación reúne en un solo lugar todas las pólizas de seguro que <strong>contrata la empresa</strong> (la empresa es el asegurado, no un productor ni un broker). La Fase 1 se ocupa de que <strong>ninguna póliza venza sin que alguien lo sepa</strong>; la Fase 2 agrega la parte económica: cuotas, facturas, pagos y devengamiento del gasto.</p>
+<p>La aplicación reúne en un solo lugar todas las pólizas de seguro que <strong>contrata la empresa</strong> (la empresa es el asegurado, no un productor ni un broker). La Fase 1 se ocupa de que <strong>ninguna póliza venza sin que alguien lo sepa</strong>; la Fase 2 agrega la parte económica: cuotas, facturas, pagos y devengamiento del gasto; la Fase 3 suma los siniestros, las cauciones, el tablero y la integración con Flota y Empleados.</p>
 <h2>Conceptos</h2>
 <table class="table table-bordered">
 <thead><tr><th>Término</th><th>Qué es en la aplicación</th></tr></thead>
@@ -18,6 +18,9 @@
 <tr><td>Medio de pago</td><td>Cómo se paga una cuota: débito automático, cheque diferido, transferencia programada o manual.</td></tr>
 <tr><td>Devengamiento</td><td>Reparto del premio como gasto en los meses de vigencia. Lo pagado por adelantado queda en la cuenta <em>Seguros a devengar</em>.</td></tr>
 <tr><td>Póliza en curso</td><td>Póliza que ya estaba vigente al arrancar con Odoo (carga inicial): continúa desde una cuota y devenga solo lo que falta.</td></tr>
+<tr><td>Siniestro</td><td>Hecho cubierto que da lugar a un reclamo a la aseguradora. Se sigue hasta el cobro de la indemnización.</td></tr>
+<tr><td>Franquicia</td><td>Parte del daño que queda a cargo de la empresa.</td></tr>
+<tr><td>Caución</td><td>Seguro que garantiza una obligación de la empresa ante un tercero (el beneficiario) hasta su liberación. Ver <em>Qué es una caución</em>.</td></tr>
 <tr><td>Días de aviso</td><td>Cuántos días antes del vencimiento se avisa (puede haber varios, por ejemplo 30, 15 y 7).</td></tr>
 </tbody>
 </table>
@@ -44,7 +47,15 @@
 <li>Carga inicial de pólizas en curso e importación desde Excel.</li>
 <li>Reportes: cuotas por mes y costo por ramo y aseguradora.</li>
 </ul>
+<h3>Fase 3 – Siniestros, cauciones e integraciones</h3>
+<ul>
+<li>Siniestros con su contabilidad: crédito a cobrar a la aseguradora, cobro conciliado con el banco, compensaciones y cierre con diferencia.</li>
+<li>Efecto del siniestro sobre la póliza: suma disponible y rehabilitación, pérdida total con baja del objeto, anulación y reemplazo.</li>
+<li>Cauciones: beneficiario, obligación y monto garantizados, estado de la garantía, renovación hasta la liberación y pedido de liberación.</li>
+<li>Tablero de seguros.</li>
+<li>Flota y Empleados: el vehículo y el empleado muestran sus pólizas, si están asegurados hoy y sus siniestros. Vínculo con órdenes de venta y proyectos para las cauciones.</li>
+</ul>
 <h2>Qué viene después</h2>
 <ul>
-<li><strong>Fase 3 – Siniestros, cauciones e integraciones</strong>: vehículos de Flota y empleados como objetos asegurados, siniestros y recupero, cauciones hasta su liberación y tablero de seguros.</li>
+<li>A pedido: cotizaciones de renovación y comparativo año contra año, certificados de cobertura a terceros, portal del productor y nómina de asegurados automática.</li>
 </ul>
