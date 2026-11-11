@@ -26,5 +26,10 @@ def uninstall_hook(env):
     """
     # Files attached to the module's records would be left orphaned.
     env["ir.attachment"].sudo().search([("res_model", "=like", "insurance.%")]).unlink()
+    # Claims reference policies (restrict) and are numbered by their own
+    # per-company sequence, created on the fly.
+    env.cr.execute("UPDATE account_move SET insurance_claim_id = NULL WHERE insurance_claim_id IS NOT NULL")
+    env.cr.execute("DELETE FROM insurance_claim")
+    env["ir.sequence"].sudo().search([("code", "=", "insurance.claim")]).unlink()
     env.cr.execute("DELETE FROM insurance_policy")
     env["ir.sequence"].sudo().search([("code", "=", "insurance.policy")]).unlink()

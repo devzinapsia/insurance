@@ -76,6 +76,30 @@ Initial load
   *Opening difference* of the settings is zero. Link the opening bills of
   the insurers to their policies from the bill (*Insurance policy* field).
 
+Claims
+------
+
+* From the policy, **New claim** (or **Insurance ‣ Policies ‣ Claims**, or
+  the *Claims* button of a vehicle or an employee): choose the affected
+  object, the type, the effect on the policy and the recovery destination,
+  load the amounts and the documents, then **Report to the insurer**,
+  **Under analysis** and **Approve** (posts the approval entry).
+* Collect it from the bank reconciliation or with **Register payment** on
+  the claim receivable; or **Offset** it against the unpaid premium or the
+  workshop bill; **Close with difference** when the insurer pays less.
+* Total loss: **Remove the object**, confirm the endorsement and, if
+  needed, **Insure replacement**.
+
+Surety bonds
+------------
+
+* Load the policy in the *Surety* branch with the renewal type *Until
+  release* and the tab *Surety bond*; **Delivered to the beneficiary** when
+  it is handed over.
+* Before the obligation ends, **Request release**. When the certificate
+  arrives, upload it (type *Surety release certificate*) and **Release**:
+  send the email to the producer, then **Returned to the insurer**.
+
 Testing the emails by running the process by hand
 --------------------------------------------------
 

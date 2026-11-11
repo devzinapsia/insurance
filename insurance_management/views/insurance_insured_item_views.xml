@@ -26,6 +26,9 @@
                         <button name="action_view_policies" type="object" class="oe_stat_button" icon="fa-shield">
                             <field name="policy_count" widget="statinfo" string="Policies"/>
                         </button>
+                        <button name="action_view_claims" type="object" class="oe_stat_button" icon="fa-exclamation-triangle" invisible="claim_count == 0">
+                            <field name="claim_count" widget="statinfo" string="Claims"/>
+                        </button>
                     </div>
                     <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
                     <field name="active" invisible="1"/>

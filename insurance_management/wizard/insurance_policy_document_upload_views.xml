@@ -6,7 +6,8 @@
         <field name="arch" type="xml">
             <form string="Upload document">
                 <group>
-                    <field name="policy_id"/>
+                    <field name="policy_id" invisible="not policy_id"/>
+                    <field name="claim_id" invisible="not claim_id"/>
                     <field name="document_type_id" options="{'no_create': True}"/>
                     <field name="file" filename="filename"/>
                     <field name="filename" invisible="1"/>

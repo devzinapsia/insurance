@@ -212,6 +212,7 @@
                 <field name="insurance_endorsement_id" invisible="not insurance_policy_id or (not insurance_endorsement_id and state != 'draft')" readonly="state != 'draft'" options="{'no_create': True}"/>
                 <field name="insurance_installment_id" invisible="not insurance_policy_id or (not insurance_installment_id and state != 'draft')" readonly="state != 'draft'" options="{'no_create': True}"/>
                 <field name="insurance_opening_debt" invisible="not insurance_opening_debt"/>
+                <field name="insurance_claim_id" invisible="not insurance_claim_id"/>
             </xpath>
         </field>
     </record>

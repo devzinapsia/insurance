@@ -95,6 +95,11 @@
             <field name="model_id" ref="model_insurance_import_line"/>
             <field name="domain_force">[('company_id', 'in', company_ids)]</field>
         </record>
+        <record id="insurance_claim_company_rule" model="ir.rule">
+            <field name="name">Insurance claim: multi-company</field>
+            <field name="model_id" ref="model_insurance_claim"/>
+            <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+        </record>
         <record id="insurance_insured_item_company_rule" model="ir.rule">
             <field name="name">Insurable item: multi-company</field>
             <field name="model_id" ref="model_insurance_insured_item"/>

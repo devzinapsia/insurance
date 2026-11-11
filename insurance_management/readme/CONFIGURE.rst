@@ -54,3 +54,16 @@
    settings, section *Payments*.
 #. Optionally, set a product, an expense account, an analytic distribution
    and a billing mode per branch (tab *Accounting* of the branch).
+#. Claims and surety bonds (phase 3), in **Insurance ‣ Configuration ‣
+   Settings**:
+
+   * Section *Claims and sureties*: *Claims without movement (days)*
+     (default 30, zero disables the reminders), *Request the surety release
+     (days before)* (default 30) and its sending, *Manual* or *Automatic*.
+   * Section *Claims accounting* (accounting administrator): the *Claims
+     journal* (miscellaneous), the *Claims receivable account* (type
+     *Receivable*, reconcilable), the *Claims recovery account* and the
+     *Surety execution loss account*. A branch can use its own claim
+     accounts (tab *Accounting* of the branch).
+#. With the Fleet bridge, mark *Requires fleet vehicle* on the vehicle
+   branches whose objects must always be a fleet vehicle.

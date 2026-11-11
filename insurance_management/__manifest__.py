@@ -1,8 +1,8 @@
 {
     "name": "Gestión de seguros",
-    "version": "19.0.2.0.5",
+    "version": "19.0.3.0.0",
     "summary": "Pólizas de seguro contratadas por la empresa: vigencias, "
-    "renovaciones, alertas, endosos, cuotas, pagos y devengamiento.",
+    "renovaciones, alertas, endosos, cuotas, pagos, devengamiento, siniestros y cauciones.",
     "author": "Zinapsia",
     "website": "https://www.zinapsia.com",
     "license": "AGPL-3",
@@ -19,6 +19,7 @@
         "data/mail_template_installment_data.xml",
         "data/mail_activity_type_data.xml",
         "data/ir_cron_data.xml",
+        "data/insurance_claim_data.xml",
         "views/insurance_branch_views.xml",
         "views/insurance_insured_item_views.xml",
         "views/insurance_policy_tag_views.xml",
@@ -28,6 +29,8 @@
         "views/insurance_installment_views.xml",
         "views/insurance_import_views.xml",
         "views/insurance_cost_report_views.xml",
+        "views/insurance_claim_views.xml",
+        "views/insurance_dashboard_views.xml",
         "wizard/insurance_policy_non_renewal_views.xml",
         "wizard/insurance_policy_confirm_warning_views.xml",
         "wizard/insurance_policy_document_upload_views.xml",

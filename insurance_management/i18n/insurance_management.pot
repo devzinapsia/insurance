@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 19.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-10 13:14+0000\n"
-"PO-Revision-Date: 2026-11-10 13:14+0000\n"
+"POT-Creation-Date: 2026-11-11 22:52+0000\n"
+"PO-Revision-Date: 2026-11-11 22:52+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -46,6 +46,24 @@ msgid "%(policy)s installments"
 msgstr ""
 
 #. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/wizard/insurance_claim_offset.py:0
+msgid "%(ref)s: claim offset"
+msgstr ""
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_claim.py:0
+msgid "%(ref)s: difference not collected"
+msgstr ""
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/wizard/insurance_claim_offset.py:0
+msgid "%(ref)s: offset of %(debt)s"
+msgstr ""
+
+#. module: insurance_management
 #: model:ir.actions.report,print_report_name:insurance_management.action_report_insurance_policy_list
 msgid "'Policies in force'"
 msgstr ""
@@ -56,15 +74,65 @@ msgid "'Policy - %s' % (object.policy_number or object.name)"
 msgstr ""
 
 #. module: insurance_management
-#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_settings__coverage_time__0
-#: model:ir.model.fields.selection,name:insurance_management.selection__res_company__insurance_coverage_time__0
-msgid "0:00"
-msgstr ""
-
-#. module: insurance_management
-#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_settings__coverage_time__12
-#: model:ir.model.fields.selection,name:insurance_management.selection__res_company__insurance_coverage_time__12
-msgid "12:00"
+#: model:mail.template,body_html:insurance_management.mail_template_claim_stale
+msgid ""
+"<div style=\"margin:0; padding:0; background-color:#f3f4f6;\">\n"
+"<t t-set=\"claimed\" t-value=\"object._get_mail_amount('amount_claimed')\"/>\n"
+"<t t-set=\"pending\" t-value=\"object._get_mail_amount('amount_pending')\"/>\n"
+"<table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"background-color:#f3f4f6;\">\n"
+"<tr><td align=\"center\" style=\"padding:24px 12px;\">\n"
+"<table role=\"presentation\" width=\"600\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"width:100%; max-width:600px; background-color:#ffffff; border:1px solid #d1d5db; border-radius:6px; font-family:Arial, Helvetica, sans-serif; color:#1f2937;\">\n"
+"    <tr><td style=\"padding:20px 24px; border-bottom:3px solid #b54708;\">\n"
+"        <img t-att-src=\"'%s/logo.png?company=%s' % (object.get_base_url(), object.company_id.id)\" t-att-alt=\"object.company_id.name\" height=\"40\" style=\"height:40px; max-width:200px; border:0; display:block;\"/>\n"
+"    </td></tr>\n"
+"    <tr><td style=\"padding:24px 24px 8px 24px; font-size:15px; line-height:22px;\">\n"
+"        <p style=\"margin:0 0 16px 0;\">Hello <t t-out=\"ctx.get('insurance_recipient_name') or ''\">Marc Demo</t>,</p>\n"
+"        <p style=\"margin:0 0 16px 0; font-size:17px; line-height:24px; font-weight:bold; color:#b54708;\" t-out=\"object._get_stale_subject()\">Claim SIN/2026/0001 (policy POL-001) has had no movement for 30 days</p>\n"
+"        <p style=\"margin:0 0 16px 0;\">The status of this claim has not changed for a while. Follow it up with the insurer or the producer.</p>\n"
+"    </td></tr>\n"
+"    <tr><td style=\"padding:0 24px 8px 24px;\">\n"
+"        <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"font-size:14px; line-height:20px; border-collapse:collapse;\">\n"
+"            <tr>\n"
+"                <td style=\"padding:8px; width:38%; color:#4b5563; border-bottom:1px solid #e5e7eb;\">Claim</td>\n"
+"                <td style=\"padding:8px; font-weight:bold; border-bottom:1px solid #e5e7eb;\" t-out=\"object.display_name\">SIN/2026/0001</td>\n"
+"            </tr>\n"
+"            <tr>\n"
+"                <td style=\"padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;\">Policy</td>\n"
+"                <td style=\"padding:8px; border-bottom:1px solid #e5e7eb;\" t-out=\"object.policy_id.display_name\">SEG/2026/0001 - POL-001</td>\n"
+"            </tr>\n"
+"            <tr t-if=\"object.insurer_id\">\n"
+"                <td style=\"padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;\">Insurer</td>\n"
+"                <td style=\"padding:8px; border-bottom:1px solid #e5e7eb;\" t-out=\"object.insurer_id.name\">Insurer</td>\n"
+"            </tr>\n"
+"            <tr>\n"
+"                <td style=\"padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;\">Status</td>\n"
+"                <td style=\"padding:8px; border-bottom:1px solid #e5e7eb;\" t-out=\"dict(object._fields['state']._description_selection(object.env)).get(object.state)\">Under analysis</td>\n"
+"            </tr>\n"
+"            <tr t-if=\"claimed\">\n"
+"                <td style=\"padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;\">Claimed</td>\n"
+"                <td style=\"padding:8px; border-bottom:1px solid #e5e7eb;\" t-out=\"claimed\">$ 500,000.00</td>\n"
+"            </tr>\n"
+"            <tr t-if=\"pending and object.state == 'approved'\">\n"
+"                <td style=\"padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;\">Pending collection</td>\n"
+"                <td style=\"padding:8px; font-weight:bold; border-bottom:1px solid #e5e7eb;\" t-out=\"pending\">$ 450,000.00</td>\n"
+"            </tr>\n"
+"        </table>\n"
+"    </td></tr>\n"
+"    <tr><td style=\"padding:16px 24px 8px 24px;\">\n"
+"        <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\">\n"
+"            <tr><td bgcolor=\"#1f4e79\" style=\"border-radius:4px; background-color:#1f4e79;\">\n"
+"                <a t-att-href=\"object._get_record_url()\" target=\"_blank\" style=\"display:inline-block; padding:12px 24px; font-family:Arial, Helvetica, sans-serif; font-size:15px; font-weight:bold; color:#ffffff; text-decoration:none; border-radius:4px;\">View claim</a>\n"
+"            </td></tr>\n"
+"        </table>\n"
+"    </td></tr>\n"
+"    <tr><td style=\"padding:16px 24px 24px 24px; font-size:12px; line-height:18px; color:#6b7280;\">\n"
+"        You receive this email because you are the responsible of this claim at <t t-out=\"object.company_id.name or ''\">My Company</t>.\n"
+"    </td></tr>\n"
+"</table>\n"
+"</td></tr>\n"
+"</table>\n"
+"</div>\n"
+"            "
 msgstr ""
 
 #. module: insurance_management
@@ -407,6 +475,132 @@ msgid ""
 msgstr ""
 
 #. module: insurance_management
+#: model:mail.template,body_html:insurance_management.mail_template_surety_release_request
+msgid ""
+"<div style=\"margin:0; padding:0; background-color:#f3f4f6;\">\n"
+"<t t-set=\"recipient\" t-value=\"object._get_surety_release_recipient()\"/>\n"
+"<t t-set=\"amount\" t-value=\"object._get_mail_surety_amount()\"/>\n"
+"<table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"background-color:#f3f4f6;\">\n"
+"<tr><td align=\"center\" style=\"padding:24px 12px;\">\n"
+"<table role=\"presentation\" width=\"600\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"width:100%; max-width:600px; background-color:#ffffff; border:1px solid #d1d5db; border-radius:6px; font-family:Arial, Helvetica, sans-serif; color:#1f2937;\">\n"
+"    <tr><td style=\"padding:20px 24px; border-bottom:3px solid #1f4e79;\">\n"
+"        <img t-att-src=\"'%s/logo.png?company=%s' % (object.get_base_url(), object.company_id.id)\" t-att-alt=\"object.company_id.name\" height=\"40\" style=\"height:40px; max-width:200px; border:0; display:block;\"/>\n"
+"    </td></tr>\n"
+"    <tr><td style=\"padding:24px 24px 8px 24px; font-size:15px; line-height:22px;\">\n"
+"        <p style=\"margin:0 0 16px 0;\">Hello <t t-out=\"recipient.name or ''\">Beneficiary</t>,</p>\n"
+"        <p style=\"margin:0 0 16px 0; font-size:17px; line-height:24px; font-weight:bold; color:#1f4e79;\">We ask you for the release of the following surety bond.</p>\n"
+"        <p style=\"margin:0 0 16px 0;\">The obligation it guarantees is fulfilled or about to end. Please send us the signed release certificate, so we can return the surety bond to the insurer.</p>\n"
+"    </td></tr>\n"
+"    <tr><td style=\"padding:0 24px 8px 24px;\">\n"
+"        <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"font-size:14px; line-height:20px; border-collapse:collapse;\">\n"
+"            <tr t-if=\"object.policy_number\">\n"
+"                <td style=\"padding:8px; width:38%; color:#4b5563; border-bottom:1px solid #e5e7eb;\">Surety bond number</td>\n"
+"                <td style=\"padding:8px; font-weight:bold; border-bottom:1px solid #e5e7eb;\" t-out=\"object.policy_number\">POL-001</td>\n"
+"            </tr>\n"
+"            <tr t-if=\"object.insurer_id\">\n"
+"                <td style=\"padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;\">Insurer</td>\n"
+"                <td style=\"padding:8px; border-bottom:1px solid #e5e7eb;\" t-out=\"object.insurer_id.name\">Insurer</td>\n"
+"            </tr>\n"
+"            <tr t-if=\"object.surety_type\">\n"
+"                <td style=\"padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;\">Surety type</td>\n"
+"                <td style=\"padding:8px; border-bottom:1px solid #e5e7eb;\" t-out=\"object._get_surety_type_label()\">Performance bond</td>\n"
+"            </tr>\n"
+"            <tr t-if=\"object.surety_obligation\">\n"
+"                <td style=\"padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;\">Guaranteed obligation</td>\n"
+"                <td style=\"padding:8px; border-bottom:1px solid #e5e7eb;\" t-out=\"object.surety_obligation\">Tender 12/2026</td>\n"
+"            </tr>\n"
+"            <tr t-if=\"amount\">\n"
+"                <td style=\"padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;\">Guaranteed amount</td>\n"
+"                <td style=\"padding:8px; border-bottom:1px solid #e5e7eb;\" t-out=\"amount\">$ 1,000,000.00</td>\n"
+"            </tr>\n"
+"            <tr t-if=\"object.surety_obligation_end\">\n"
+"                <td style=\"padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;\">Obligation end</td>\n"
+"                <td style=\"padding:8px; border-bottom:1px solid #e5e7eb;\" t-out=\"format_date(object.surety_obligation_end)\">30/06/2027</td>\n"
+"            </tr>\n"
+"        </table>\n"
+"    </td></tr>\n"
+"    <tr><td style=\"padding:20px 24px 24px 24px; font-size:15px; line-height:22px;\">\n"
+"        <p style=\"margin:0 0 16px 0;\">Thank you in advance.</p>\n"
+"        <p style=\"margin:0;\">Kind regards,<br/>\n"
+"            <strong t-out=\"object.company_id.name or ''\">My Company</strong>\n"
+"            <t t-if=\"object.company_id.email\"><br/><t t-out=\"object.company_id.email\">info@example.com</t></t>\n"
+"            <t t-if=\"object.company_id.phone\"><br/><t t-out=\"object.company_id.phone\">+54 11 0000-0000</t></t>\n"
+"        </p>\n"
+"    </td></tr>\n"
+"</table>\n"
+"</td></tr>\n"
+"</table>\n"
+"</div>\n"
+"            "
+msgstr ""
+
+#. module: insurance_management
+#: model:mail.template,body_html:insurance_management.mail_template_surety_released
+msgid ""
+"<div style=\"margin:0; padding:0; background-color:#f3f4f6;\">\n"
+"<table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"background-color:#f3f4f6;\">\n"
+"<tr><td align=\"center\" style=\"padding:24px 12px;\">\n"
+"<table role=\"presentation\" width=\"600\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"width:100%; max-width:600px; background-color:#ffffff; border:1px solid #d1d5db; border-radius:6px; font-family:Arial, Helvetica, sans-serif; color:#1f2937;\">\n"
+"    <tr><td style=\"padding:20px 24px; border-bottom:3px solid #1f4e79;\">\n"
+"        <img t-att-src=\"'%s/logo.png?company=%s' % (object.get_base_url(), object.company_id.id)\" t-att-alt=\"object.company_id.name\" height=\"40\" style=\"height:40px; max-width:200px; border:0; display:block;\"/>\n"
+"    </td></tr>\n"
+"    <tr><td style=\"padding:24px 24px 8px 24px; font-size:15px; line-height:22px;\">\n"
+"        <p style=\"margin:0 0 16px 0;\">Hello <t t-out=\"object.producer_id.name or ''\">Producer</t>,</p>\n"
+"        <p style=\"margin:0 0 16px 0; font-size:17px; line-height:24px; font-weight:bold; color:#1f4e79;\">The beneficiary released the following surety bond.</p>\n"
+"        <p style=\"margin:0 0 16px 0;\">Please ask the insurer to cancel it and stop billing it. The release certificate is available on request.</p>\n"
+"    </td></tr>\n"
+"    <tr><td style=\"padding:0 24px 8px 24px;\">\n"
+"        <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"font-size:14px; line-height:20px; border-collapse:collapse;\">\n"
+"            <tr t-if=\"object.policy_number\">\n"
+"                <td style=\"padding:8px; width:38%; color:#4b5563; border-bottom:1px solid #e5e7eb;\">Surety bond number</td>\n"
+"                <td style=\"padding:8px; font-weight:bold; border-bottom:1px solid #e5e7eb;\" t-out=\"object.policy_number\">POL-001</td>\n"
+"            </tr>\n"
+"            <tr t-if=\"object.insurer_id\">\n"
+"                <td style=\"padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;\">Insurer</td>\n"
+"                <td style=\"padding:8px; border-bottom:1px solid #e5e7eb;\" t-out=\"object.insurer_id.name\">Insurer</td>\n"
+"            </tr>\n"
+"            <tr t-if=\"object.surety_beneficiary_id\">\n"
+"                <td style=\"padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;\">Beneficiary</td>\n"
+"                <td style=\"padding:8px; border-bottom:1px solid #e5e7eb;\" t-out=\"object.surety_beneficiary_id.name\">City council</td>\n"
+"            </tr>\n"
+"            <tr t-if=\"object.surety_obligation\">\n"
+"                <td style=\"padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;\">Guaranteed obligation</td>\n"
+"                <td style=\"padding:8px; border-bottom:1px solid #e5e7eb;\" t-out=\"object.surety_obligation\">Tender 12/2026</td>\n"
+"            </tr>\n"
+"            <tr t-if=\"object.surety_release_date\">\n"
+"                <td style=\"padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;\">Release date</td>\n"
+"                <td style=\"padding:8px; border-bottom:1px solid #e5e7eb;\" t-out=\"format_date(object.surety_release_date)\">30/06/2027</td>\n"
+"            </tr>\n"
+"        </table>\n"
+"    </td></tr>\n"
+"    <tr><td style=\"padding:20px 24px 24px 24px; font-size:15px; line-height:22px;\">\n"
+"        <p style=\"margin:0 0 16px 0;\">Thank you.</p>\n"
+"        <p style=\"margin:0;\">Kind regards,<br/>\n"
+"            <strong t-out=\"object.company_id.name or ''\">My Company</strong>\n"
+"            <t t-if=\"object.company_id.email\"><br/><t t-out=\"object.company_id.email\">info@example.com</t></t>\n"
+"            <t t-if=\"object.company_id.phone\"><br/><t t-out=\"object.company_id.phone\">+54 11 0000-0000</t></t>\n"
+"        </p>\n"
+"    </td></tr>\n"
+"</table>\n"
+"</td></tr>\n"
+"</table>\n"
+"</div>\n"
+"            "
+msgstr ""
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_claim_view_form
+msgid "<span class=\"o_stat_text\">Endorsements</span>"
+msgstr ""
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_claim_view_form
+msgid ""
+"<span invisible=\"not can_remove_object and not can_insure_replacement\">Total loss: remove the object from the policy and, if needed, insure its replacement.</span>\n"
+"                        <span invisible=\"not can_rehabilitate_sum\">The indemnity reduces the sum available of the object: it can be rehabilitated with an endorsement.</span>"
+msgstr ""
+
+#. module: insurance_management
 #: model_terms:ir.ui.view,arch_db:insurance_management.report_insurance_policy_document
 msgid "<span>Insurance policy</span>"
 msgstr ""
@@ -431,8 +625,46 @@ msgid ""
 msgstr ""
 
 #. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_claim__sum_rehabilitated
+msgid ""
+"A sum rehabilitation endorsement restored the sum insured this claim "
+"consumed."
+msgstr ""
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_claim.py:0
+msgid "A surety execution claim has the surety execution effect, and only it."
+msgstr ""
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_claim.py:0
+msgid "A surety execution ends the policy: it cannot be taken back."
+msgstr ""
+
+#. module: insurance_management
 #: model:ir.model.constraint,message:insurance_management.constraint_insurance_policy_tag_name_uniq
 msgid "A tag with this name already exists."
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_res_company__insurance_claim_recovery_account_id
+msgid ""
+"Account credited when a claim is approved (recovery of the damage). A branch"
+" can use its own."
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_res_company__insurance_surety_loss_account_id
+msgid ""
+"Account debited when a surety bond is executed, against the debt with the "
+"insurer that pays the beneficiary. A branch can use its own."
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__description
+msgid "Account of the events"
 msgstr ""
 
 #. module: insurance_management
@@ -495,6 +727,7 @@ msgstr ""
 
 #. module: insurance_management
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_branch__message_needaction
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__message_needaction
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_document_type__message_needaction
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement__message_needaction
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement_type__message_needaction
@@ -522,6 +755,7 @@ msgstr ""
 
 #. module: insurance_management
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_branch__activity_ids
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__activity_ids
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_document_type__activity_ids
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement__activity_ids
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement_type__activity_ids
@@ -533,6 +767,7 @@ msgstr ""
 
 #. module: insurance_management
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_branch__activity_exception_decoration
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__activity_exception_decoration
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_document_type__activity_exception_decoration
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement__activity_exception_decoration
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement_type__activity_exception_decoration
@@ -544,6 +779,7 @@ msgstr ""
 
 #. module: insurance_management
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_branch__activity_state
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__activity_state
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_document_type__activity_state
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement__activity_state
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement_type__activity_state
@@ -555,6 +791,7 @@ msgstr ""
 
 #. module: insurance_management
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_branch__activity_type_icon
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__activity_type_icon
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_document_type__activity_type_icon
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement__activity_type_icon
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement_type__activity_type_icon
@@ -619,8 +856,28 @@ msgid ""
 msgstr ""
 
 #. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__adjuster_id
+msgid "Adjuster"
+msgstr ""
+
+#. module: insurance_management
+#: model:insurance.document.type,name:insurance_management.insurance_document_type_adjuster_report
+msgid "Adjuster report"
+msgstr ""
+
+#. module: insurance_management
 #: model:res.groups,name:insurance_management.group_insurance_manager
 msgid "Administrator"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_policy__surety_type__advance_payment
+msgid "Advance payment bond"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__object_id
+msgid "Affected object"
 msgstr ""
 
 #. module: insurance_management
@@ -728,6 +985,16 @@ msgid ""
 msgstr ""
 
 #. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim_offset__amount
+msgid "Amount to offset"
+msgstr ""
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_claim_view_form
+msgid "Amounts"
+msgstr ""
+
+#. module: insurance_management
 #: model_terms:ir.ui.view,arch_db:insurance_management.insurance_settings_view_form
 msgid "Amounts and processing"
 msgstr ""
@@ -736,6 +1003,13 @@ msgstr ""
 #. odoo-python
 #: code:addons/insurance_management/models/insurance_endorsement.py:0
 msgid "An extension needs a new end date after the current one."
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_res_company__insurance_claim_stale_days
+msgid ""
+"An open claim whose status has not changed for this many days is notified to"
+" its responsible, again every this many days. Zero: never."
 msgstr ""
 
 #. module: insurance_management
@@ -753,6 +1027,40 @@ msgstr ""
 #. module: insurance_management
 #: model:insurance.document.type,description:insurance_management.insurance_document_type_other
 msgid "Any other document related to the policy."
+msgstr ""
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_claim.py:0
+msgid "Approval cancelled: the approval entry was reversed."
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__date_approved
+msgid "Approval date"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__move_id
+msgid "Approval entry"
+msgstr ""
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_claim_view_form
+msgid "Approve"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__amount_approved
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_claim__state__approved
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_claim__workflow_state__approved
+msgid "Approved"
+msgstr ""
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_claim_view_form
+msgid ""
+"Approving posts the claim entry when there is an approved amount. Continue?"
 msgstr ""
 
 #. module: insurance_management
@@ -799,12 +1107,21 @@ msgid ""
 msgstr ""
 
 #. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy.py:0
+msgid ""
+"Attach the release certificate first (Documents tab, document type "
+"%(type)s)."
+msgstr ""
+
+#. module: insurance_management
 #: model:ir.model,name:insurance_management.model_ir_attachment
 msgid "Attachment"
 msgstr ""
 
 #. module: insurance_management
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_branch__message_attachment_count
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__message_attachment_count
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_document_type__message_attachment_count
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement__message_attachment_count
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement_type__message_attachment_count
@@ -817,7 +1134,9 @@ msgstr ""
 #. module: insurance_management
 #: model:ir.model.fields.selection,name:insurance_management.selection__insurance_policy__non_renewal_send_mode__automatic
 #: model:ir.model.fields.selection,name:insurance_management.selection__insurance_settings__non_renewal_send_mode__automatic
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_settings__surety_release_send_mode__automatic
 #: model:ir.model.fields.selection,name:insurance_management.selection__res_company__insurance_non_renewal_send_mode__automatic
+#: model:ir.model.fields.selection,name:insurance_management.selection__res_company__insurance_surety_release_send_mode__automatic
 msgid "Automatic"
 msgstr ""
 
@@ -854,6 +1173,18 @@ msgstr ""
 #. module: insurance_management
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_settings__batch_size
 msgid "Batch size of the daily process"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__surety_beneficiary_id
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_search
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_search_surety
+msgid "Beneficiary"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_policy__surety_type__bid
+msgid "Bid bond"
 msgstr ""
 
 #. module: insurance_management
@@ -943,9 +1274,11 @@ msgstr ""
 #. module: insurance_management
 #. odoo-python
 #: code:addons/insurance_management/models/insurance_import.py:0
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__branch_id
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_cost_report__branch_id
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_installment__branch_id
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__branch_id
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_claim_view_search
 #: model_terms:ir.ui.view,arch_db:insurance_management.insurance_cost_report_view_search
 #: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_search
 #: model_terms:ir.ui.view,arch_db:insurance_management.report_insurance_policy_document
@@ -974,10 +1307,38 @@ msgid ""
 msgstr ""
 
 #. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_settings_view_form
+msgid ""
+"Branches can use their own claim accounts. The receivable account must be of"
+" type Receivable."
+msgstr ""
+
+#. module: insurance_management
 #: model_terms:ir.actions.act_window,help:insurance_management.insurance_branch_action
 msgid ""
 "Branches classify policies (motor, fire, surety bond...) and set their "
 "default alert days and users to notify."
+msgstr ""
+
+#. module: insurance_management
+#: model:insurance.document.type,description:insurance_management.insurance_document_type_claim_budget
+msgid ""
+"Budget or quote of the workshop or supplier for the repair or replacement."
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__can_insure_replacement
+msgid "Can Insure Replacement"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__can_rehabilitate_sum
+msgid "Can Rehabilitate Sum"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__can_remove_object
+msgid "Can Remove Object"
 msgstr ""
 
 #. module: insurance_management
@@ -1000,9 +1361,25 @@ msgid "Cancel"
 msgstr ""
 
 #. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_claim_view_form
+msgid "Cancel approval"
+msgstr ""
+
+#. module: insurance_management
 #: model:insurance.endorsement.type,name:insurance_management.insurance_endorsement_type_cancellation
 #: model:ir.model.fields.selection,name:insurance_management.selection__insurance_endorsement_type__kind__cancellation
 msgid "Cancellation"
+msgstr ""
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy.py:0
+msgid "Cancellation due to claim %(claim)s."
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__cancel_reason
+msgid "Cancellation reason"
 msgstr ""
 
 #. module: insurance_management
@@ -1029,6 +1406,13 @@ msgstr ""
 msgid ""
 "Certificate proving the coverage to third parties (e.g. a client, a lessor "
 "or a vehicle check)."
+msgstr ""
+
+#. module: insurance_management
+#: model:insurance.document.type,description:insurance_management.insurance_document_type_surety_release
+msgid ""
+"Certificate signed by the beneficiary releasing the surety bond. Required to"
+" mark the guarantee as released."
 msgstr ""
 
 #. module: insurance_management
@@ -1060,13 +1444,110 @@ msgstr ""
 
 #. module: insurance_management
 #. odoo-python
+#: code:addons/insurance_management/models/insurance_claim.py:0
+msgid "Choose the affected object: the effect on the policy applies to it."
+msgstr ""
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/wizard/insurance_claim_offset.py:0
+msgid "Choose the debts to offset."
+msgstr ""
+
+#. module: insurance_management
+#. odoo-python
 #: code:addons/insurance_management/models/insurance_endorsement.py:0
 msgid "Choose the insured object to remove or change."
 msgstr ""
 
 #. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/wizard/insurance_policy_document_upload.py:0
+msgid "Choose the policy or the claim of the document."
+msgstr ""
+
+#. module: insurance_management
 #: model:insurance.branch,name:insurance_management.insurance_branch_civil_liability
 msgid "Civil liability"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_claim__claim_type__liability
+msgid "Civil liability (third-party claim)"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim_offset__claim_id
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement__claim_id
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_document_upload__claim_id
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_claim_view_form
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_claim_view_search
+msgid "Claim"
+msgstr ""
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_claim.py:0
+msgid ""
+"Claim %(claim)s (policy %(policy)s) has had no movement for %(days)s days"
+msgstr ""
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_claim.py:0
+msgid ""
+"Claim %(claim)s already has its approval entry: cancel the approval to "
+"change the approved amount, the policy or the type."
+msgstr ""
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_claim.py:0
+msgid "Claim %(claim)s cannot be %(action)s from its current status."
+msgstr ""
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_claim.py:0
+msgid ""
+"Claim %(claim)s has collections or offsets: undo them before cancelling the "
+"approval."
+msgstr ""
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_claim.py:0
+msgid ""
+"Claim %(claim)s still has an indemnity to collect: collect it, offset it or "
+"close it with a difference."
+msgstr ""
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_claim.py:0
+msgid "Claim approved."
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_insured_item__claim_count
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__claim_count
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_object__claim_count
+msgid "Claim count"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__claim_line_id
+msgid "Claim journal item"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim_offset__claim_pending
+msgid "Claim pending"
+msgstr ""
+
+#. module: insurance_management
+#: model:insurance.document.type,name:insurance_management.insurance_document_type_claim_photos
+msgid "Claim photos"
 msgstr ""
 
 #. module: insurance_management
@@ -1080,8 +1561,159 @@ msgid "Claim report filed with the insurer and its supporting documents."
 msgstr ""
 
 #. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_claim_view_form
+msgid ""
+"Claim report, photos, budgets, adjuster report. Files attached from the "
+"chatter also appear here; set their document type."
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_endorsement__claim_id
+msgid ""
+"Claim whose effect on the policy this endorsement applies (total loss, sum "
+"rehabilitation, replacement, surety execution)."
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__amount_claimed
+msgid "Claimed"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__amount_difference
+msgid "Claimed minus collected"
+msgstr ""
+
+#. module: insurance_management
+#: model_terms:ir.actions.act_window,help:insurance_management.insurance_claim_report_action
+msgid ""
+"Claimed, approved and collected amounts of the claims, and the difference "
+"between what was claimed and collected."
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.actions.act_window,name:insurance_management.insurance_claim_action
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__claim_ids
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_object__claim_ids
+#: model:ir.ui.menu,name:insurance_management.menu_insurance_claim
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_claim_view_list
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_claim_view_search
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_insured_item_view_form
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_form
+msgid "Claims"
+msgstr ""
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_settings_view_form
+msgid "Claims accounting"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.actions.act_window,name:insurance_management.insurance_claim_report_action
+#: model:ir.ui.menu,name:insurance_management.menu_insurance_report_claims
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_claim_view_pivot
+msgid "Claims and recoveries"
+msgstr ""
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_branch_view_form
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_settings_view_form
+msgid "Claims and sureties"
+msgstr ""
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_dashboard_view_form
+msgid "Claims and surety bonds"
+msgstr ""
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_claim_view_graph
+msgid "Claims by insurer"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_settings__claim_journal_id
+#: model:ir.model.fields,field_description:insurance_management.field_res_company__insurance_claim_journal_id
+msgid "Claims journal"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_branch__claim_receivable_account_id
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_settings__claim_receivable_account_id
+#: model:ir.model.fields,field_description:insurance_management.field_res_company__insurance_claim_receivable_account_id
+msgid "Claims receivable account"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_branch__claim_recovery_account_id
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_settings__claim_recovery_account_id
+#: model:ir.model.fields,field_description:insurance_management.field_res_company__insurance_claim_recovery_account_id
+msgid "Claims recovery account"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_dashboard__claims_to_collect
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_dashboard_view_form
+msgid "Claims to collect"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_dashboard__stale_claim_count
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_dashboard_view_form
+msgid "Claims without movement"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_settings__claim_stale_days
+#: model:ir.model.fields,field_description:insurance_management.field_res_company__insurance_claim_stale_days
+msgid "Claims without movement (days)"
+msgstr ""
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_claim_view_form
+msgid "Close"
+msgstr ""
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_claim_view_form
+msgid "Close with difference"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_claim__state__closed
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_claim__workflow_state__closed
+msgid "Closed"
+msgstr ""
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_claim.py:0
+msgid "Closed with a difference of %(amount)s not collected."
+msgstr ""
+
+#. module: insurance_management
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_branch__code
 msgid "Code"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__amount_collected
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_claim__state__collected
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_claim_view_form
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_claim_view_search
+msgid "Collected"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_claim__state
+msgid ""
+"Collected is set by itself when the indemnity is fully reconciled (bank "
+"reconciliation, a payment, an offset)."
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__date_collected
+msgid "Collection date"
 msgstr ""
 
 #. module: insurance_management
@@ -1102,6 +1734,8 @@ msgstr ""
 #. module: insurance_management
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_accrual_line__company_id
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_branch__company_id
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__company_id
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim_offset__company_id
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_cost_report__company_id
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement__company_id
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement_line__company_id
@@ -1119,6 +1753,8 @@ msgstr ""
 
 #. module: insurance_management
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_accrual_line__company_currency_id
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__company_currency_id
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim_offset__currency_id
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_cost_report__company_currency_id
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_installment__company_currency_id
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__company_currency_id
@@ -1165,6 +1801,12 @@ msgstr ""
 msgid ""
 "Confirm the imported policies (in force, expiring or expired according to "
 "their dates). Otherwise they stay as drafts."
+msgstr ""
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy.py:0
+msgid "Confirm the policy before loading claims on it."
 msgstr ""
 
 #. module: insurance_management
@@ -1302,6 +1944,11 @@ msgid "Coverage start and end time"
 msgstr ""
 
 #. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__not_covered_warning
+msgid "Coverage warning"
+msgstr ""
+
+#. module: insurance_management
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__coverage
 #: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_form
 #: model_terms:ir.ui.view,arch_db:insurance_management.report_insurance_policy_document
@@ -1368,6 +2015,9 @@ msgstr ""
 #. module: insurance_management
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_accrual_line__create_uid
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_branch__create_uid
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__create_uid
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim_offset__create_uid
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_dashboard__create_uid
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_document_type__create_uid
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement__create_uid
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement_line__create_uid
@@ -1392,6 +2042,9 @@ msgstr ""
 #. module: insurance_management
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_accrual_line__create_date
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_branch__create_date
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__create_date
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim_offset__create_date
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_dashboard__create_date
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_document_type__create_date
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement__create_date
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement_line__create_date
@@ -1415,7 +2068,14 @@ msgid "Created on"
 msgstr ""
 
 #. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim_offset__partner_id
+msgid "Creditor"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__currency_id
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_cost_report__currency_id
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_dashboard__company_currency_id
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement__currency_id
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement_line__currency_id
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_installment__currency_id
@@ -1432,6 +2092,19 @@ msgstr ""
 #. odoo-python
 #: code:addons/insurance_management/models/insurance_import.py:0
 msgid "Currency (code)"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_policy__surety_type__customs
+msgid "Customs bond"
+msgstr ""
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_dashboard.py:0
+#: model:ir.actions.server,name:insurance_management.action_server_insurance_dashboard
+#: model:ir.ui.menu,name:insurance_management.menu_insurance_dashboard
+msgid "Dashboard"
 msgstr ""
 
 #. module: insurance_management
@@ -1460,6 +2133,17 @@ msgid ""
 msgstr ""
 
 #. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__date_occurred
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_claim_view_search
+msgid "Date of occurrence"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_claim__date_collected
+msgid "Date of the last reconciliation that settled the indemnity."
+msgstr ""
+
+#. module: insurance_management
 #: model:ir.model.fields,help:insurance_management.field_insurance_policy__alert_days
 msgid ""
 "Days before the end date on which an expiry notice is sent, as a comma-"
@@ -1472,6 +2156,13 @@ msgstr ""
 msgid ""
 "Days before the end date on which the automatic non-renewal instruction is "
 "sent."
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_res_company__insurance_surety_release_days
+msgid ""
+"Days before the end of the guaranteed obligation on which the release of the"
+" surety bond is requested."
 msgstr ""
 
 #. module: insurance_management
@@ -1507,6 +2198,11 @@ msgid "Days left over after the whole months of the duration."
 msgstr ""
 
 #. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim_offset__line_ids
+msgid "Debts to offset"
+msgstr ""
+
+#. module: insurance_management
 #: model:mail.activity.type,summary:insurance_management.mail_activity_type_policy_expiry
 msgid "Decide on the policy renewal"
 msgstr ""
@@ -1517,6 +2213,7 @@ msgid "Deduct from the next pending installments"
 msgstr ""
 
 #. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__deductible_amount
 #: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_form
 #: model_terms:ir.ui.view,arch_db:insurance_management.report_insurance_policy_document
 msgid "Deductible"
@@ -1564,6 +2261,12 @@ msgid "Deferred check or echeq"
 msgstr ""
 
 #. module: insurance_management
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_policy__surety_state__delivered
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_form
+msgid "Delivered to the beneficiary"
+msgstr ""
+
+#. module: insurance_management
 #. odoo-python
 #: code:addons/insurance_management/models/insurance_endorsement.py:0
 msgid "Describe the data change or set the new producer."
@@ -1585,6 +2288,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_import__name
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_document_upload__description
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_object__name
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_claim_view_form
 #: model_terms:ir.ui.view,arch_db:insurance_management.insurance_endorsement_view_form
 #: model_terms:ir.ui.view,arch_db:insurance_management.report_insurance_policy_document
 msgid "Description"
@@ -1596,6 +2300,13 @@ msgid "Difference with the installments"
 msgstr ""
 
 #. module: insurance_management
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_claim__recovery_destination__supplier
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_claim_offset__mode__supplier
+msgid "Direct payment to the workshop or supplier"
+msgstr ""
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_claim_offset_view_form
 #: model_terms:ir.ui.view,arch_db:insurance_management.insurance_installment_generate_view_form
 #: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_document_upload_view_form
 #: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_non_renewal_view_form
@@ -1607,7 +2318,10 @@ msgstr ""
 #: model:ir.model.fields,field_description:insurance_management.field_account_payment__display_name
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_accrual_line__display_name
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_branch__display_name
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__display_name
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim_offset__display_name
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_cost_report__display_name
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_dashboard__display_name
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_document_type__display_name
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement__display_name
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement_line__display_name
@@ -1687,7 +2401,9 @@ msgstr ""
 
 #. module: insurance_management
 #: model:ir.actions.act_window,name:insurance_management.insurance_policy_document_action
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__attachment_ids
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__attachment_ids
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_claim_view_form
 #: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_form
 #: model_terms:ir.ui.view,arch_db:insurance_management.ir_attachment_view_list_insurance
 #: model_terms:ir.ui.view,arch_db:insurance_management.ir_attachment_view_search_insurance
@@ -1695,6 +2411,7 @@ msgid "Documents"
 msgstr ""
 
 #. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__document_count
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__document_count
 msgid "Documents count"
 msgstr ""
@@ -1721,8 +2438,11 @@ msgid ""
 msgstr ""
 
 #. module: insurance_management
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_claim__state__draft
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_claim__workflow_state__draft
 #: model:ir.model.fields.selection,name:insurance_management.selection__insurance_endorsement__state__draft
 #: model:ir.model.fields.selection,name:insurance_management.selection__insurance_policy__state__draft
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_claim_view_search
 #: model_terms:ir.ui.view,arch_db:insurance_management.insurance_endorsement_view_search
 #: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_search
 msgid "Draft"
@@ -1731,6 +2451,12 @@ msgstr ""
 #. module: insurance_management
 #: model:ir.model.fields.selection,name:insurance_management.selection__insurance_payment_mode__payment_state__draft
 msgid "Draft (to review)"
+msgstr ""
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/wizard/insurance_claim_offset.py:0
+msgid "Draft payments cancelled: %(payments)s."
 msgstr ""
 
 #. module: insurance_management
@@ -1766,6 +2492,11 @@ msgstr ""
 #. module: insurance_management
 #: model:ir.model.fields,help:insurance_management.field_insurance_policy_object__coverage
 msgid "E.g. third party, all risks with deductible."
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__policy_effect
+msgid "Effect on the policy"
 msgstr ""
 
 #. module: insurance_management
@@ -1857,6 +2588,7 @@ msgstr ""
 
 #. module: insurance_management
 #: model:ir.actions.act_window,name:insurance_management.insurance_endorsement_action
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__endorsement_ids
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__endorsement_ids
 #: model:ir.ui.menu,name:insurance_management.menu_insurance_endorsement
 #: model_terms:ir.ui.view,arch_db:insurance_management.insurance_endorsement_view_list
@@ -1927,6 +2659,16 @@ msgid "Error"
 msgstr ""
 
 #. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__date_collection_expected
+msgid "Estimated collection date"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__amount_estimated
+msgid "Estimated damage"
+msgstr ""
+
+#. module: insurance_management
 #: model:res.groups,comment:insurance_management.group_insurance_manager
 msgid ""
 "Everything a user can do, plus the insurance configuration and settings."
@@ -1938,14 +2680,47 @@ msgid "Excel file"
 msgstr ""
 
 #. module: insurance_management
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_policy__surety_state__executed
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_search_surety
+msgid "Executed"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_policy__surety_obligation_end
+msgid ""
+"Expected end of the guaranteed obligation. It can be after the policy end "
+"date: the insurer keeps billing until the release is proven. The release is "
+"requested the days set in the settings before it."
+msgstr ""
+
+#. module: insurance_management
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_branch__expense_account_id
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__expense_account_id
 msgid "Expense account"
 msgstr ""
 
 #. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_dashboard_view_form
+msgid "Expirations"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_dashboard__expiring_30_count
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_dashboard_view_form
 #: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_search
 msgid "Expire in 30 days"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_dashboard__expiring_60_count
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_dashboard_view_form
+msgid "Expire in 60 days"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_dashboard__expiring_90_count
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_dashboard_view_form
+msgid "Expire in 90 days"
 msgstr ""
 
 #. module: insurance_management
@@ -1954,6 +2729,8 @@ msgid "Expired"
 msgstr ""
 
 #. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_dashboard__expired_count
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_dashboard_view_form
 #: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_search
 msgid "Expired without renewal"
 msgstr ""
@@ -2010,6 +2787,7 @@ msgstr ""
 
 #. module: insurance_management
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_document_upload__file
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_claim_view_form
 #: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_form
 #: model_terms:ir.ui.view,arch_db:insurance_management.ir_attachment_view_list_insurance
 msgid "File"
@@ -2046,6 +2824,7 @@ msgstr ""
 
 #. module: insurance_management
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_branch__message_follower_ids
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__message_follower_ids
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_document_type__message_follower_ids
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement__message_follower_ids
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement_type__message_follower_ids
@@ -2057,6 +2836,7 @@ msgstr ""
 
 #. module: insurance_management
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_branch__message_partner_ids
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__message_partner_ids
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_document_type__message_partner_ids
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement__message_partner_ids
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement_type__message_partner_ids
@@ -2067,7 +2847,13 @@ msgid "Followers (Partners)"
 msgstr ""
 
 #. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_claim__user_id
+msgid "Follows the claim and receives the reminders when it has no movement."
+msgstr ""
+
+#. module: insurance_management
 #: model:ir.model.fields,help:insurance_management.field_insurance_branch__activity_type_icon
+#: model:ir.model.fields,help:insurance_management.field_insurance_claim__activity_type_icon
 #: model:ir.model.fields,help:insurance_management.field_insurance_document_type__activity_type_icon
 #: model:ir.model.fields,help:insurance_management.field_insurance_endorsement__activity_type_icon
 #: model:ir.model.fields,help:insurance_management.field_insurance_endorsement_type__activity_type_icon
@@ -2080,6 +2866,13 @@ msgstr ""
 #. module: insurance_management
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_alert__date_to
 msgid "For end date"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_claim__date_collection_expected
+msgid ""
+"From the insurer's settlement or payment order. It is the due date of the "
+"claim receivable, so it shows in the aging and the cash forecast."
 msgstr ""
 
 #. module: insurance_management
@@ -2168,7 +2961,30 @@ msgid "Group life"
 msgstr ""
 
 #. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_form
+msgid "Guarantee"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__surety_state
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_search_surety
+msgid "Guarantee status"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_dashboard__surety_guaranteed_amount
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__surety_amount
+msgid "Guaranteed amount"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__surety_obligation
+msgid "Guaranteed obligation"
+msgstr ""
+
+#. module: insurance_management
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_branch__has_message
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__has_message
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_document_type__has_message
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement__has_message
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement_type__has_message
@@ -2207,7 +3023,10 @@ msgstr ""
 #: model:ir.model.fields,field_description:insurance_management.field_account_payment__id
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_accrual_line__id
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_branch__id
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__id
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim_offset__id
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_cost_report__id
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_dashboard__id
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_document_type__id
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement__id
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement_line__id
@@ -2236,6 +3055,7 @@ msgstr ""
 
 #. module: insurance_management
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_branch__activity_exception_icon
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__activity_exception_icon
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_document_type__activity_exception_icon
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement__activity_exception_icon
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement_type__activity_exception_icon
@@ -2247,6 +3067,7 @@ msgstr ""
 
 #. module: insurance_management
 #: model:ir.model.fields,help:insurance_management.field_insurance_branch__activity_exception_icon
+#: model:ir.model.fields,help:insurance_management.field_insurance_claim__activity_exception_icon
 #: model:ir.model.fields,help:insurance_management.field_insurance_document_type__activity_exception_icon
 #: model:ir.model.fields,help:insurance_management.field_insurance_endorsement__activity_exception_icon
 #: model:ir.model.fields,help:insurance_management.field_insurance_endorsement_type__activity_exception_icon
@@ -2263,6 +3084,7 @@ msgstr ""
 
 #. module: insurance_management
 #: model:ir.model.fields,help:insurance_management.field_insurance_branch__message_needaction
+#: model:ir.model.fields,help:insurance_management.field_insurance_claim__message_needaction
 #: model:ir.model.fields,help:insurance_management.field_insurance_document_type__message_needaction
 #: model:ir.model.fields,help:insurance_management.field_insurance_endorsement__message_needaction
 #: model:ir.model.fields,help:insurance_management.field_insurance_endorsement_type__message_needaction
@@ -2275,6 +3097,8 @@ msgstr ""
 #. module: insurance_management
 #: model:ir.model.fields,help:insurance_management.field_insurance_branch__message_has_error
 #: model:ir.model.fields,help:insurance_management.field_insurance_branch__message_has_sms_error
+#: model:ir.model.fields,help:insurance_management.field_insurance_claim__message_has_error
+#: model:ir.model.fields,help:insurance_management.field_insurance_claim__message_has_sms_error
 #: model:ir.model.fields,help:insurance_management.field_insurance_document_type__message_has_error
 #: model:ir.model.fields,help:insurance_management.field_insurance_document_type__message_has_sms_error
 #: model:ir.model.fields,help:insurance_management.field_insurance_endorsement__message_has_error
@@ -2328,6 +3152,19 @@ msgid "In force"
 msgstr ""
 
 #. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_policy_object__claims_amount
+msgid ""
+"Indemnities of the approved claims that reduce the sum insured of this "
+"object and were not rehabilitated yet."
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_claim__amount_approved
+msgid ""
+"Indemnity settled by the insurer. It is the amount of the approval entry."
+msgstr ""
+
+#. module: insurance_management
 #. odoo-python
 #: code:addons/insurance_management/models/insurance_policy.py:0
 msgid ""
@@ -2369,6 +3206,14 @@ msgid ""
 msgstr ""
 
 #. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/wizard/insurance_claim_offset.py:0
+msgid ""
+"Installment %(installment)s of policy %(policy)s already has the payment "
+"%(payment)s: it cannot be offset with the claim."
+msgstr ""
+
+#. module: insurance_management
 #: model:ir.model.fields,help:insurance_management.field_account_bank_statement_line__insurance_installment_id
 #: model:ir.model.fields,help:insurance_management.field_account_move__insurance_installment_id
 msgid ""
@@ -2400,6 +3245,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement__installment_ids
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__installment_ids
 #: model:ir.ui.menu,name:insurance_management.menu_insurance_installment
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_dashboard_view_form
 #: model_terms:ir.ui.view,arch_db:insurance_management.insurance_endorsement_view_form
 #: model_terms:ir.ui.view,arch_db:insurance_management.insurance_installment_view_list
 #: model_terms:ir.ui.view,arch_db:insurance_management.insurance_installment_view_search
@@ -2418,6 +3264,12 @@ msgstr ""
 msgid ""
 "Installments due before this date are historical: they are recorded as paid,"
 " without payments nor journal entries."
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_dashboard__installments_month_count
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_dashboard_view_form
+msgid "Installments due this month"
 msgstr ""
 
 #. module: insurance_management
@@ -2459,6 +3311,7 @@ msgstr ""
 
 #. module: insurance_management
 #: model:ir.model,name:insurance_management.model_insurance_insured_item
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__insured_item_id
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement_line__insured_item_id
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_object__insured_item_id
 #: model_terms:ir.ui.view,arch_db:insurance_management.insurance_insured_item_view_form
@@ -2516,8 +3369,41 @@ msgid "Insurance branches"
 msgstr ""
 
 #. module: insurance_management
+#: model:ir.model,name:insurance_management.model_insurance_claim
+#: model:ir.model.fields,field_description:insurance_management.field_account_bank_statement_line__insurance_claim_id
+#: model:ir.model.fields,field_description:insurance_management.field_account_move__insurance_claim_id
+msgid "Insurance claim"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_account_bank_statement_line__insurance_claim_id
+#: model:ir.model.fields,help:insurance_management.field_account_move__insurance_claim_id
+msgid ""
+"Insurance claim this entry belongs to (approval, offset, closing "
+"difference)."
+msgstr ""
+
+#. module: insurance_management
 #: model:ir.model,name:insurance_management.model_insurance_cost_report
 msgid "Insurance cost by branch and insurer"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_dashboard__cost_year_amount
+msgid "Insurance cost this year"
+msgstr ""
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_dashboard_view_form
+msgid "Insurance cost this year (by branch and insurer)"
+msgstr ""
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_dashboard.py:0
+#: model:ir.model,name:insurance_management.model_insurance_dashboard
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_dashboard_view_form
+msgid "Insurance dashboard"
 msgstr ""
 
 #. module: insurance_management
@@ -2649,12 +3535,27 @@ msgstr ""
 
 #. module: insurance_management
 #: model_terms:ir.ui.view,arch_db:insurance_management.insurance_branch_view_form
+msgid "Insurance settings account"
+msgstr ""
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_branch_view_form
 msgid "Insurance settings product"
 msgstr ""
 
 #. module: insurance_management
 #: model_terms:ir.ui.view,arch_db:insurance_management.insurance_branch_view_form
 msgid "Insurance settings value"
+msgstr ""
+
+#. module: insurance_management
+#: model:mail.template,name:insurance_management.mail_template_claim_stale
+msgid "Insurance: claim without movement"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.actions.server,name:insurance_management.ir_cron_insurance_claims_ir_actions_server
+msgid "Insurance: claims without movement"
 msgstr ""
 
 #. module: insurance_management
@@ -2708,6 +3609,21 @@ msgid "Insurance: see amounts"
 msgstr ""
 
 #. module: insurance_management
+#: model:mail.template,name:insurance_management.mail_template_surety_release_request
+msgid "Insurance: surety release request"
+msgstr ""
+
+#. module: insurance_management
+#: model:mail.template,name:insurance_management.mail_template_surety_released
+msgid "Insurance: surety released"
+msgstr ""
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_claim_view_form
+msgid "Insure replacement"
+msgstr ""
+
+#. module: insurance_management
 #: model:ir.model,name:insurance_management.model_insurance_policy_object
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement_line__object_id
 #: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_search
@@ -2727,6 +3643,13 @@ msgid "Insured object modified:"
 msgstr ""
 
 #. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_claim__object_id
+msgid ""
+"Insured object of the policy affected by the claim: a vehicle, a person or "
+"an item."
+msgstr ""
+
+#. module: insurance_management
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__object_ids
 #: model_terms:ir.ui.view,arch_db:insurance_management.insurance_endorsement_view_form
 #: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_form
@@ -2743,13 +3666,16 @@ msgid ""
 msgstr ""
 
 #. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__insurer_id
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_cost_report__insurer_id
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_import_line__insurer
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_installment__insurer_id
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__insurer_id
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_claim_view_search
 #: model_terms:ir.ui.view,arch_db:insurance_management.insurance_cost_report_view_search
 #: model_terms:ir.ui.view,arch_db:insurance_management.insurance_installment_view_search
 #: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_search
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_search_surety
 #: model_terms:ir.ui.view,arch_db:insurance_management.report_insurance_policy_document
 #: model_terms:ir.ui.view,arch_db:insurance_management.report_insurance_policy_list
 msgid "Insurer"
@@ -2762,8 +3688,20 @@ msgid "Insurer (VAT or name)"
 msgstr ""
 
 #. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_claim_offset__partner_id
+msgid ""
+"Insurer (unpaid premium) or workshop / supplier of the claim (direct "
+"payment)."
+msgstr ""
+
+#. module: insurance_management
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__opening_billing
 msgid "Insurer billing before go-live"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__insurer_claim_number
+msgid "Insurer claim number"
 msgstr ""
 
 #. module: insurance_management
@@ -2777,6 +3715,7 @@ msgid "Internal notes about this branch..."
 msgstr ""
 
 #. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_claim_view_form
 #: model_terms:ir.ui.view,arch_db:insurance_management.insurance_insured_item_view_form
 #: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_form
 msgid "Internal notes..."
@@ -2794,6 +3733,7 @@ msgstr ""
 
 #. module: insurance_management
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_branch__message_is_follower
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__message_is_follower
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_document_type__message_is_follower
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement__message_is_follower
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement_type__message_is_follower
@@ -2818,6 +3758,11 @@ msgstr ""
 #. module: insurance_management
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement__issue_date
 msgid "Issue date"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_policy__surety_state__issued
+msgid "Issued"
 msgstr ""
 
 #. module: insurance_management
@@ -2851,9 +3796,25 @@ msgid "Journal Entry"
 msgstr ""
 
 #. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__move_ids
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_claim_view_form
+msgid "Journal entries"
+msgstr ""
+
+#. module: insurance_management
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_accrual_line__move_id
 #: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_form
 msgid "Journal entry"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__move_count
+msgid "Journal entry count"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_policy__surety_type__judicial
+msgid "Judicial bond"
 msgstr ""
 
 #. module: insurance_management
@@ -2878,6 +3839,7 @@ msgstr ""
 
 #. module: insurance_management
 #: model:ir.model.fields,help:insurance_management.field_insurance_branch__object_type
+#: model:ir.model.fields,help:insurance_management.field_insurance_claim__object_type
 #: model:ir.model.fields,help:insurance_management.field_insurance_endorsement__object_type
 #: model:ir.model.fields,help:insurance_management.field_insurance_policy__object_type
 #: model:ir.model.fields,help:insurance_management.field_insurance_policy_object__object_type
@@ -2889,6 +3851,9 @@ msgstr ""
 #. module: insurance_management
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_accrual_line__write_uid
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_branch__write_uid
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__write_uid
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim_offset__write_uid
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_dashboard__write_uid
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_document_type__write_uid
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement__write_uid
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement_line__write_uid
@@ -2913,6 +3878,9 @@ msgstr ""
 #. module: insurance_management
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_accrual_line__write_date
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_branch__write_date
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__write_date
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim_offset__write_date
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_dashboard__write_date
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_document_type__write_date
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement__write_date
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement_line__write_date
@@ -2945,6 +3913,21 @@ msgid "Last day of the accrued month."
 msgstr ""
 
 #. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__stale_notified_on
+msgid "Last reminder without movement"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__last_state_date
+msgid "Last status change"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_policy__surety_release_requested_on
+msgid "Last time the release request was emailed."
+msgstr ""
+
+#. module: insurance_management
 #: model:ir.model.fields,help:insurance_management.field_insurance_branch__company_id
 msgid "Leave empty to share this branch across all companies."
 msgstr ""
@@ -2963,6 +3946,9 @@ msgstr ""
 
 #. module: insurance_management
 #: model:ir.model.fields,help:insurance_management.field_insurance_branch__billing_mode
+#: model:ir.model.fields,help:insurance_management.field_insurance_branch__claim_receivable_account_id
+#: model:ir.model.fields,help:insurance_management.field_insurance_branch__claim_recovery_account_id
+#: model:ir.model.fields,help:insurance_management.field_insurance_branch__surety_loss_account_id
 msgid "Leave empty to use the one of the insurance settings."
 msgstr ""
 
@@ -2978,6 +3964,13 @@ msgstr ""
 #. module: insurance_management
 #: model:ir.model.fields,help:insurance_management.field_insurance_installment__move_line_id
 msgid "Line of the posted bill this installment pays."
+msgstr ""
+
+#. module: insurance_management
+#: model_terms:ir.actions.act_window,help:insurance_management.insurance_claim_action
+msgid ""
+"Load the claims filed with the insurers, follow them up to the collection of"
+" the indemnity and record its accounting."
 msgstr ""
 
 #. module: insurance_management
@@ -3018,7 +4011,9 @@ msgstr ""
 #. module: insurance_management
 #: model:ir.model.fields.selection,name:insurance_management.selection__insurance_policy__non_renewal_send_mode__manual
 #: model:ir.model.fields.selection,name:insurance_management.selection__insurance_settings__non_renewal_send_mode__manual
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_settings__surety_release_send_mode__manual
 #: model:ir.model.fields.selection,name:insurance_management.selection__res_company__insurance_non_renewal_send_mode__manual
+#: model:ir.model.fields.selection,name:insurance_management.selection__res_company__insurance_surety_release_send_mode__manual
 msgid "Manual"
 msgstr ""
 
@@ -3045,6 +4040,21 @@ msgid ""
 msgstr ""
 
 #. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_res_company__insurance_surety_release_send_mode
+msgid ""
+"Manual: the responsible gets an activity and sends the request with the "
+"Request release button. Automatic: the daily process emails it to the "
+"beneficiary (or the producer), with a copy to the responsible."
+msgstr ""
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_settings_view_form
+msgid ""
+"Manual: the responsible gets an activity to send the release request. "
+"Automatic: the daily process emails it to the beneficiary (or the producer)."
+msgstr ""
+
+#. module: insurance_management
 #: model:ir.model.fields,help:insurance_management.field_res_partner__is_insurer
 #: model:ir.model.fields,help:insurance_management.field_res_users__is_insurer
 msgid ""
@@ -3066,6 +4076,7 @@ msgid "Marked not to renew on"
 msgstr ""
 
 #. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_claim__insured_item_id
 #: model:ir.model.fields,help:insurance_management.field_insurance_policy_object__insured_item_id
 msgid ""
 "Master record of the insured item, which keeps its insurance history across "
@@ -3085,6 +4096,7 @@ msgstr ""
 
 #. module: insurance_management
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_branch__message_has_error
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__message_has_error
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_document_type__message_has_error
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement__message_has_error
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement_type__message_has_error
@@ -3096,6 +4108,7 @@ msgstr ""
 
 #. module: insurance_management
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_branch__message_ids
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__message_ids
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_document_type__message_ids
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement__message_ids
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement_type__message_ids
@@ -3109,6 +4122,13 @@ msgstr ""
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_settings__min_duration_months
 #: model:ir.model.fields,field_description:insurance_management.field_res_company__insurance_min_duration_months
 msgid "Minimum policy duration (months)"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_res_company__insurance_claim_journal_id
+msgid ""
+"Miscellaneous journal of the claim entries: approval, offsets and closing "
+"differences."
 msgstr ""
 
 #. module: insurance_management
@@ -3156,6 +4176,7 @@ msgstr ""
 
 #. module: insurance_management
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_branch__my_activity_date_deadline
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__my_activity_date_deadline
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_document_type__my_activity_date_deadline
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement__my_activity_date_deadline
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement_type__my_activity_date_deadline
@@ -3163,6 +4184,11 @@ msgstr ""
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_payment_mode__my_activity_date_deadline
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__my_activity_date_deadline
 msgid "My Activity Deadline"
+msgstr ""
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_claim_view_search
+msgid "My claims"
 msgstr ""
 
 #. module: insurance_management
@@ -3181,6 +4207,11 @@ msgid "Name"
 msgstr ""
 
 #. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_claim_view_form
+msgid "Names, documents, vehicles, insurers of the third parties..."
+msgstr ""
+
+#. module: insurance_management
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__premium
 #: model_terms:ir.ui.view,arch_db:insurance_management.report_insurance_policy_document
 msgid "Net premium"
@@ -3188,8 +4219,16 @@ msgstr ""
 
 #. module: insurance_management
 #. odoo-python
+#: code:addons/insurance_management/models/insurance_claim.py:0
 #: code:addons/insurance_management/models/insurance_policy.py:0
 msgid "New"
+msgstr ""
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy.py:0
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_form
+msgid "New claim"
 msgstr ""
 
 #. module: insurance_management
@@ -3227,6 +4266,7 @@ msgstr ""
 
 #. module: insurance_management
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_branch__activity_date_deadline
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__activity_date_deadline
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_document_type__activity_date_deadline
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement__activity_date_deadline
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement_type__activity_date_deadline
@@ -3238,6 +4278,7 @@ msgstr ""
 
 #. module: insurance_management
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_branch__activity_summary
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__activity_summary
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_document_type__activity_summary
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement__activity_summary
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement_type__activity_summary
@@ -3249,6 +4290,7 @@ msgstr ""
 
 #. module: insurance_management
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_branch__activity_type_id
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__activity_type_id
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_document_type__activity_type_id
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement__activity_type_id
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement_type__activity_type_id
@@ -3263,6 +4305,16 @@ msgstr ""
 #: model:ir.model.fields.selection,name:insurance_management.selection__insurance_settings__accrual_method__none
 #: model:ir.model.fields.selection,name:insurance_management.selection__res_company__insurance_accrual_method__none
 msgid "No accrual (direct expense)"
+msgstr ""
+
+#. module: insurance_management
+#: model_terms:ir.actions.act_window,help:insurance_management.insurance_claim_report_action
+msgid "No claims yet"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_claim__policy_effect__none
+msgid "No effect"
 msgstr ""
 
 #. module: insurance_management
@@ -3302,6 +4354,11 @@ msgstr ""
 #. module: insurance_management
 #: model:ir.model.fields.selection,name:insurance_management.selection__insurance_endorsement__premium_direction__none
 msgid "No premium change"
+msgstr ""
+
+#. module: insurance_management
+#: model_terms:ir.actions.act_window,help:insurance_management.insurance_policy_surety_action
+msgid "No surety bonds"
 msgstr ""
 
 #. module: insurance_management
@@ -3364,10 +4421,12 @@ msgstr ""
 #. odoo-python
 #: code:addons/insurance_management/models/insurance_import.py:0
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_branch__note
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__note
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_insured_item__note
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_payment_mode__note
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__note
 #: model_terms:ir.ui.view,arch_db:insurance_management.insurance_branch_view_form
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_claim_view_form
 #: model_terms:ir.ui.view,arch_db:insurance_management.insurance_insured_item_view_form
 #: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_form
 msgid "Notes"
@@ -3390,6 +4449,7 @@ msgid "Number"
 msgstr ""
 
 #. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_claim_view_form
 #: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_form
 msgid "Number assigned by the insurer"
 msgstr ""
@@ -3406,6 +4466,7 @@ msgstr ""
 
 #. module: insurance_management
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_branch__message_needaction_counter
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__message_needaction_counter
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_document_type__message_needaction_counter
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement__message_needaction_counter
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement_type__message_needaction_counter
@@ -3417,6 +4478,7 @@ msgstr ""
 
 #. module: insurance_management
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_branch__message_has_error_counter
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__message_has_error_counter
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_document_type__message_has_error_counter
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement__message_has_error_counter
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement_type__message_has_error_counter
@@ -3440,6 +4502,7 @@ msgstr ""
 
 #. module: insurance_management
 #: model:ir.model.fields,help:insurance_management.field_insurance_branch__message_needaction_counter
+#: model:ir.model.fields,help:insurance_management.field_insurance_claim__message_needaction_counter
 #: model:ir.model.fields,help:insurance_management.field_insurance_document_type__message_needaction_counter
 #: model:ir.model.fields,help:insurance_management.field_insurance_endorsement__message_needaction_counter
 #: model:ir.model.fields,help:insurance_management.field_insurance_endorsement_type__message_needaction_counter
@@ -3451,6 +4514,7 @@ msgstr ""
 
 #. module: insurance_management
 #: model:ir.model.fields,help:insurance_management.field_insurance_branch__message_has_error_counter
+#: model:ir.model.fields,help:insurance_management.field_insurance_claim__message_has_error_counter
 #: model:ir.model.fields,help:insurance_management.field_insurance_document_type__message_has_error_counter
 #: model:ir.model.fields,help:insurance_management.field_insurance_endorsement__message_has_error_counter
 #: model:ir.model.fields,help:insurance_management.field_insurance_endorsement_type__message_has_error_counter
@@ -3468,12 +4532,21 @@ msgid ""
 msgstr ""
 
 #. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_claim__insurer_claim_number
+msgid ""
+"Number the insurer assigns to the claim. It is also written on the approval "
+"entry, so the bank reconciliation finds the claim when the insurer quotes it"
+" on the transfer."
+msgstr ""
+
+#. module: insurance_management
 #: model:ir.model.fields,help:insurance_management.field_insurance_endorsement_line__object_id
 msgid "Object removed or changed."
 msgstr ""
 
 #. module: insurance_management
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_branch__object_type
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__object_type
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement__object_type
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__object_type
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_object__object_type
@@ -3501,8 +4574,39 @@ msgid "Objects sheet, row %(row)s: the description is required."
 msgstr ""
 
 #. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__surety_obligation_end
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_search_surety
+msgid "Obligation end"
+msgstr ""
+
+#. module: insurance_management
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_installment__count
 msgid "Of"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim_offset__mode
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_claim_offset_view_form
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_claim_view_form
+msgid "Offset"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model,name:insurance_management.model_insurance_claim_offset
+msgid "Offset an insurance claim"
+msgstr ""
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/wizard/insurance_claim_offset.py:0
+msgid "Offset of %(amount)s against %(debts)s."
+msgstr ""
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_claim.py:0
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_claim_offset_view_form
+msgid "Offset the claim"
 msgstr ""
 
 #. module: insurance_management
@@ -3538,8 +4642,37 @@ msgstr ""
 
 #. module: insurance_management
 #. odoo-python
+#: code:addons/insurance_management/models/insurance_claim.py:0
+msgid "Only accounting users (Invoicing) can post the claim entries."
+msgstr ""
+
+#. module: insurance_management
+#. odoo-python
 #: code:addons/insurance_management/models/insurance_policy_object.py:0
 msgid "Only active insured objects can be removed."
+msgstr ""
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_claim.py:0
+msgid ""
+"Only an approved claim with an indemnity pending collection can be closed "
+"with a difference."
+msgstr ""
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_claim.py:0
+msgid ""
+"Only an approved claim with an indemnity pending collection can be "
+"collected."
+msgstr ""
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/wizard/insurance_claim_offset.py:0
+msgid ""
+"Only an approved claim with an indemnity pending collection can be offset."
 msgstr ""
 
 #. module: insurance_management
@@ -3570,11 +4703,18 @@ msgid ""
 msgstr ""
 
 #. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_claim__insurer_id
 #: model:ir.model.fields,help:insurance_management.field_insurance_installment__insurer_id
 #: model:ir.model.fields,help:insurance_management.field_insurance_policy__insurer_id
 msgid ""
 "Only contacts marked \"Is an insurer\" are listed (contact form, Sales & "
 "Purchase tab). A contact created from here is marked automatically."
+msgstr ""
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_claim.py:0
+msgid "Only draft claims can be deleted."
 msgstr ""
 
 #. module: insurance_management
@@ -3600,6 +4740,62 @@ msgstr ""
 msgid ""
 "Only for running policies, with the go-live date set in the insurance "
 "settings."
+msgstr ""
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_claim.py:0
+msgid ""
+"Only rejected claims, or closed claims without entries, can be reopened."
+msgstr ""
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_claim.py:0
+msgid "Only surety bond policies (branch of type Contract) can be executed."
+msgstr ""
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy.py:0
+msgid ""
+"Only surety bonds (branch of type Contract) can be renewed until release."
+msgstr ""
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_claim_view_search
+msgid "Open"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_claim__is_stale
+msgid ""
+"Open claim whose status has not changed for the days set in the insurance "
+"settings."
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_dashboard__open_claim_count
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_dashboard_view_form
+msgid "Open claims"
+msgstr ""
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_search_surety
+msgid "Open guarantees"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_claim_offset__line_ids
+msgid ""
+"Open payable items of the creditor. The oldest are offset first, up to the "
+"claim pending amount."
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_dashboard__open_surety_count
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_dashboard_view_form
+msgid "Open surety bonds"
 msgstr ""
 
 #. module: insurance_management
@@ -3663,9 +4859,40 @@ msgid "Overdue unpaid"
 msgstr ""
 
 #. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_dashboard__overdue_installment_count
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_dashboard_view_form
+msgid "Overdue unpaid installments"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_claim__claim_type__own_damage
+msgid "Own damage"
+msgstr ""
+
+#. module: insurance_management
 #: model:ir.model.fields.selection,name:insurance_management.selection__insurance_installment__state__paid
 #: model_terms:ir.ui.view,arch_db:insurance_management.insurance_installment_view_search
 msgid "Paid"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_dashboard__installments_month_paid
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_dashboard_view_form
+msgid "Paid this month"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_claim__amount_collected
+msgid ""
+"Part of the approved indemnity already settled: collected, offset against "
+"debts, or closed with a difference."
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_claim__deductible_amount
+msgid ""
+"Part of the damage borne by the company. Informative: it is not posted, it "
+"stays as the net expense (repair bill minus the recovery)."
 msgstr ""
 
 #. module: insurance_management
@@ -3737,6 +4964,20 @@ msgid "Payment receipt"
 msgstr ""
 
 #. module: insurance_management
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_claim__recovery_destination__company
+msgid "Payment to the company"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_claim__recovery_destination
+msgid ""
+"Payment to the company: the insurer pays the indemnity to the company. "
+"Direct payment to the workshop or supplier: the insurer pays the supplier "
+"and the claim is offset against the supplier bill, without money. "
+"Replacement: the insurer replaces the item, no entry is generated."
+msgstr ""
+
+#. module: insurance_management
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_installment__payment_type
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_payment_mode__payment_type
 msgid "Payment type"
@@ -3754,8 +4995,19 @@ msgstr ""
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_import__pending_count
 #: model:ir.model.fields.selection,name:insurance_management.selection__insurance_import_line__state__pending
 #: model:ir.model.fields.selection,name:insurance_management.selection__insurance_installment__state__pending
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_claim_offset_view_form
 #: model_terms:ir.ui.view,arch_db:insurance_management.insurance_installment_view_search
 msgid "Pending"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__amount_pending
+msgid "Pending collection"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_claim_offset__claim_pending
+msgid "Pending part of the claim receivable, in company currency."
 msgstr ""
 
 #. module: insurance_management
@@ -3771,6 +5023,11 @@ msgid "Percentage"
 msgstr ""
 
 #. module: insurance_management
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_policy__surety_type__performance
+msgid "Performance bond"
+msgstr ""
+
+#. module: insurance_management
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_accrual_line__date
 #: model_terms:ir.ui.view,arch_db:insurance_management.insurance_accrual_line_view_search
 msgid "Period"
@@ -3783,7 +5040,18 @@ msgstr ""
 
 #. module: insurance_management
 #: model:insurance.branch,name:insurance_management.insurance_branch_personal_accident
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_claim__claim_type__personal_accident
 msgid "Personal accident"
+msgstr ""
+
+#. module: insurance_management
+#: model:insurance.document.type,description:insurance_management.insurance_document_type_claim_photos
+msgid "Photos of the damage, the place or the vehicles involved in a claim."
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__location
+msgid "Place"
 msgstr ""
 
 #. module: insurance_management
@@ -3799,13 +5067,20 @@ msgid "Policies"
 msgstr ""
 
 #. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_dashboard_view_form
+msgid "Policies and cost"
+msgstr ""
+
+#. module: insurance_management
 #: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_graph
 msgid "Policies by branch"
 msgstr ""
 
 #. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_dashboard__in_force_count
 #: model:ir.model.fields,field_description:insurance_management.field_res_partner__insurance_policy_count
 #: model:ir.model.fields,field_description:insurance_management.field_res_users__insurance_policy_count
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_dashboard_view_form
 #: model_terms:ir.ui.view,arch_db:insurance_management.report_insurance_policy_list
 #: model_terms:ir.ui.view,arch_db:insurance_management.res_partner_view_form_insurance
 msgid "Policies in force"
@@ -3840,8 +5115,15 @@ msgid "Policies with a premium at zero"
 msgstr ""
 
 #. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_dashboard__with_debt_count
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_dashboard_view_form
+msgid "Policies with unpaid installments"
+msgstr ""
+
+#. module: insurance_management
 #: model:insurance.document.type,name:insurance_management.insurance_document_type_policy
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_accrual_line__policy_id
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__policy_id
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_cost_report__policy_id
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement__policy_id
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement_line__policy_id
@@ -3854,10 +5136,12 @@ msgstr ""
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_object__policy_id
 #: model_terms:ir.ui.view,arch_db:insurance_management.account_move_view_form_insurance
 #: model_terms:ir.ui.view,arch_db:insurance_management.insurance_accrual_line_view_search
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_claim_view_search
 #: model_terms:ir.ui.view,arch_db:insurance_management.insurance_cost_report_view_search
 #: model_terms:ir.ui.view,arch_db:insurance_management.insurance_endorsement_view_search
 #: model_terms:ir.ui.view,arch_db:insurance_management.insurance_installment_view_search
 #: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_search
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_search_surety
 msgid "Policy"
 msgstr ""
 
@@ -3945,6 +5229,12 @@ msgstr ""
 #. odoo-python
 #: code:addons/insurance_management/models/insurance_policy.py:0
 msgid "Policy %(policy)s is not a draft."
+msgstr ""
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy.py:0
+msgid "Policy %(policy)s is not a surety bond."
 msgstr ""
 
 #. module: insurance_management
@@ -4069,6 +5359,13 @@ msgstr ""
 #. module: insurance_management
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_insured_item__object_ids
 msgid "Policy objects"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_policy__is_surety
+msgid ""
+"Policy of a branch of type Contract: it guarantees an obligation of the "
+"company before a third party."
 msgstr ""
 
 #. module: insurance_management
@@ -4211,6 +5508,18 @@ msgid ""
 msgstr ""
 
 #. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_branch__rating_ids
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__rating_ids
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_document_type__rating_ids
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement__rating_ids
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement_type__rating_ids
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_insured_item__rating_ids
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_payment_mode__rating_ids
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__rating_ids
+msgid "Ratings"
+msgstr ""
+
+#. module: insurance_management
 #: model_terms:ir.ui.view,arch_db:insurance_management.insurance_import_view_form
 msgid "Read file"
 msgstr ""
@@ -4226,6 +5535,21 @@ msgid "Reason"
 msgstr ""
 
 #. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_res_company__insurance_claim_receivable_account_id
+msgid ""
+"Receivable account of the indemnities to collect from insurers (type "
+"Receivable, so the claim shows in the aging and is collected like any "
+"receivable). A branch can use its own."
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_claim__claim_line_id
+msgid ""
+"Receivable from the insurer (or, for a surety execution, the debt with it) "
+"created by the approval entry."
+msgstr ""
+
+#. module: insurance_management
 #: model:ir.model.fields,help:insurance_management.field_insurance_policy__user_id
 msgid "Receives the expiry alerts and activities of this policy."
 msgstr ""
@@ -4236,6 +5560,17 @@ msgid "Recipients"
 msgstr ""
 
 #. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__recovery_destination
+msgid "Recovery destination"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_claim__policy_effect__reduce_sum
+msgid "Reduces the sum insured"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__name
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement__name
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__name
 msgid "Reference"
@@ -4244,6 +5579,11 @@ msgstr ""
 #. module: insurance_management
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_insured_item__reference_value
 msgid "Reference value"
+msgstr ""
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_dashboard_view_form
+msgid "Refresh"
 msgstr ""
 
 #. module: insurance_management
@@ -4264,6 +5604,11 @@ msgid "Refund by the insurer"
 msgstr ""
 
 #. module: insurance_management
+#: model_terms:ir.actions.act_window,help:insurance_management.insurance_claim_action
+msgid "Register a claim"
+msgstr ""
+
+#. module: insurance_management
 #: model_terms:ir.actions.act_window,help:insurance_management.insurance_endorsement_action
 msgid "Register an endorsement"
 msgstr ""
@@ -4271,6 +5616,72 @@ msgstr ""
 #. module: insurance_management
 #: model_terms:ir.actions.act_window,help:insurance_management.insurance_policy_action
 msgid "Register an insurance policy"
+msgstr ""
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_claim_view_form
+msgid "Register collection"
+msgstr ""
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_claim_view_form
+msgid "Rehabilitate the sum insured"
+msgstr ""
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_claim.py:0
+msgid "Rehabilitation of the sum insured after claim %(claim)s."
+msgstr ""
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_claim_view_form
+msgid "Reject"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_claim__state__rejected
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_claim__workflow_state__rejected
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_claim_view_form
+msgid "Rejected"
+msgstr ""
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_form
+msgid "Release"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__surety_release_date
+msgid "Release date"
+msgstr ""
+
+#. module: insurance_management
+#: model:mail.template,subject:insurance_management.mail_template_surety_release_request
+msgid ""
+"Release request - surety bond {{ object.policy_number or object.name }}"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__surety_release_requested_on
+msgid "Release requested on"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_policy__surety_state__released
+msgid "Released"
+msgstr ""
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_claim.py:0
+msgid "Reminder not emailed: the responsible has no email address."
+msgstr ""
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_claim.py:0
+msgid "Reminder sent to: %(user)s"
 msgstr ""
 
 #. module: insurance_management
@@ -4288,6 +5699,11 @@ msgstr ""
 #: model:insurance.endorsement.type,name:insurance_management.insurance_endorsement_type_remove_object
 #: model:ir.model.fields.selection,name:insurance_management.selection__insurance_endorsement_type__kind__remove_object
 msgid "Remove object"
+msgstr ""
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_claim_view_form
+msgid "Remove the object"
 msgstr ""
 
 #. module: insurance_management
@@ -4389,13 +5805,108 @@ msgid "Renewed by"
 msgstr ""
 
 #. module: insurance_management
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_policy__surety_type__rental
+msgid "Rental bond"
+msgstr ""
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_claim_view_form
+msgid "Reopen"
+msgstr ""
+
+#. module: insurance_management
+#: model:insurance.document.type,name:insurance_management.insurance_document_type_claim_budget
+msgid "Repair budget"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_claim__supplier_id
+msgid ""
+"Repairs or replaces the damage. With direct payment, the claim is offset "
+"against its bill."
+msgstr ""
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_claim.py:0
+msgid "Replacement of %(object)s"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_claim__recovery_destination__replacement
+msgid "Replacement of the item"
+msgstr ""
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy.py:0
+msgid ""
+"Replacement of the object lost in claim %(claim)s of policy %(policy)s."
+msgstr ""
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_claim.py:0
+msgid "Replacement of the object lost in claim %(claim)s."
+msgstr ""
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy.py:0
+msgid "Replacement policy created: %(policy)s."
+msgstr ""
+
+#. module: insurance_management
+#: model:insurance.document.type,description:insurance_management.insurance_document_type_adjuster_report
+msgid "Report and settlement of the insurer's adjuster."
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__date_reported
+msgid "Report date"
+msgstr ""
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_claim_view_form
+msgid "Report to the insurer"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_claim__state__reported
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_claim__workflow_state__reported
+msgid "Reported"
+msgstr ""
+
+#. module: insurance_management
 #: model:ir.ui.menu,name:insurance_management.menu_insurance_reporting
 msgid "Reporting"
 msgstr ""
 
 #. module: insurance_management
 #: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_form
+msgid "Request release"
+msgstr ""
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_form
 msgid "Request renewal"
+msgstr ""
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy.py:0
+msgid "Request the release of surety bond %(policy)s"
+msgstr ""
+
+#. module: insurance_management
+#: model:mail.activity.type,summary:insurance_management.mail_activity_type_surety_release
+msgid "Request the release of the surety bond"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_settings__surety_release_days
+#: model:ir.model.fields,field_description:insurance_management.field_res_company__insurance_surety_release_days
+msgid "Request the surety release (days before)"
 msgstr ""
 
 #. module: insurance_management
@@ -4409,6 +5920,7 @@ msgid "Reset to draft"
 msgstr ""
 
 #. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__user_id
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__user_id
 #: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_search
 #: model_terms:ir.ui.view,arch_db:insurance_management.report_insurance_policy_document
@@ -4423,6 +5935,7 @@ msgstr ""
 
 #. module: insurance_management
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_branch__activity_user_id
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__activity_user_id
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_document_type__activity_user_id
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement__activity_user_id
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement_type__activity_user_id
@@ -4430,6 +5943,17 @@ msgstr ""
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_payment_mode__activity_user_id
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__activity_user_id
 msgid "Responsible User"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_policy__surety_type__retention
+msgid "Retention bond"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_policy__surety_state__returned
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_form
+msgid "Returned to the insurer"
 msgstr ""
 
 #. module: insurance_management
@@ -4494,6 +6018,7 @@ msgstr ""
 
 #. module: insurance_management
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_branch__message_has_sms_error
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__message_has_sms_error
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_document_type__message_has_sms_error
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement__message_has_sms_error
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement_type__message_has_sms_error
@@ -4526,6 +6051,11 @@ msgid "Select installments of a single policy."
 msgstr ""
 
 #. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim_offset__debts_total
+msgid "Selected debts"
+msgstr ""
+
+#. module: insurance_management
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__non_renewal_days
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_non_renewal__non_renewal_days
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_settings__non_renewal_days
@@ -4539,6 +6069,20 @@ msgid "Send the instruction to the producer"
 msgstr ""
 
 #. module: insurance_management
+#: model:mail.template,description:insurance_management.mail_template_surety_release_request
+msgid ""
+"Sent to the beneficiary of a surety bond (or the producer) before the end of"
+" the guaranteed obligation, asking for the release certificate."
+msgstr ""
+
+#. module: insurance_management
+#: model:mail.template,description:insurance_management.mail_template_claim_stale
+msgid ""
+"Sent to the claim responsible every time the claim reaches the days without "
+"movement of the insurance settings."
+msgstr ""
+
+#. module: insurance_management
 #: model:mail.template,description:insurance_management.mail_template_policy_renewal_request
 msgid "Sent to the producer to ask for a renewal proposal."
 msgstr ""
@@ -4546,6 +6090,13 @@ msgstr ""
 #. module: insurance_management
 #: model:mail.template,description:insurance_management.mail_template_policy_non_renewal
 msgid "Sent to the producer when a policy is marked not to renew."
+msgstr ""
+
+#. module: insurance_management
+#: model:mail.template,description:insurance_management.mail_template_surety_released
+msgid ""
+"Sent to the producer when the guarantee of a surety bond is released, so the"
+" insurer stops billing it."
 msgstr ""
 
 #. module: insurance_management
@@ -4607,6 +6158,14 @@ msgstr ""
 
 #. module: insurance_management
 #. odoo-python
+#: code:addons/insurance_management/models/insurance_claim.py:0
+msgid ""
+"Set the %(account)s in the insurance settings (Accounting) or in the branch "
+"%(branch)s before approving claims."
+msgstr ""
+
+#. module: insurance_management
+#. odoo-python
 #: code:addons/insurance_management/models/insurance_accrual.py:0
 msgid ""
 "Set the accrual journal in the insurance settings to post the monthly "
@@ -4615,8 +6174,34 @@ msgstr ""
 
 #. module: insurance_management
 #. odoo-python
+#: code:addons/insurance_management/models/insurance_claim.py:0
+msgid ""
+"Set the claims journal in the insurance settings (Accounting) before "
+"approving claims."
+msgstr ""
+
+#. module: insurance_management
+#. odoo-python
 #: code:addons/insurance_management/models/insurance_endorsement.py:0
 msgid "Set the new coverages or the objects whose coverage changes."
+msgstr ""
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/wizard/insurance_claim_offset.py:0
+msgid "Set the workshop or supplier of the claim first."
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_policy_document_upload__claim_id
+msgid "Set when the document is uploaded to a claim instead of a policy."
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_policy__cancel_reason
+msgid ""
+"Set when the policy ends early because of a claim (total loss, surety "
+"execution)."
 msgstr ""
 
 #. module: insurance_management
@@ -4669,14 +6254,17 @@ msgstr ""
 
 #. module: insurance_management
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_accrual_line__state
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__state
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement__state
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_import__state
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_import_line__state
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_installment__state
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__state
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_object__state
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_claim_view_search
 #: model_terms:ir.ui.view,arch_db:insurance_management.insurance_endorsement_view_search
 #: model_terms:ir.ui.view,arch_db:insurance_management.insurance_installment_view_search
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_form
 #: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_search
 #: model_terms:ir.ui.view,arch_db:insurance_management.report_insurance_policy_document
 #: model_terms:ir.ui.view,arch_db:insurance_management.report_insurance_policy_list
@@ -4685,6 +6273,7 @@ msgstr ""
 
 #. module: insurance_management
 #: model:ir.model.fields,help:insurance_management.field_insurance_branch__activity_state
+#: model:ir.model.fields,help:insurance_management.field_insurance_claim__activity_state
 #: model:ir.model.fields,help:insurance_management.field_insurance_document_type__activity_state
 #: model:ir.model.fields,help:insurance_management.field_insurance_endorsement__activity_state
 #: model:ir.model.fields,help:insurance_management.field_insurance_endorsement_type__activity_state
@@ -4704,6 +6293,16 @@ msgid "Still to accrue in running policies"
 msgstr ""
 
 #. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_object__sum_available
+msgid "Sum available"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_object__claims_amount
+msgid "Sum consumed by claims"
+msgstr ""
+
+#. module: insurance_management
 #. odoo-python
 #: code:addons/insurance_management/models/insurance_import.py:0
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_policy_object__sum_insured
@@ -4718,9 +6317,19 @@ msgid "Sum insured increase"
 msgstr ""
 
 #. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_policy_object__sum_available
+msgid "Sum insured minus the indemnities that consumed it."
+msgstr ""
+
+#. module: insurance_management
 #: model:insurance.endorsement.type,name:insurance_management.insurance_endorsement_type_decrease_sum
 #: model:ir.model.fields.selection,name:insurance_management.selection__insurance_endorsement_type__kind__decrease_sum
 msgid "Sum insured reduction"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__sum_rehabilitated
+msgid "Sum insured rehabilitated"
 msgstr ""
 
 #. module: insurance_management
@@ -4739,8 +6348,105 @@ msgid "Sum of the sums insured of the active insured objects."
 msgstr ""
 
 #. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_dashboard__surety_to_release_count
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_dashboard_view_form
+msgid "Sureties to release in 30 days"
+msgstr ""
+
+#. module: insurance_management
 #: model:insurance.branch,name:insurance_management.insurance_branch_surety
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__is_surety
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_form
 msgid "Surety bond"
+msgstr ""
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy.py:0
+msgid ""
+"Surety bond %(policy)s ended with its guarantee open: renew it or get the "
+"release"
+msgstr ""
+
+#. module: insurance_management
+#: model:mail.template,subject:insurance_management.mail_template_surety_released
+msgid ""
+"Surety bond {{ object.policy_number or object.name }} released - please stop"
+" the billing"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.actions.act_window,name:insurance_management.insurance_policy_surety_action
+#: model:ir.ui.menu,name:insurance_management.menu_insurance_surety
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_list_surety
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_search
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_search_surety
+msgid "Surety bonds"
+msgstr ""
+
+#. module: insurance_management
+#: model_terms:ir.actions.act_window,help:insurance_management.insurance_policy_surety_action
+msgid ""
+"Surety bonds are policies of a branch of type Contract. Each one guarantees "
+"an obligation of the company before a beneficiary until it is released."
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.actions.act_window,name:insurance_management.insurance_policy_surety_report_action
+#: model:ir.ui.menu,name:insurance_management.menu_insurance_report_sureties
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_pivot_surety
+msgid "Surety bonds by beneficiary"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_policy_alert__alert_type__surety_unreleased
+msgid "Surety ended with the guarantee open"
+msgstr ""
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy.py:0
+msgid "Surety executed (claim %(claim)s)"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_claim__claim_type__surety_execution
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_claim__policy_effect__surety_execution
+msgid "Surety execution"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_branch__surety_loss_account_id
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_settings__surety_loss_account_id
+#: model:ir.model.fields,field_description:insurance_management.field_res_company__insurance_surety_loss_account_id
+msgid "Surety execution loss account"
+msgstr ""
+
+#. module: insurance_management
+#: model:mail.activity.type,name:insurance_management.mail_activity_type_surety_release
+msgid "Surety release"
+msgstr ""
+
+#. module: insurance_management
+#: model:insurance.document.type,name:insurance_management.insurance_document_type_surety_release
+msgid "Surety release certificate"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_policy_alert__alert_type__surety_release_request
+msgid "Surety release request"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_settings__surety_release_send_mode
+#: model:ir.model.fields,field_description:insurance_management.field_res_company__insurance_surety_release_send_mode
+msgid "Surety release request sending"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_policy__surety_type
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_search_surety
+msgid "Surety type"
 msgstr ""
 
 #. module: insurance_management
@@ -4756,6 +6462,16 @@ msgid "Technical cost of the insurance, without taxes or surcharges."
 msgstr ""
 
 #. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_form
+msgid "Tender, contract or file"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_policy__surety_obligation
+msgid "Tender, contract or file whose fulfilment is guaranteed."
+msgstr ""
+
+#. module: insurance_management
 #. odoo-python
 #: code:addons/insurance_management/models/insurance_import.py:0
 msgid "The Policies sheet has no rows (data starts on row 3)."
@@ -4763,8 +6479,28 @@ msgstr ""
 
 #. module: insurance_management
 #. odoo-python
+#: code:addons/insurance_management/models/insurance_claim.py:0
+msgid "The affected object must belong to the claim policy."
+msgstr ""
+
+#. module: insurance_management
+#. odoo-python
 #: code:addons/insurance_management/models/insurance_installment.py:0
 msgid "The amount of an installment must be positive."
+msgstr ""
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_claim_view_form
+msgid ""
+"The amount still pending is written off against the recovery account and the"
+" claim is closed. Continue?"
+msgstr ""
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_claim_view_form
+msgid ""
+"The approval entry is reversed and the claim goes back to analysis. "
+"Continue?"
 msgstr ""
 
 #. module: insurance_management
@@ -4779,6 +6515,14 @@ msgid "The branch is required."
 msgstr ""
 
 #. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_claim_offset_view_form
+msgid ""
+"The claim receivable is offset against the chosen debts with an entry in the"
+" claims journal, without money. Draft payments of the offset installments "
+"are cancelled."
+msgstr ""
+
+#. module: insurance_management
 #. odoo-python
 #: code:addons/insurance_management/models/insurance_endorsement.py:0
 msgid "The credit note of this endorsement already exists."
@@ -4790,6 +6534,18 @@ msgstr ""
 #: code:addons/insurance_management/models/res_company.py:0
 msgid ""
 "The days before sending the non-renewal instruction cannot be negative."
+msgstr ""
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/res_company.py:0
+msgid "The days of the claim and surety alerts cannot be negative."
+msgstr ""
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_claim.py:0
+msgid "The effect of claim %(claim)s was already applied with an endorsement."
 msgstr ""
 
 #. module: insurance_management
@@ -4816,6 +6572,21 @@ msgstr ""
 #. odoo-python
 #: code:addons/insurance_management/models/insurance_policy.py:0
 msgid ""
+"The guarantee of policy %(policy)s cannot change from its current status."
+msgstr ""
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy.py:0
+msgid ""
+"The guaranteed obligation ends on %(date)s: activity to request the release "
+"scheduled for %(user)s."
+msgstr ""
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy.py:0
+msgid ""
 "The initial accrual plan already has accrued months: it can no longer be "
 "generated again. Adjust its open months in the Accrual tab instead."
 msgstr ""
@@ -4826,6 +6597,12 @@ msgstr ""
 msgid ""
 "The insured objects of policy %(policy)s can only be changed with an "
 "endorsement."
+msgstr ""
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_claim.py:0
+msgid "The insurer %(insurer)s has no payable account."
 msgstr ""
 
 #. module: insurance_management
@@ -4842,6 +6619,11 @@ msgid ""
 msgstr ""
 
 #. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_claim_offset__amount
+msgid "The lower of the claim pending amount and the selected debts."
+msgstr ""
+
+#. module: insurance_management
 #. odoo-python
 #: code:addons/insurance_management/models/res_company.py:0
 msgid ""
@@ -4852,6 +6634,18 @@ msgstr ""
 #. odoo-python
 #: code:addons/insurance_management/models/res_company.py:0
 msgid "The minimum policy duration must be at least 1 month."
+msgstr ""
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_claim.py:0
+msgid "The object of this claim cannot be removed now."
+msgstr ""
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_claim.py:0
+msgid "The policy is not confirmed."
 msgstr ""
 
 #. module: insurance_management
@@ -4873,6 +6667,21 @@ msgid "The policy number is required."
 msgstr ""
 
 #. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_form
+msgid ""
+"The policy passed its end date with the guarantee open: renew it or attach "
+"the release certificate and release it."
+msgstr ""
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy.py:0
+msgid ""
+"The policy reached its end date with the guarantee open: it stays expiring "
+"until the release or the renewal."
+msgstr ""
+
+#. module: insurance_management
 #. odoo-python
 #: code:addons/insurance_management/models/insurance_policy.py:0
 msgid "The policy status can only be changed with its action buttons."
@@ -4883,6 +6692,14 @@ msgstr ""
 msgid ""
 "The policy stays in force until its end date and then moves to \"Not "
 "renewed\"."
+msgstr ""
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_claim.py:0
+msgid ""
+"The policy was not in force on the date of occurrence (validity "
+"%(date_from)s - %(date_to)s)."
 msgstr ""
 
 #. module: insurance_management
@@ -4919,6 +6736,26 @@ msgstr ""
 
 #. module: insurance_management
 #. odoo-python
+#: code:addons/insurance_management/models/insurance_claim.py:0
+msgid "The replacement can only be insured after a total loss is approved."
+msgstr ""
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_claim.py:0
+msgid "The sum insured of this claim cannot be rehabilitated now."
+msgstr ""
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy.py:0
+msgid ""
+"The surety release request was not sent: neither the beneficiary nor the "
+"producer has an email address."
+msgstr ""
+
+#. module: insurance_management
+#. odoo-python
 #: code:addons/insurance_management/models/insurance_policy.py:0
 msgid ""
 "The total amount must be positive (refunds are handled with a credit note)."
@@ -4932,6 +6769,7 @@ msgstr ""
 
 #. module: insurance_management
 #: model:insurance.branch,name:insurance_management.insurance_branch_theft
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_claim__claim_type__theft
 msgid "Theft"
 msgstr ""
 
@@ -4966,8 +6804,26 @@ msgid "There is already an accrual entry for this policy and month."
 msgstr ""
 
 #. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/wizard/insurance_claim_offset.py:0
+msgid "There is nothing to offset."
+msgstr ""
+
+#. module: insurance_management
 #: model_terms:ir.ui.view,arch_db:insurance_management.insurance_settings_view_form
 msgid "These two settings apply to all companies."
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__third_parties
+msgid "Third parties involved"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_policy__surety_beneficiary_id
+msgid ""
+"Third party the obligation is guaranteed to: an agency, a client, a lessor, "
+"customs."
 msgstr ""
 
 #. module: insurance_management
@@ -5012,9 +6868,20 @@ msgid "To be defined"
 msgstr ""
 
 #. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_claim_view_search
+msgid "To collect"
+msgstr ""
+
+#. module: insurance_management
 #. odoo-python
 #: code:addons/insurance_management/models/insurance_policy.py:0
 msgid "To confirm policy %(policy)s, fill in: %(fields)s."
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_dashboard__installments_month_pending
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_dashboard_view_form
+msgid "To pay this month"
 msgstr ""
 
 #. module: insurance_management
@@ -5028,13 +6895,29 @@ msgid "To read"
 msgstr ""
 
 #. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_search_surety
+msgid "To release (obligation ending in 30 days)"
+msgstr ""
+
+#. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_form
+msgid ""
+"To release the guarantee, upload the release certificate signed by the "
+"beneficiary in the Documents tab (type Surety release certificate). With the"
+" renewal type Until release, the policy does not expire while the guarantee "
+"is open."
+msgstr ""
+
+#. module: insurance_management
 #: model_terms:ir.ui.view,arch_db:insurance_management.insurance_accrual_line_view_list
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_claim_view_list
 #: model_terms:ir.ui.view,arch_db:insurance_management.insurance_cost_report_view_list
 #: model_terms:ir.ui.view,arch_db:insurance_management.insurance_endorsement_view_form
 #: model_terms:ir.ui.view,arch_db:insurance_management.insurance_endorsement_view_list
 #: model_terms:ir.ui.view,arch_db:insurance_management.insurance_installment_view_list
 #: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_form
 #: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_list
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_list_surety
 msgid "Total"
 msgstr ""
 
@@ -5046,6 +6929,29 @@ msgstr ""
 #. module: insurance_management
 #: model_terms:ir.ui.view,arch_db:insurance_management.insurance_installment_view_list
 msgid "Total due"
+msgstr ""
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_claim.py:0
+msgid "Total loss (claim %(claim)s)"
+msgstr ""
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_policy.py:0
+msgid "Total loss due to claim %(claim)s"
+msgstr ""
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_claim.py:0
+msgid "Total loss due to claim %(claim)s."
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_claim__policy_effect__total_loss
+msgid "Total loss of the object"
 msgstr ""
 
 #. module: insurance_management
@@ -5075,7 +6981,9 @@ msgid "Total sum insured"
 msgstr ""
 
 #. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__claim_type
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement__type_id
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_claim_view_search
 #: model_terms:ir.ui.view,arch_db:insurance_management.insurance_endorsement_view_search
 #: model_terms:ir.ui.view,arch_db:insurance_management.report_insurance_policy_document
 msgid "Type"
@@ -5083,6 +6991,7 @@ msgstr ""
 
 #. module: insurance_management
 #: model:ir.model.fields,help:insurance_management.field_insurance_branch__activity_exception_decoration
+#: model:ir.model.fields,help:insurance_management.field_insurance_claim__activity_exception_decoration
 #: model:ir.model.fields,help:insurance_management.field_insurance_document_type__activity_exception_decoration
 #: model:ir.model.fields,help:insurance_management.field_insurance_endorsement__activity_exception_decoration
 #: model:ir.model.fields,help:insurance_management.field_insurance_endorsement_type__activity_exception_decoration
@@ -5090,6 +6999,23 @@ msgstr ""
 #: model:ir.model.fields,help:insurance_management.field_insurance_payment_mode__activity_exception_decoration
 #: model:ir.model.fields,help:insurance_management.field_insurance_policy__activity_exception_decoration
 msgid "Type of the exception activity on record."
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_claim__state__analysis
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_claim__workflow_state__analysis
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_claim_view_form
+msgid "Under analysis"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_claim_offset__mode__insurer
+msgid "Unpaid premium discounted by the insurer"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields.selection,name:insurance_management.selection__insurance_policy__renewal_type__until_release
+msgid "Until release"
 msgstr ""
 
 #. module: insurance_management
@@ -5111,7 +7037,9 @@ msgstr ""
 
 #. module: insurance_management
 #. odoo-python
+#: code:addons/insurance_management/models/insurance_claim.py:0
 #: code:addons/insurance_management/models/insurance_policy.py:0
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_claim_view_form
 #: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_document_upload_view_form
 #: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_form
 msgid "Upload document"
@@ -5124,12 +7052,14 @@ msgid "Upload the Excel file first."
 msgstr ""
 
 #. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_claim_view_form
 #: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_form
 #: model_terms:ir.ui.view,arch_db:insurance_management.ir_attachment_view_list_insurance
 msgid "Uploaded by"
 msgstr ""
 
 #. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_claim_view_form
 #: model_terms:ir.ui.view,arch_db:insurance_management.insurance_policy_view_form
 #: model_terms:ir.ui.view,arch_db:insurance_management.ir_attachment_view_list_insurance
 msgid "Uploaded on"
@@ -5215,6 +7145,7 @@ msgstr ""
 
 #. module: insurance_management
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_branch__website_message_ids
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__website_message_ids
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_document_type__website_message_ids
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement__website_message_ids
 #: model:ir.model.fields,field_description:insurance_management.field_insurance_endorsement_type__website_message_ids
@@ -5226,6 +7157,7 @@ msgstr ""
 
 #. module: insurance_management
 #: model:ir.model.fields,help:insurance_management.field_insurance_branch__website_message_ids
+#: model:ir.model.fields,help:insurance_management.field_insurance_claim__website_message_ids
 #: model:ir.model.fields,help:insurance_management.field_insurance_document_type__website_message_ids
 #: model:ir.model.fields,help:insurance_management.field_insurance_endorsement__website_message_ids
 #: model:ir.model.fields,help:insurance_management.field_insurance_endorsement_type__website_message_ids
@@ -5241,10 +7173,26 @@ msgid "What changes and why..."
 msgstr ""
 
 #. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_claim_view_form
+msgid "What happened, how and where..."
+msgstr ""
+
+#. module: insurance_management
 #: model:ir.model.fields,help:insurance_management.field_res_company__insurance_duration_check
 msgid ""
 "What happens when a policy duration is outside the minimum and maximum: show"
 " a warning and let it be confirmed, or block it."
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_claim__policy_effect
+msgid ""
+"What the claim does to the policy once approved. No effect: the policy and "
+"the object stay the same. Reduces the sum insured: the indemnity is deducted"
+" from the sum available of the object, which can be rehabilitated with an "
+"endorsement. Total loss: the object is removed with an endorsement (the "
+"policy is cancelled when no object is left). Surety execution: the guarantee"
+" is executed and the policy ends."
 msgstr ""
 
 #. module: insurance_management
@@ -5291,6 +7239,41 @@ msgstr ""
 #. module: insurance_management
 #: model_terms:ir.ui.view,arch_db:insurance_management.ir_attachment_view_search_insurance
 msgid "Without document type"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__is_stale
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_claim_view_kanban
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_claim_view_search
+msgid "Without movement"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__workflow_state
+msgid "Workflow status"
+msgstr ""
+
+#. module: insurance_management
+#: model:ir.model.fields,field_description:insurance_management.field_insurance_claim__supplier_id
+msgid "Workshop or supplier"
+msgstr ""
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_claim.py:0
+msgid "approved"
+msgstr ""
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_claim.py:0
+msgid "claims receivable account"
+msgstr ""
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_claim.py:0
+msgid "claims recovery account"
 msgstr ""
 
 #. module: insurance_management
@@ -5343,6 +7326,11 @@ msgid "from %(start)s %(end)s"
 msgstr ""
 
 #. module: insurance_management
+#: model_terms:ir.ui.view,arch_db:insurance_management.insurance_dashboard_view_form
+msgid "guaranteed"
+msgstr ""
+
+#. module: insurance_management
 #: model_terms:ir.ui.view,arch_db:insurance_management.report_insurance_policy_list
 msgid "policies"
 msgstr ""
@@ -5351,6 +7339,36 @@ msgstr ""
 #. odoo-python
 #: code:addons/insurance_management/models/insurance_policy.py:0
 msgid "policy number"
+msgstr ""
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_claim.py:0
+msgid "put under analysis"
+msgstr ""
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_claim.py:0
+msgid "rejected"
+msgstr ""
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_claim.py:0
+msgid "reported"
+msgstr ""
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_claim.py:0
+msgid "surety execution loss account"
+msgstr ""
+
+#. module: insurance_management
+#. odoo-python
+#: code:addons/insurance_management/models/insurance_claim.py:0
+msgid "taken back to analysis"
 msgstr ""
 
 #. module: insurance_management
@@ -5388,6 +7406,11 @@ msgstr ""
 msgid ""
 "{{ object._get_alert_subject('expiry_notice', "
 "ctx.get('insurance_days_left')) }}"
+msgstr ""
+
+#. module: insurance_management
+#: model:mail.template,subject:insurance_management.mail_template_claim_stale
+msgid "{{ object._get_stale_subject() }}"
 msgstr ""
 
 #. module: insurance_management

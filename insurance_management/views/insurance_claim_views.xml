@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="insurance_claim_view_list" model="ir.ui.view">
+        <field name="name">insurance.claim.list</field>
+        <field name="model">insurance.claim</field>
+        <field name="arch" type="xml">
+            <list string="Claims" decoration-muted="state in ('rejected', 'closed')" decoration-info="state == 'draft'" decoration-success="state == 'collected'">
+                <field name="name"/>
+                <field name="insurer_claim_number" optional="show"/>
+                <field name="date_occurred"/>
+                <field name="policy_id"/>
+                <field name="object_id" optional="show"/>
+                <field name="branch_id" optional="hide"/>
+                <field name="insurer_id" optional="show"/>
+                <field name="claim_type" optional="show"/>
+                <field name="policy_effect" optional="hide"/>
+                <field name="user_id" widget="many2one_avatar_user" optional="show"/>
+                <field name="currency_id" column_invisible="True"/>
+                <field name="amount_claimed" sum="Total" optional="show"/>
+                <field name="amount_approved" sum="Total" optional="show"/>
+                <field name="amount_collected" sum="Total" optional="hide"/>
+                <field name="amount_pending" sum="Total" optional="hide"/>
+                <field name="date_collection_expected" optional="hide"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+                <field name="state" widget="badge" decoration-info="state in ('draft', 'reported', 'analysis')" decoration-warning="state == 'approved'" decoration-success="state in ('collected', 'closed')" decoration-danger="state == 'rejected'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="insurance_claim_view_form" model="ir.ui.view">
+        <field name="name">insurance.claim.form</field>
+        <field name="model">insurance.claim</field>
+        <field name="arch" type="xml">
+            <form string="Claim">
+                <header>
+                    <button name="action_report" type="object" string="Report to the insurer" class="btn-primary" invisible="workflow_state != 'draft'"/>
+                    <button name="action_start_analysis" type="object" string="Under analysis" invisible="workflow_state != 'reported'"/>
+                    <button name="action_approve" type="object" string="Approve" class="btn-primary" invisible="workflow_state not in ('reported', 'analysis')"
+                            confirm="Approving posts the claim entry when there is an approved amount. Continue?"/>
+                    <button name="action_reject" type="object" string="Reject" invisible="workflow_state not in ('draft', 'reported', 'analysis')"/>
+                    <button name="action_register_collection" type="object" string="Register collection" class="btn-primary" invisible="state != 'approved' or claim_type == 'surety_execution' or not claim_line_id" groups="account.group_account_invoice"/>
+                    <button name="action_open_offset" type="object" string="Offset" invisible="state != 'approved' or claim_type == 'surety_execution' or not claim_line_id" groups="account.group_account_invoice"/>
+                    <button name="action_close_with_difference" type="object" string="Close with difference" invisible="state != 'approved' or claim_type == 'surety_execution' or not claim_line_id" groups="account.group_account_invoice"
+                            confirm="The amount still pending is written off against the recovery account and the claim is closed. Continue?"/>
+                    <button name="action_close" type="object" string="Close" invisible="state not in ('approved', 'collected', 'rejected')"/>
+                    <button name="action_cancel_approval" type="object" string="Cancel approval" invisible="workflow_state != 'approved' or state == 'collected'" groups="account.group_account_invoice"
+                            confirm="The approval entry is reversed and the claim goes back to analysis. Continue?"/>
+                    <button name="action_reopen" type="object" string="Reopen" invisible="workflow_state not in ('rejected', 'closed') or move_id"/>
+                    <field name="workflow_state" invisible="1"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,reported,analysis,approved,collected,closed"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_documents" type="object" class="oe_stat_button" icon="fa-files-o">
+                            <field name="document_count" widget="statinfo" string="Documents"/>
+                        </button>
+                        <button name="action_view_moves" type="object" class="oe_stat_button" icon="fa-book" invisible="move_count == 0" groups="account.group_account_invoice,account.group_account_readonly">
+                            <field name="move_count" widget="statinfo" string="Journal entries"/>
+                        </button>
+                        <button name="action_view_endorsements" type="object" class="oe_stat_button" icon="fa-pencil-square-o" invisible="not endorsement_ids">
+                            <div class="o_stat_info"><span class="o_stat_text">Endorsements</span></div>
+                        </button>
+                    </div>
+                    <widget name="web_ribbon" title="Collected" bg_color="text-bg-success" invisible="state != 'collected'"/>
+                    <widget name="web_ribbon" title="Rejected" bg_color="text-bg-danger" invisible="state != 'rejected'"/>
+                    <div class="alert alert-warning mb-2" role="alert" invisible="not not_covered_warning">
+                        <field name="not_covered_warning"/>
+                    </div>
+                    <div class="alert alert-info mb-2" role="status" invisible="not can_remove_object and not can_rehabilitate_sum and not can_insure_replacement">
+                        <span invisible="not can_remove_object and not can_insure_replacement">Total loss: remove the object from the policy and, if needed, insure its replacement.</span>
+                        <span invisible="not can_rehabilitate_sum">The indemnity reduces the sum available of the object: it can be rehabilitated with an endorsement.</span>
+                        <div class="d-flex gap-2 mt-2">
+                            <button name="action_remove_object" type="object" string="Remove the object" class="btn-secondary btn-sm" invisible="not can_remove_object"/>
+                            <button name="action_insure_replacement" type="object" string="Insure replacement" class="btn-secondary btn-sm" invisible="not can_insure_replacement"/>
+                            <button name="action_rehabilitate_sum" type="object" string="Rehabilitate the sum insured" class="btn-secondary btn-sm" invisible="not can_rehabilitate_sum"/>
+                        </div>
+                    </div>
+                    <field name="can_remove_object" invisible="1"/>
+                    <field name="can_rehabilitate_sum" invisible="1"/>
+                    <field name="can_insure_replacement" invisible="1"/>
+                    <field name="endorsement_ids" invisible="1"/>
+                    <field name="move_id" invisible="1"/>
+                    <field name="claim_line_id" invisible="1"/>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                        <h3 class="d-flex gap-2">
+                            <label for="insurer_claim_number" class="text-muted"/>
+                            <field name="insurer_claim_number" placeholder="Number assigned by the insurer"/>
+                        </h3>
+                    </div>
+                    <group>
+                        <group name="policy">
+                            <field name="policy_id" readonly="workflow_state not in ('draft', 'reported', 'analysis')" options="{'no_create': True}"/>
+                            <field name="object_id" readonly="workflow_state not in ('draft', 'reported', 'analysis')" options="{'no_create': True}"/>
+                            <field name="insured_item_id" invisible="not insured_item_id"/>
+                            <field name="branch_id"/>
+                            <field name="insurer_id"/>
+                            <field name="claim_type" readonly="workflow_state not in ('draft', 'reported', 'analysis')"/>
+                            <field name="policy_effect" readonly="workflow_state not in ('draft', 'reported', 'analysis') or claim_type == 'surety_execution'"/>
+                            <field name="recovery_destination" readonly="workflow_state not in ('draft', 'reported', 'analysis')" invisible="claim_type == 'surety_execution'"/>
+                            <field name="user_id" widget="many2one_avatar_user"/>
+                        </group>
+                        <group name="dates">
+                            <field name="date_occurred" readonly="workflow_state not in ('draft', 'reported', 'analysis')"/>
+                            <field name="date_reported"/>
+                            <field name="date_approved" readonly="workflow_state not in ('draft', 'reported', 'analysis')"/>
+                            <field name="date_collection_expected"/>
+                            <field name="date_collected" invisible="not date_collected"/>
+                            <field name="last_state_date"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                    <group name="amounts" string="Amounts" groups="insurance_management.group_insurance_see_amounts">
+                        <group>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="amount_estimated"/>
+                            <field name="deductible_amount"/>
+                            <field name="amount_claimed"/>
+                            <field name="amount_approved" readonly="workflow_state not in ('draft', 'reported', 'analysis')"/>
+                        </group>
+                        <group>
+                            <field name="amount_collected"/>
+                            <field name="amount_pending"/>
+                            <field name="amount_difference" decoration-danger="amount_difference &gt; 0"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page name="description" string="Description">
+                            <group>
+                                <group>
+                                    <field name="location"/>
+                                    <field name="adjuster_id"/>
+                                    <field name="supplier_id"/>
+                                </group>
+                                <group>
+                                    <field name="third_parties" placeholder="Names, documents, vehicles, insurers of the third parties..."/>
+                                </group>
+                            </group>
+                            <field name="description" placeholder="What happened, how and where..."/>
+                        </page>
+                        <page name="documents" string="Documents">
+                            <button name="action_open_document_upload" type="object" string="Upload document" icon="fa-upload" class="btn-secondary mb-2"/>
+                            <field name="attachment_ids" context="{'default_res_model': 'insurance.claim', 'default_res_id': id}">
+                                <list create="0" editable="bottom" decoration-warning="not insurance_document_type_id">
+                                    <field name="name"/>
+                                    <field name="insurance_document_type_id" options="{'no_create': True}"/>
+                                    <field name="create_date" string="Uploaded on" readonly="1"/>
+                                    <field name="create_uid" string="Uploaded by" widget="many2one_avatar_user" readonly="1"/>
+                                    <field name="datas" filename="name" widget="binary" string="File" readonly="1"/>
+                                </list>
+                            </field>
+                            <div class="text-muted small">Claim report, photos, budgets, adjuster report. Files attached from the chatter also appear here; set their document type.</div>
+                        </page>
+                        <page name="notes" string="Notes">
+                            <field name="note" placeholder="Internal notes..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="insurance_claim_view_kanban" model="ir.ui.view">
+        <field name="name">insurance.claim.kanban</field>
+        <field name="model">insurance.claim</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state" quick_create="false" sample="1">
+                <field name="state"/>
+                <field name="is_stale"/>
+                <progressbar field="activity_state" colors='{"planned": "success", "today": "warning", "overdue": "danger"}'/>
+                <templates>
+                    <t t-name="card">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <field name="name" class="fw-bold"/>
+                            <span t-if="record.is_stale.raw_value" class="badge text-bg-warning">Without movement</span>
+                        </div>
+                        <field name="policy_id" class="text-muted"/>
+                        <field name="object_id"/>
+                        <div class="d-flex justify-content-between">
+                            <field name="claim_type" class="text-muted small"/>
+                            <field name="amount_claimed" widget="monetary" groups="insurance_management.group_insurance_see_amounts"/>
+                        </div>
+                        <field name="currency_id" invisible="1"/>
+                        <footer class="pt-1">
+                            <field name="date_occurred" class="small text-muted"/>
+                            <field name="activity_ids" widget="kanban_activity"/>
+                            <field name="user_id" widget="many2one_avatar_user" class="ms-auto"/>
+                        </footer>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="insurance_claim_view_pivot" model="ir.ui.view">
+        <field name="name">insurance.claim.pivot</field>
+        <field name="model">insurance.claim</field>
+        <field name="arch" type="xml">
+            <pivot string="Claims and recoveries" sample="1">
+                <field name="insurer_id" type="row"/>
+                <field name="state" type="col"/>
+                <field name="amount_claimed" type="measure"/>
+                <field name="amount_approved" type="measure"/>
+                <field name="amount_collected" type="measure"/>
+                <field name="amount_difference" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="insurance_claim_view_graph" model="ir.ui.view">
+        <field name="name">insurance.claim.graph</field>
+        <field name="model">insurance.claim</field>
+        <field name="arch" type="xml">
+            <graph string="Claims by insurer" type="bar" sample="1">
+                <field name="insurer_id"/>
+                <field name="amount_claimed" type="measure"/>
+                <field name="amount_collected" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="insurance_claim_view_search" model="ir.ui.view">
+        <field name="name">insurance.claim.search</field>
+        <field name="model">insurance.claim</field>
+        <field name="arch" type="xml">
+            <search string="Claims">
+                <field name="name" string="Claim" filter_domain="['|', ('name', 'ilike', self), ('insurer_claim_number', 'ilike', self)]"/>
+                <field name="policy_id"/>
+                <field name="object_id"/>
+                <field name="insurer_id"/>
+                <field name="branch_id"/>
+                <field name="supplier_id"/>
+                <field name="user_id"/>
+                <separator/>
+                <filter name="open" string="Open" domain="[('state', 'in', ('reported', 'analysis', 'approved'))]"/>
+                <filter name="stale" string="Without movement" domain="[('is_stale', '=', True)]"/>
+                <filter name="to_collect" string="To collect" domain="[('state', '=', 'approved'), ('claim_type', '!=', 'surety_execution'), ('claim_line_id', '!=', False)]"/>
+                <filter name="collected" string="Collected" domain="[('state', '=', 'collected')]"/>
+                <filter name="draft" string="Draft" domain="[('state', '=', 'draft')]"/>
+                <separator/>
+                <filter name="my_claims" string="My claims" domain="[('user_id', '=', uid)]"/>
+                <separator/>
+                <filter name="filter_date_occurred" string="Date of occurrence" date="date_occurred"/>
+                <group name="group_by">
+                    <filter name="group_by_state" string="Status" context="{'group_by': 'state'}"/>
+                    <filter name="group_by_type" string="Type" context="{'group_by': 'claim_type'}"/>
+                    <filter name="group_by_insurer" string="Insurer" context="{'group_by': 'insurer_id'}"/>
+                    <filter name="group_by_branch" string="Branch" context="{'group_by': 'branch_id'}"/>
+                    <filter name="group_by_policy" string="Policy" context="{'group_by': 'policy_id'}"/>
+                    <filter name="group_by_date_occurred" string="Date of occurrence" context="{'group_by': 'date_occurred:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="insurance_claim_action" model="ir.actions.act_window">
+        <field name="name">Claims</field>
+        <field name="res_model">insurance.claim</field>
+        <field name="view_mode">kanban,list,form,pivot,graph,activity</field>
+        <field name="search_view_id" ref="insurance_claim_view_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Register a claim</p>
+            <p>Load the claims filed with the insurers, follow them up to the collection of the indemnity and record its accounting.</p>
+        </field>
+    </record>
+
+    <record id="insurance_claim_report_action" model="ir.actions.act_window">
+        <field name="name">Claims and recoveries</field>
+        <field name="res_model">insurance.claim</field>
+        <field name="view_mode">pivot,graph,list,form</field>
+        <field name="search_view_id" ref="insurance_claim_view_search"/>
+        <field name="domain">[('state', '!=', 'draft')]</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No claims yet</p>
+            <p>Claimed, approved and collected amounts of the claims, and the difference between what was claimed and collected.</p>
+        </field>
+    </record>
+
+    <record id="insurance_claim_offset_view_form" model="ir.ui.view">
+        <field name="name">insurance.claim.offset.form</field>
+        <field name="model">insurance.claim.offset</field>
+        <field name="arch" type="xml">
+            <form string="Offset the claim">
+                <div class="text-muted mb-2">The claim receivable is offset against the chosen debts with an entry in the claims journal, without money. Draft payments of the offset installments are cancelled.</div>
+                <group>
+                    <group>
+                        <field name="claim_id"/>
+                        <field name="mode" widget="radio"/>
+                        <field name="partner_id"/>
+                        <field name="company_id" invisible="1"/>
+                    </group>
+                    <group>
+                        <field name="currency_id" invisible="1"/>
+                        <field name="claim_pending"/>
+                        <field name="debts_total"/>
+                        <field name="amount"/>
+                    </group>
+                </group>
+                <field name="line_ids" options="{'no_create': True}">
+                    <list>
+                        <field name="date"/>
+                        <field name="move_id"/>
+                        <field name="partner_id"/>
+                        <field name="date_maturity"/>
+                        <field name="company_currency_id" column_invisible="True"/>
+                        <field name="amount_residual" string="Pending"/>
+                    </list>
+                </field>
+                <footer>
+                    <button name="action_confirm" type="object" string="Offset" class="btn-primary" data-hotkey="q"/>
+                    <button string="Discard" special="cancel" class="btn-secondary" data-hotkey="x"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

@@ -22,6 +22,11 @@ LOGGED_FIELDS = (
 )
 
 
+# Context key allowing to link the master record of objects of confirmed or
+# ended policies (see _get_master_link_fields).
+MASTER_LINK_CTX = "insurance_master_link"
+
+
 class InsurancePolicyObject(models.Model):
     """Insured object line: each thing or person covered by a policy."""
 
@@ -86,6 +91,53 @@ class InsurancePolicyObject(models.Model):
         index=True,
     )
 
+    claim_ids = fields.One2many(comodel_name="insurance.claim", inverse_name="object_id", string="Claims")
+    claim_count = fields.Integer(string="Claim count", compute="_compute_claim_amounts")
+    claims_amount = fields.Monetary(
+        string="Sum consumed by claims",
+        currency_field="currency_id",
+        groups="insurance_management.group_insurance_see_amounts",
+        compute="_compute_claim_amounts",
+        help="Indemnities of the approved claims that reduce the sum insured "
+        "of this object and were not rehabilitated yet.",
+    )
+    sum_available = fields.Monetary(
+        string="Sum available",
+        currency_field="currency_id",
+        groups="insurance_management.group_insurance_see_amounts",
+        compute="_compute_claim_amounts",
+        help="Sum insured minus the indemnities that consumed it.",
+    )
+
+    @api.depends("sum_insured", "claim_ids.state", "claim_ids.amount_approved", "claim_ids.sum_rehabilitated")
+    def _compute_claim_amounts(self):
+        for record in self:
+            claims = record.sudo().claim_ids
+            consumed = claims.filtered(
+                lambda c: c.policy_effect == "reduce_sum"
+                and c.state in ("approved", "collected", "closed")
+                and not c.sum_rehabilitated
+            )
+            record.claim_count = len(claims)
+            record.claims_amount = sum(consumed.mapped("amount_approved"))
+            record.sum_available = record.sudo().sum_insured - record.claims_amount
+
+    def _prepare_renewal_vals(self):
+        """Values of this object on the renewal draft of its policy (bridge
+        modules add their own links, e.g. the fleet vehicle)."""
+        self.ensure_one()
+        record = self.sudo()
+        return {
+            "sequence": record.sequence,
+            "name": record.name,
+            "insured_item_id": record.insured_item_id.id,
+            "license_plate": record.license_plate,
+            "chassis_number": record.chassis_number,
+            "engine_number": record.engine_number,
+            "sum_insured": record.sum_insured,
+            "coverage": record.coverage,
+        }
+
     @api.onchange("insured_item_id")
     def _onchange_insured_item_id(self):
         """Propose the description and the sum insured of the chosen item,
@@ -142,8 +194,17 @@ class InsurancePolicyObject(models.Model):
             )
         return records
 
+    @api.model
+    def _get_master_link_fields(self):
+        """Links to the master record of the object (insurable item; bridge
+        modules add the fleet vehicle or the employee). Linking the master
+        does not change the insured contract, so it is allowed on confirmed
+        and ended policies with the MASTER_LINK_CTX context key."""
+        return {"insured_item_id"}
+
     def write(self, vals):
-        self._check_policy_editable(self.policy_id)
+        if not (self.env.context.get(MASTER_LINK_CTX) and set(vals) <= self._get_master_link_fields()):
+            self._check_policy_editable(self.policy_id)
         logged = [fname for fname in LOGGED_FIELDS if fname in vals]
         confirmed = self.filtered(lambda r: r.policy_id.state != "draft")
         old_values = {

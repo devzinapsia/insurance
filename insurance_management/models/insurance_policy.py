@@ -66,7 +66,27 @@ MAIL_KIND_CTX = "insurance_mail_kind"
 MAIL_KIND_FIELDS = {
     "non_renewal": "non_renewal_sent_date",
     "renewal_request": "renewal_request_sent_date",
+    "surety_release_request": "surety_release_requested_on",
 }
+# Surety bonds (Fase 3, section 4.7).
+SURETY_TYPES = [
+    ("bid", "Bid bond"),
+    ("performance", "Performance bond"),
+    ("advance_payment", "Advance payment bond"),
+    ("retention", "Retention bond"),
+    ("rental", "Rental bond"),
+    ("customs", "Customs bond"),
+    ("judicial", "Judicial bond"),
+]
+SURETY_STATES = [
+    ("issued", "Issued"),
+    ("delivered", "Delivered to the beneficiary"),
+    ("released", "Released"),
+    ("returned", "Returned to the insurer"),
+    ("executed", "Executed"),
+]
+# The guarantee is still in the beneficiary's hands.
+SURETY_OPEN_STATES = ("issued", "delivered")
 
 
 class InsurancePolicy(models.Model):
@@ -174,6 +194,7 @@ class InsurancePolicy(models.Model):
             ("undefined", "To be defined"),
             ("renew", "Renew"),
             ("no_renew", "Do not renew"),
+            ("until_release", "Until release"),
         ],
         string="Renewal type",
         required=True,
@@ -557,6 +578,67 @@ class InsurancePolicy(models.Model):
         compute="_compute_days_left",
         search="_search_expires_today",
     )
+    cancel_reason = fields.Char(
+        string="Cancellation reason",
+        readonly=True,
+        copy=False,
+        tracking=True,
+        help="Set when the policy ends early because of a claim (total loss, surety execution).",
+    )
+
+    # Claims (Fase 3) --------------------------------------------------------------
+    claim_ids = fields.One2many(comodel_name="insurance.claim", inverse_name="policy_id", string="Claims")
+    claim_count = fields.Integer(string="Claim count", compute="_compute_claim_count")
+
+    # Surety bond (Fase 3, section 4.7) -------------------------------------------
+    is_surety = fields.Boolean(
+        string="Surety bond",
+        compute="_compute_is_surety",
+        store=True,
+        index=True,
+        help="Policy of a branch of type Contract: it guarantees an obligation of the company before a third party.",
+    )
+    surety_beneficiary_id = fields.Many2one(
+        comodel_name="res.partner",
+        string="Beneficiary",
+        index="btree_not_null",
+        tracking=True,
+        help="Third party the obligation is guaranteed to: an agency, a client, a lessor, customs.",
+    )
+    surety_type = fields.Selection(selection=SURETY_TYPES, string="Surety type", tracking=True)
+    surety_obligation = fields.Char(
+        string="Guaranteed obligation",
+        tracking=True,
+        help="Tender, contract or file whose fulfilment is guaranteed.",
+    )
+    surety_amount = fields.Monetary(
+        string="Guaranteed amount",
+        currency_field="currency_id",
+        groups=AMOUNTS_GROUP,
+        tracking=True,
+    )
+    surety_obligation_end = fields.Date(
+        string="Obligation end",
+        tracking=True,
+        help="Expected end of the guaranteed obligation. It can be after the "
+        "policy end date: the insurer keeps billing until the release is "
+        "proven. The release is requested the days set in the settings before it.",
+    )
+    surety_state = fields.Selection(
+        selection=SURETY_STATES,
+        string="Guarantee status",
+        default="issued",
+        readonly=True,
+        copy=False,
+        tracking=True,
+    )
+    surety_release_date = fields.Date(string="Release date", readonly=True, copy=False, tracking=True)
+    surety_release_requested_on = fields.Datetime(
+        string="Release requested on",
+        readonly=True,
+        copy=False,
+        help="Last time the release request was emailed.",
+    )
 
     # Allows reusing the insurer's number on a renewal (other start date);
     # drafts without a number never collide (NULL values are distinct).
@@ -610,7 +692,8 @@ class InsurancePolicy(models.Model):
                 policy.state not in UNCOVERED_STATES
                 and policy.date_from
                 and policy.date_to
-                and policy.date_from <= today <= policy.date_to
+                and policy.date_from <= today
+                and (today <= policy.date_to or policy._is_awaiting_release())
             )
 
     def _search_covered_today(self, operator, value):
@@ -621,8 +704,10 @@ class InsurancePolicy(models.Model):
             [
                 ("state", "not in", UNCOVERED_STATES),
                 ("date_from", "<=", today),
-                ("date_to", ">=", today),
             ]
+        ) & (
+            Domain("date_to", ">=", today)
+            | Domain([("state", "=", "expiring"), ("renewal_type", "=", "until_release"), ("date_to", "<", today)])
         )
         if True in value and False in value:
             return Domain.TRUE
@@ -1101,6 +1186,10 @@ class InsurancePolicy(models.Model):
         if self.date_to < today:
             if self.renewed_by_id:
                 return "renewed"
+            if self.renewal_type == "until_release":
+                # A surety bond is not over while its guarantee is open: the
+                # insurer keeps billing until the release is proven.
+                return "expiring" if self._surety_is_open() else "not_renewed"
             if self.renewal_type == "no_renew":
                 return "not_renewed"
             return "expired"
@@ -1278,22 +1367,15 @@ class InsurancePolicy(models.Model):
             "expense_account_id": self.expense_account_id.id,
             "prepaid_account_id": self.prepaid_account_id.id,
             "analytic_distribution": self.analytic_distribution,
-            "object_ids": [
-                fields.Command.create(
-                    {
-                        "sequence": obj.sequence,
-                        "name": obj.name,
-                        "insured_item_id": obj.insured_item_id.id,
-                        "license_plate": obj.license_plate,
-                        "chassis_number": obj.chassis_number,
-                        "engine_number": obj.engine_number,
-                        "sum_insured": obj.sum_insured,
-                        "coverage": obj.coverage,
-                    }
-                )
-                for obj in self._get_mail_objects()
-            ],
-        }
+            "object_ids": [fields.Command.create(obj._prepare_renewal_vals()) for obj in self._get_mail_objects()],
+            # The guarantee of a surety bond is the same document, billed again.
+            "surety_beneficiary_id": self.surety_beneficiary_id.id,
+            "surety_type": self.surety_type,
+            "surety_obligation": self.surety_obligation,
+            "surety_amount": self.surety_amount,
+            "surety_obligation_end": self.surety_obligation_end,
+            "surety_state": self.surety_state if self.surety_state in SURETY_OPEN_STATES else "issued",
+        } | ({"renewal_type": "until_release"} if self.renewal_type == "until_release" else {})
 
     def action_renew(self):
         """Create the renewal draft and link both policies. The state of this
@@ -1664,6 +1746,9 @@ class InsurancePolicy(models.Model):
         if self.state in ACTIVE_STATES:
             self._process_auto_non_renewal(today)
             self._process_expiry_notice(today)
+            self._process_surety_unreleased(today)
+        if self.state in CONFIRMED_STATES:
+            self._process_surety_release_request(today)
         elif previous_state in CONFIRMED_STATES and self.state not in CONFIRMED_STATES:
             self._process_expired_notice(today)
 
@@ -2201,3 +2286,341 @@ class InsurancePolicy(models.Model):
                 users=", ".join(users.mapped("name")) or "-",
             )
         )
+
+    # -------------------------------------------------------------------------
+    # Claims (Fase 3)
+    # -------------------------------------------------------------------------
+
+    def _compute_claim_count(self):
+        counts = dict(
+            self.env["insurance.claim"]._read_group(
+                [("policy_id", "in", self.ids)], groupby=["policy_id"], aggregates=["__count"]
+            )
+        )
+        for policy in self:
+            policy.claim_count = counts.get(policy, 0)
+
+    def action_view_claims(self):
+        self.ensure_one()
+        action = self.env["ir.actions.act_window"]._for_xml_id("insurance_management.insurance_claim_action")
+        action["domain"] = [("policy_id", "=", self.id)]
+        action["context"] = {"default_policy_id": self.id}
+        return action
+
+    def action_new_claim(self):
+        self.ensure_one()
+        if self.state == "draft":
+            raise UserError(self.env._("Confirm the policy before loading claims on it."))
+        context = {"default_policy_id": self.id}
+        if self.is_surety:
+            context.update(default_claim_type="surety_execution", default_policy_effect="surety_execution")
+        return {
+            "type": "ir.actions.act_window",
+            "name": self.env._("New claim"),
+            "res_model": "insurance.claim",
+            "view_mode": "form",
+            "target": "current",
+            "context": context,
+        }
+
+    def _cancel_by_claim(self, claim, date):
+        """End the policy early because of ``claim``: a real cancellation
+        endorsement (it cancels the installments not billed and closes the
+        accrual plan), with the claim as reason."""
+        self.ensure_one()
+        endorsement = self.env["insurance.endorsement"].create(
+            {
+                "policy_id": self.id,
+                "type_id": self.env.ref("insurance_management.insurance_endorsement_type_cancellation").id,
+                "effective_date": date,
+                "claim_id": claim.id,
+                "description": self.env._("Cancellation due to claim %(claim)s.", claim=claim.display_name),
+            }
+        )
+        endorsement.action_confirm()
+        reason = (
+            self.env._("Surety executed (claim %(claim)s)", claim=claim.name)
+            if claim.policy_effect == "surety_execution"
+            else self.env._("Total loss due to claim %(claim)s", claim=claim.name)
+        )
+        self.with_context(**{LIFECYCLE_CTX: True}).write({"cancel_reason": reason})
+        return endorsement
+
+    def _create_replacement_policy(self, claim):
+        """Draft policy for the replacement of an object lost in ``claim``,
+        copied from this one (parties, coverages, parameters), without objects
+        and starting today with the same duration."""
+        self.ensure_one()
+        self.check_access("create")
+        vals = self._prepare_renewal_vals()
+        months, days = self._get_duration_parts(self.date_from, self.date_to)
+        date_from = self._get_today()
+        vals.update(
+            {
+                "policy_number": False,
+                "previous_policy_id": False,
+                "object_ids": [],
+                "date_from": date_from,
+                "date_to": date_from + relativedelta(months=months, days=days) - relativedelta(days=1),
+            }
+        )
+        policy = self.sudo().create(vals).sudo(False)
+        policy._message_log(
+            body=self.env._(
+                "Replacement of the object lost in claim %(claim)s of policy %(policy)s.",
+                claim=claim.display_name,
+                policy=self.display_name,
+            )
+        )
+        claim._message_log(body=self.env._("Replacement policy created: %(policy)s.", policy=policy.display_name))
+        return policy
+
+    # -------------------------------------------------------------------------
+    # Surety bonds (Fase 3, section 4.7, RF-13)
+    # -------------------------------------------------------------------------
+
+    @api.depends("branch_id.object_type")
+    def _compute_is_surety(self):
+        for policy in self:
+            policy.is_surety = policy.branch_id.object_type == "contract"
+
+    @api.constrains("renewal_type", "branch_id")
+    def _check_until_release(self):
+        for policy in self:
+            if policy.renewal_type == "until_release" and not policy.is_surety:
+                raise ValidationError(
+                    self.env._("Only surety bonds (branch of type Contract) can be renewed until release.")
+                )
+
+    def _surety_is_open(self):
+        """The guarantee of this surety bond is still in the beneficiary's
+        hands, and this is the last policy of its renewal chain."""
+        self.ensure_one()
+        return bool(self.is_surety and self.surety_state in SURETY_OPEN_STATES and not self.renewed_by_id)
+
+    def _is_awaiting_release(self):
+        """Past its end date but kept alive until the guarantee is released."""
+        self.ensure_one()
+        return bool(
+            self.renewal_type == "until_release"
+            and self.state == "expiring"
+            and self.date_to
+            and self.date_to < self._get_today()
+        )
+
+    def _check_surety_action(self, allowed_states):
+        for policy in self:
+            if not policy.is_surety:
+                raise UserError(self.env._("Policy %(policy)s is not a surety bond.", policy=policy.display_name))
+            if policy.state in UNCOVERED_STATES or policy.renewed_by_id or policy.surety_state not in allowed_states:
+                raise UserError(
+                    self.env._(
+                        "The guarantee of policy %(policy)s cannot change from its current status.",
+                        policy=policy.display_name,
+                    )
+                )
+
+    def _write_surety_state(self, vals):
+        self.with_context(**{LIFECYCLE_CTX: True}).write(vals)
+
+    def action_surety_deliver(self):
+        self._check_surety_action(("issued",))
+        self._write_surety_state({"surety_state": "delivered"})
+        return True
+
+    def _get_release_documents(self):
+        self.ensure_one()
+        doc_type = self.env.ref("insurance_management.insurance_document_type_surety_release")
+        return self.env["ir.attachment"].search(
+            [("res_model", "=", self._name), ("res_id", "=", self.id), ("insurance_document_type_id", "=", doc_type.id)]
+        )
+
+    def action_surety_release(self):
+        """The beneficiary released the guarantee: the release certificate
+        must be attached. Then the producer is told to stop the billing."""
+        self.ensure_one()
+        self._check_surety_action(SURETY_OPEN_STATES)
+        if not self._get_release_documents():
+            raise UserError(
+                self.env._(
+                    "Attach the release certificate first (Documents tab, document type %(type)s).",
+                    type=self.env.ref("insurance_management.insurance_document_type_surety_release").name,
+                )
+            )
+        self._write_surety_state({"surety_state": "released", "surety_release_date": self._get_today()})
+        self.activity_ids.filtered(
+            lambda a: a.activity_type_id == self.env.ref("insurance_management.mail_activity_type_surety_release")
+        ).action_done()
+        self._apply_lifecycle_state()
+        template = self.env.ref("insurance_management.mail_template_surety_released")
+        return {
+            "type": "ir.actions.act_window",
+            "res_model": "mail.compose.message",
+            "view_mode": "form",
+            "views": [(False, "form")],
+            "target": "new",
+            "context": {
+                "default_model": self._name,
+                "default_res_ids": self.ids,
+                "default_template_id": template.id,
+                "default_composition_mode": "comment",
+                "default_message_type": "comment",
+            },
+        }
+
+    def action_surety_return(self):
+        self._check_surety_action(("released",))
+        self._write_surety_state({"surety_state": "returned"})
+        return True
+
+    def action_request_surety_release(self):
+        """Open the email composer with the release request for the
+        beneficiary (or the producer when the beneficiary has no email)."""
+        self.ensure_one()
+        self._check_surety_action(SURETY_OPEN_STATES)
+        template = self.env.ref("insurance_management.mail_template_surety_release_request")
+        return {
+            "type": "ir.actions.act_window",
+            "res_model": "mail.compose.message",
+            "view_mode": "form",
+            "views": [(False, "form")],
+            "target": "new",
+            "context": {
+                "default_model": self._name,
+                "default_res_ids": self.ids,
+                "default_template_id": template.id,
+                "default_composition_mode": "comment",
+                "default_message_type": "comment",
+                MAIL_KIND_CTX: "surety_release_request",
+            },
+        }
+
+    def _get_surety_release_recipient(self):
+        """Who is asked for the release: the beneficiary, or the producer
+        when the beneficiary has no email address."""
+        self.ensure_one()
+        if self.surety_beneficiary_id.email:
+            return self.surety_beneficiary_id
+        return self.producer_id
+
+    def _get_surety_type_label(self):
+        self.ensure_one()
+        return dict(self._fields["surety_type"]._description_selection(self.env)).get(self.surety_type, "")
+
+    def _get_mail_surety_amount(self):
+        """Guaranteed amount for the surety emails (sent to third parties)."""
+        self.ensure_one()
+        policy = self.sudo()
+        if not policy.surety_amount:
+            return ""
+        return format_amount(self.env, policy.surety_amount, policy.currency_id)
+
+    def _execute_surety(self, claim):
+        """The beneficiary executed the guarantee (approved surety execution
+        claim): the guarantee is Executed and the policy ends."""
+        self.ensure_one()
+        self._write_surety_state({"surety_state": "executed"})
+        if self.state in CONFIRMED_STATES:
+            self._cancel_by_claim(claim, claim._get_effect_date())
+        else:
+            self.with_context(**{LIFECYCLE_CTX: True}).write(
+                {"cancel_reason": self.env._("Surety executed (claim %(claim)s)", claim=claim.name)}
+            )
+
+    def _process_surety_release_request(self, today):
+        """X days before the end of the guaranteed obligation, ask for the
+        release: an activity for the responsible (manual sending) or the
+        email to the beneficiary (automatic). Once per obligation end date."""
+        self.ensure_one()
+        if not self._surety_is_open() or not self.surety_obligation_end:
+            return False
+        days = self.company_id.insurance_surety_release_days
+        if (self.surety_obligation_end - today).days > days:
+            return False
+        if self.alert_ids.filtered(
+            lambda a: a.alert_type == "surety_release_request" and a.date_to == self.surety_obligation_end
+        ):
+            return False
+        lang_policy = self.with_context(lang=self._get_chatter_lang())
+        recipients = self.env["res.users"]
+        if self.company_id.insurance_surety_release_send_mode == "automatic":
+            recipient = self._get_surety_release_recipient()
+            if not recipient.email:
+                lang_policy._message_log(
+                    body=lang_policy.env._(
+                        "The surety release request was not sent: neither the beneficiary nor the producer has an email address."
+                    )
+                )
+            else:
+                template = self.env.ref("insurance_management.mail_template_surety_release_request")
+                self.with_context(**{MAIL_KIND_CTX: "surety_release_request"}).message_post_with_source(
+                    template,
+                    message_type="comment",
+                    subtype_xmlid="mail.mt_comment",
+                    partner_ids=(recipient | self.user_id.partner_id).ids,
+                )
+        else:
+            summary = self.with_context(lang=self.user_id.lang or self._get_chatter_lang()).env._(
+                "Request the release of surety bond %(policy)s", policy=self.policy_number or self.name
+            )
+            self.activity_schedule(
+                act_type_xmlid="insurance_management.mail_activity_type_surety_release",
+                date_deadline=max(self.surety_obligation_end, today),
+                summary=summary,
+                user_id=self.user_id.id,
+            )
+            recipients = self.user_id
+            lang_policy._message_log(
+                body=lang_policy.env._(
+                    "The guaranteed obligation ends on %(date)s: activity to request the release scheduled for %(user)s.",
+                    date=format_date(lang_policy.env, self.surety_obligation_end),
+                    user=self.user_id.name,
+                )
+            )
+        self.env["insurance.policy.alert"].sudo().create(
+            {
+                "policy_id": self.id,
+                "alert_type": "surety_release_request",
+                "threshold_days": days,
+                "date_to": self.surety_obligation_end,
+                "sent_on": today,
+                "recipient_ids": [fields.Command.set(recipients.ids)],
+            }
+        )
+        return True
+
+    def _process_surety_unreleased(self, today):
+        """A surety bond renewed until release passed its end date with the
+        guarantee still open: once, an activity to renew it (the insurer bills
+        again) or to get the release."""
+        self.ensure_one()
+        if not self._is_awaiting_release():
+            return False
+        if self.alert_ids.filtered(lambda a: a.alert_type == "surety_unreleased" and a.date_to == self.date_to):
+            return False
+        lang = self.user_id.lang or self._get_chatter_lang()
+        summary = self.with_context(lang=lang).env._(
+            "Surety bond %(policy)s ended with its guarantee open: renew it or get the release",
+            policy=self.policy_number or self.name,
+        )
+        self.activity_schedule(
+            act_type_xmlid="insurance_management.mail_activity_type_surety_release",
+            date_deadline=today,
+            summary=summary,
+            user_id=self.user_id.id,
+        )
+        self.with_context(lang=self._get_chatter_lang())._message_log(
+            body=self.with_context(lang=self._get_chatter_lang()).env._(
+                "The policy reached its end date with the guarantee open: it stays expiring until the release or the renewal."
+            )
+        )
+        self.env["insurance.policy.alert"].sudo().create(
+            {
+                "policy_id": self.id,
+                "alert_type": "surety_unreleased",
+                "date_to": self.date_to,
+                "sent_on": today,
+                "recipient_ids": [fields.Command.set(self.user_id.ids)],
+            }
+        )
+        return True

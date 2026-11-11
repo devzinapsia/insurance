@@ -141,6 +141,64 @@ class ResCompany(models.Model):
         "an installment is overdue and unpaid.",
     )
 
+    # Claims and sureties (Fase 3, sections 4.9 and 8.6) --------------------------
+    insurance_claim_journal_id = fields.Many2one(
+        comodel_name="account.journal",
+        string="Claims journal",
+        domain="[('type', '=', 'general')]",
+        help="Miscellaneous journal of the claim entries: approval, offsets "
+        "and closing differences.",
+    )
+    insurance_claim_receivable_account_id = fields.Many2one(
+        comodel_name="account.account",
+        string="Claims receivable account",
+        domain="[('account_type', '=', 'asset_receivable')]",
+        help="Receivable account of the indemnities to collect from insurers "
+        "(type Receivable, so the claim shows in the aging and is collected "
+        "like any receivable). A branch can use its own.",
+    )
+    insurance_claim_recovery_account_id = fields.Many2one(
+        comodel_name="account.account",
+        string="Claims recovery account",
+        domain="[('account_type', 'in', ('income', 'income_other', 'expense', 'expense_direct_cost'))]",
+        help="Account credited when a claim is approved (recovery of the "
+        "damage). A branch can use its own.",
+    )
+    insurance_surety_loss_account_id = fields.Many2one(
+        comodel_name="account.account",
+        string="Surety execution loss account",
+        domain="[('account_type', 'in', ('expense', 'expense_other', 'expense_direct_cost'))]",
+        help="Account debited when a surety bond is executed, against the debt "
+        "with the insurer that pays the beneficiary. A branch can use its own.",
+    )
+    insurance_claim_stale_days = fields.Integer(
+        string="Claims without movement (days)",
+        default=30,
+        help="An open claim whose status has not changed for this many days is "
+        "notified to its responsible, again every this many days. Zero: never.",
+    )
+    insurance_surety_release_days = fields.Integer(
+        string="Request the surety release (days before)",
+        default=30,
+        help="Days before the end of the guaranteed obligation on which the "
+        "release of the surety bond is requested.",
+    )
+    insurance_surety_release_send_mode = fields.Selection(
+        selection=[("manual", "Manual"), ("automatic", "Automatic")],
+        string="Surety release request sending",
+        default="manual",
+        required=True,
+        help="Manual: the responsible gets an activity and sends the request "
+        "with the Request release button. Automatic: the daily process emails "
+        "it to the beneficiary (or the producer), with a copy to the responsible.",
+    )
+
+    @api.constrains("insurance_claim_stale_days", "insurance_surety_release_days")
+    def _check_insurance_claim_days(self):
+        for company in self:
+            if company.insurance_claim_stale_days < 0 or company.insurance_surety_release_days < 0:
+                raise ValidationError(self.env._("The days of the claim and surety alerts cannot be negative."))
+
     @api.constrains("insurance_alert_days")
     def _check_insurance_alert_days(self):
         for company in self:

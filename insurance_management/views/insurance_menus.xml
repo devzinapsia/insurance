@@ -7,6 +7,12 @@
               groups="group_insurance_user"
               sequence="60"/>
 
+    <menuitem id="menu_insurance_dashboard"
+              name="Dashboard"
+              parent="menu_insurance_root"
+              action="action_server_insurance_dashboard"
+              sequence="5"/>
+
     <menuitem id="menu_insurance_policies"
               name="Policies"
               parent="menu_insurance_root"
@@ -35,6 +41,18 @@
               parent="menu_insurance_policies"
               action="insurance_installment_action"
               sequence="17"/>
+
+    <menuitem id="menu_insurance_claim"
+              name="Claims"
+              parent="menu_insurance_policies"
+              action="insurance_claim_action"
+              sequence="18"/>
+
+    <menuitem id="menu_insurance_surety"
+              name="Surety bonds"
+              parent="menu_insurance_policies"
+              action="insurance_policy_surety_action"
+              sequence="19"/>
 
     <menuitem id="menu_insurance_reporting"
               name="Reporting"
@@ -80,6 +98,19 @@
               action="insurance_accrual_line_action"
               groups="account.group_account_invoice,account.group_account_readonly"
               sequence="40"/>
+
+    <menuitem id="menu_insurance_report_claims"
+              name="Claims and recoveries"
+              parent="menu_insurance_reporting"
+              action="insurance_claim_report_action"
+              groups="insurance_management.group_insurance_see_amounts"
+              sequence="45"/>
+
+    <menuitem id="menu_insurance_report_sureties"
+              name="Surety bonds by beneficiary"
+              parent="menu_insurance_reporting"
+              action="insurance_policy_surety_report_action"
+              sequence="50"/>
 
     <menuitem id="menu_insurance_configuration"
               name="Configuration"

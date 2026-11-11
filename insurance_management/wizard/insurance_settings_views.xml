@@ -68,6 +68,25 @@
                             <button name="%(insurance_management.insurance_import_action)d" type="action" string="Import running policies" icon="fa-upload" class="btn-link" colspan="2"/>
                         </group>
                     </group>
+                    <group>
+                        <group string="Claims and sureties" name="claims">
+                            <field name="claim_stale_days"/>
+                            <field name="surety_release_days"/>
+                            <field name="surety_release_send_mode" widget="radio"/>
+                            <div colspan="2" class="text-muted">
+                                Manual: the responsible gets an activity to send the release request. Automatic: the daily process emails it to the beneficiary (or the producer).
+                            </div>
+                        </group>
+                        <group string="Claims accounting" name="claims_accounting" groups="account.group_account_manager">
+                            <field name="claim_journal_id" options="{'no_create': True}"/>
+                            <field name="claim_receivable_account_id" options="{'no_create': True}"/>
+                            <field name="claim_recovery_account_id" options="{'no_create': True}"/>
+                            <field name="surety_loss_account_id" options="{'no_create': True}"/>
+                            <div colspan="2" class="text-muted">
+                                Branches can use their own claim accounts. The receivable account must be of type Receivable.
+                            </div>
+                        </group>
+                    </group>
                     <group string="Configuration" name="links">
                         <div colspan="2" class="d-flex flex-wrap gap-2">
                             <button name="%(insurance_management.insurance_branch_action)d" type="action" string="Branches" icon="oi-arrow-right" class="btn-link"/>

@@ -13,6 +13,8 @@ from . import insurance_insured_item
 from . import insurance_policy_alert
 from . import insurance_policy
 from . import insurance_policy_object
+from . import insurance_claim
 from . import res_partner
 from . import insurance_import
 from . import insurance_cost_report
+from . import insurance_dashboard

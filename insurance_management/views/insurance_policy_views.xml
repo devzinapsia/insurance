@@ -37,6 +37,11 @@
                     <button name="action_new_endorsement" type="object" string="New endorsement" invisible="state not in ('not_started', 'in_force', 'expiring')"/>
                     <button name="action_open_installment_generator" type="object" string="Generate installments" invisible="state in ('cancelled', 'expired')"/>
                     <button name="action_create_bill" type="object" string="Create bill" invisible="state not in ('not_started', 'in_force', 'expiring') or installment_count == 0" groups="account.group_account_invoice"/>
+                    <button name="action_new_claim" type="object" string="New claim" invisible="state in ('draft',)"/>
+                    <button name="action_surety_deliver" type="object" string="Delivered to the beneficiary" invisible="not is_surety or surety_state != 'issued' or renewed_by_id or state in ('draft', 'cancelled')"/>
+                    <button name="action_request_surety_release" type="object" string="Request release" invisible="not is_surety or surety_state not in ('issued', 'delivered') or renewed_by_id or state in ('draft', 'cancelled')"/>
+                    <button name="action_surety_release" type="object" string="Release" invisible="not is_surety or surety_state not in ('issued', 'delivered') or renewed_by_id or state in ('draft', 'cancelled')"/>
+                    <button name="action_surety_return" type="object" string="Returned to the insurer" invisible="not is_surety or surety_state != 'released' or renewed_by_id"/>
                     <button name="action_reset_to_draft" type="object" string="Reset to draft" invisible="state in ('draft', 'cancelled')" groups="insurance_management.group_insurance_manager" confirm="Reset this policy to draft?"/>
                     <field name="state" widget="statusbar" statusbar_visible="draft,not_started,in_force,expiring,expired"/>
                 </header>
@@ -59,6 +64,9 @@
                                 </span>
                             </div>
                         </button>
+                        <button name="action_view_claims" type="object" class="oe_stat_button" icon="fa-exclamation-triangle" invisible="claim_count == 0">
+                            <field name="claim_count" widget="statinfo" string="Claims"/>
+                        </button>
                         <button name="action_view_renewals" type="object" class="oe_stat_button" icon="fa-history" invisible="renewal_count &lt;= 1">
                             <field name="renewal_count" widget="statinfo" string="Renewals"/>
                         </button>
@@ -67,6 +75,13 @@
                     <widget name="web_ribbon" title="With debt" bg_color="text-bg-danger" invisible="not has_debt or expires_today"/>
                     <field name="has_debt" invisible="1"/>
                     <field name="expires_today" invisible="1"/>
+                    <div class="alert alert-danger mb-2" role="alert" invisible="not cancel_reason">
+                        <field name="cancel_reason"/>
+                    </div>
+                    <div class="alert alert-warning mb-2" role="alert" invisible="not is_surety or state != 'expiring' or renewal_type != 'until_release' or days_left &gt;= 0">
+                        The policy passed its end date with the guarantee open: renew it or attach the release certificate and release it.
+                    </div>
+                    <field name="is_surety" invisible="1"/>
                     <div class="alert alert-warning mb-2" role="alert" invisible="not duration_warning">
                         <field name="duration_warning"/>
                     </div>
@@ -144,6 +159,8 @@
                                     <field name="coverage" optional="show"/>
                                     <field name="currency_id" column_invisible="True"/>
                                     <field name="sum_insured" sum="Total"/>
+                                    <field name="sum_available" optional="hide"/>
+                                    <field name="claim_count" optional="hide"/>
                                     <field name="date_start" optional="show"/>
                                     <field name="date_end" optional="show"/>
                                     <field name="exclusion_reason" optional="hide"/>
@@ -152,6 +169,23 @@
                                     <field name="state" widget="badge" decoration-success="state == 'active'" decoration-muted="state == 'excluded'"/>
                                 </list>
                             </field>
+                        </page>
+                        <page name="surety" string="Surety bond" invisible="not is_surety">
+                            <group>
+                                <group string="Guarantee">
+                                    <field name="surety_beneficiary_id" readonly="is_locked"/>
+                                    <field name="surety_type" readonly="is_locked"/>
+                                    <field name="surety_obligation" readonly="is_locked" placeholder="Tender, contract or file"/>
+                                    <field name="surety_amount" readonly="is_locked" groups="insurance_management.group_insurance_see_amounts"/>
+                                    <field name="surety_obligation_end" readonly="is_locked"/>
+                                </group>
+                                <group string="Status">
+                                    <field name="surety_state" widget="badge" decoration-info="surety_state in ('issued', 'delivered')" decoration-success="surety_state in ('released', 'returned')" decoration-danger="surety_state == 'executed'"/>
+                                    <field name="surety_release_date" invisible="not surety_release_date"/>
+                                    <field name="surety_release_requested_on" invisible="not surety_release_requested_on"/>
+                                </group>
+                            </group>
+                            <div class="text-muted small">To release the guarantee, upload the release certificate signed by the beneficiary in the Documents tab (type Surety release certificate). With the renewal type Until release, the policy does not expire while the guarantee is open.</div>
                         </page>
                         <page name="coverages" string="Coverages">
                             <field name="coverage" readonly="state != 'draft'" placeholder="Coverages and clauses of the policy..."/>
@@ -322,7 +356,7 @@
                                 </span>
                             </div>
                             <span t-if="record.expires_today.raw_value" class="badge text-bg-warning">Expires today</span>
-                            <span t-elif="['in_force', 'expiring'].includes(record.state.raw_value) and record.days_left.raw_value &lt;= 30" class="badge text-bg-light">
+                            <span t-elif="['in_force', 'expiring'].includes(record.state.raw_value) and record.days_left.raw_value &gt;= 0 and record.days_left.raw_value &lt;= 30" class="badge text-bg-light">
                                 <field name="days_left"/> days
                             </span>
                         </div>
@@ -401,6 +435,7 @@
                 <filter name="not_started" string="Not started" domain="[('state', '=', 'not_started')]"/>
                 <filter name="not_renewed" string="Not to be renewed" domain="[('renewal_type', '=', 'no_renew')]"/>
                 <filter name="with_debt" string="With unpaid installments" domain="[('has_debt', '=', True)]"/>
+                <filter name="sureties" string="Surety bonds" domain="[('is_surety', '=', True)]"/>
                 <separator/>
                 <filter name="my_policies" string="My policies" domain="[('user_id', '=', uid)]"/>
                 <separator/>
@@ -412,6 +447,7 @@
                     <filter name="group_by_insurer" string="Insurer" context="{'group_by': 'insurer_id'}"/>
                     <filter name="group_by_producer" string="Producer" context="{'group_by': 'producer_id'}"/>
                     <filter name="group_by_user" string="Responsible" context="{'group_by': 'user_id'}"/>
+                    <filter name="group_by_beneficiary" string="Beneficiary" context="{'group_by': 'surety_beneficiary_id'}"/>
                     <filter name="group_by_date_to" string="End date" context="{'group_by': 'date_to:month'}"/>
                 </group>
             </search>
@@ -443,5 +479,99 @@
             <p class="o_view_nocontent_smiling_face">No policy expires in this period</p>
             <p>Policies in force ordered by end date. Remove the filter to see every policy in force.</p>
         </field>
+    </record>
+
+    <record id="insurance_policy_view_list_surety" model="ir.ui.view">
+        <field name="name">insurance.policy.list.surety</field>
+        <field name="model">insurance.policy</field>
+        <field name="priority">40</field>
+        <field name="arch" type="xml">
+            <list string="Surety bonds" default_order="surety_obligation_end, id" decoration-muted="surety_state in ('released', 'returned')" decoration-danger="surety_state == 'executed'">
+                <field name="policy_number"/>
+                <field name="surety_beneficiary_id"/>
+                <field name="surety_type"/>
+                <field name="surety_obligation" optional="show"/>
+                <field name="insurer_id" optional="show"/>
+                <field name="currency_id" column_invisible="True"/>
+                <field name="surety_amount" sum="Total"/>
+                <field name="date_to" optional="show"/>
+                <field name="surety_obligation_end"/>
+                <field name="renewal_type" optional="hide"/>
+                <field name="user_id" widget="many2one_avatar_user" optional="hide"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+                <field name="state" widget="badge" optional="show" decoration-success="state == 'in_force'" decoration-warning="state == 'expiring'" decoration-danger="state in ('expired', 'cancelled')"/>
+                <field name="surety_state" widget="badge" decoration-info="surety_state in ('issued', 'delivered')" decoration-success="surety_state in ('released', 'returned')" decoration-danger="surety_state == 'executed'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="insurance_policy_view_pivot_surety" model="ir.ui.view">
+        <field name="name">insurance.policy.pivot.surety</field>
+        <field name="model">insurance.policy</field>
+        <field name="priority">40</field>
+        <field name="arch" type="xml">
+            <pivot string="Surety bonds by beneficiary" sample="1">
+                <field name="surety_beneficiary_id" type="row"/>
+                <field name="surety_state" type="col"/>
+                <field name="surety_amount" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="insurance_policy_view_search_surety" model="ir.ui.view">
+        <field name="name">insurance.policy.search.surety</field>
+        <field name="model">insurance.policy</field>
+        <field name="priority">40</field>
+        <field name="arch" type="xml">
+            <search string="Surety bonds">
+                <field name="name" string="Policy" filter_domain="['|', ('name', 'ilike', self), ('policy_number', 'ilike', self)]"/>
+                <field name="surety_beneficiary_id"/>
+                <field name="surety_obligation"/>
+                <field name="insurer_id"/>
+                <separator/>
+                <filter name="open_guarantee" string="Open guarantees" domain="[('surety_state', 'in', ('issued', 'delivered'))]"/>
+                <filter name="to_release" string="To release (obligation ending in 30 days)"
+                        domain="[('surety_state', 'in', ('issued', 'delivered')), ('surety_obligation_end', '&lt;=', (context_today() + relativedelta(days=30)).strftime('%Y-%m-%d'))]"/>
+                <filter name="executed" string="Executed" domain="[('surety_state', '=', 'executed')]"/>
+                <separator/>
+                <filter name="filter_obligation_end" string="Obligation end" date="surety_obligation_end"/>
+                <group name="group_by">
+                    <filter name="group_by_beneficiary" string="Beneficiary" context="{'group_by': 'surety_beneficiary_id'}"/>
+                    <filter name="group_by_surety_type" string="Surety type" context="{'group_by': 'surety_type'}"/>
+                    <filter name="group_by_surety_state" string="Guarantee status" context="{'group_by': 'surety_state'}"/>
+                    <filter name="group_by_insurer" string="Insurer" context="{'group_by': 'insurer_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Only the last policy of each renewal chain: the guarantee is the same
+         document billed again, it must not be counted twice. -->
+    <record id="insurance_policy_surety_action" model="ir.actions.act_window">
+        <field name="name">Surety bonds</field>
+        <field name="res_model">insurance.policy</field>
+        <field name="view_mode">list,pivot,form</field>
+        <field name="search_view_id" ref="insurance_policy_view_search_surety"/>
+        <field name="domain">[('is_surety', '=', True), ('renewed_by_id', '=', False), ('state', '!=', 'draft')]</field>
+        <field name="context">{'search_default_open_guarantee': 1, 'default_renewal_type': 'until_release'}</field>
+        <field name="view_ids" eval="[Command.clear(),
+            Command.create({'view_mode': 'list', 'view_id': ref('insurance_policy_view_list_surety')}),
+            Command.create({'view_mode': 'pivot', 'view_id': ref('insurance_policy_view_pivot_surety')})]"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No surety bonds</p>
+            <p>Surety bonds are policies of a branch of type Contract. Each one guarantees an obligation of the company before a beneficiary until it is released.</p>
+        </field>
+    </record>
+
+    <record id="insurance_policy_surety_report_action" model="ir.actions.act_window">
+        <field name="name">Surety bonds by beneficiary</field>
+        <field name="res_model">insurance.policy</field>
+        <field name="view_mode">pivot,list,form</field>
+        <field name="search_view_id" ref="insurance_policy_view_search_surety"/>
+        <field name="domain">[('is_surety', '=', True), ('renewed_by_id', '=', False), ('state', '!=', 'draft')]</field>
+        <field name="context">{'search_default_open_guarantee': 1}</field>
+        <field name="view_ids" eval="[Command.clear(),
+            Command.create({'view_mode': 'pivot', 'view_id': ref('insurance_policy_view_pivot_surety')}),
+            Command.create({'view_mode': 'list', 'view_id': ref('insurance_policy_view_list_surety')})]"/>
     </record>
 </odoo>

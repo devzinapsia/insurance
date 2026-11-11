@@ -77,6 +77,27 @@ class InsuranceBranch(models.Model):
         string="Billing mode",
         help="Leave empty to use the one of the insurance settings.",
     )
+    claim_receivable_account_id = fields.Many2one(
+        comodel_name="account.account",
+        string="Claims receivable account",
+        domain="[('account_type', '=', 'asset_receivable')]",
+        groups="account.group_account_invoice,account.group_account_readonly",
+        help="Leave empty to use the one of the insurance settings.",
+    )
+    claim_recovery_account_id = fields.Many2one(
+        comodel_name="account.account",
+        string="Claims recovery account",
+        domain="[('account_type', 'in', ('income', 'income_other', 'expense', 'expense_direct_cost'))]",
+        groups="account.group_account_invoice,account.group_account_readonly",
+        help="Leave empty to use the one of the insurance settings.",
+    )
+    surety_loss_account_id = fields.Many2one(
+        comodel_name="account.account",
+        string="Surety execution loss account",
+        domain="[('account_type', 'in', ('expense', 'expense_other', 'expense_direct_cost'))]",
+        groups="account.group_account_invoice,account.group_account_readonly",
+        help="Leave empty to use the one of the insurance settings.",
+    )
 
     # COALESCE so that two shared branches (no company) cannot reuse a code;
     # a plain UNIQUE would treat their NULL company_id values as distinct.

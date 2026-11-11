@@ -56,10 +56,20 @@ class InsuranceInsuredItem(models.Model):
     )
     note = fields.Html(string="Notes")
     policy_count = fields.Integer(string="Policy count", compute="_compute_policy_count")
+    claim_count = fields.Integer(string="Claim count", compute="_compute_policy_count")
 
     def _compute_policy_count(self):
         for item in self:
             item.policy_count = len(item.object_ids.policy_id)
+            item.claim_count = len(item.object_ids.claim_ids)
+
+    def action_view_claims(self):
+        """Every claim of the item, in all its policies."""
+        self.ensure_one()
+        action = self.env["ir.actions.act_window"]._for_xml_id("insurance_management.insurance_claim_action")
+        action["domain"] = [("object_id", "in", self.object_ids.ids)]
+        action["context"] = {}
+        return action
 
     def action_view_policies(self):
         """Every policy the item is (or was) insured in."""

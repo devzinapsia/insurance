@@ -41,6 +41,14 @@ class AccountMove(models.Model):
         help="Bill bringing in the debt with the insurer of a running policy "
         "billed up front (initial load): it is not a new cost and is not accrued.",
     )
+    insurance_claim_id = fields.Many2one(
+        comodel_name="insurance.claim",
+        string="Insurance claim",
+        index="btree_not_null",
+        copy=False,
+        readonly=True,
+        help="Insurance claim this entry belongs to (approval, offset, closing difference).",
+    )
     insurance_accrual_date = fields.Date(
         string="Insurance accrual period",
         copy=False,

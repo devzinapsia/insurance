@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Fase 3 document types (RF-12, section 4.7). Editable: noupdate. -->
+        <record id="insurance_document_type_claim_photos" model="insurance.document.type">
+            <field name="name">Claim photos</field>
+            <field name="description">Photos of the damage, the place or the vehicles involved in a claim.</field>
+            <field name="sequence">62</field>
+        </record>
+        <record id="insurance_document_type_claim_budget" model="insurance.document.type">
+            <field name="name">Repair budget</field>
+            <field name="description">Budget or quote of the workshop or supplier for the repair or replacement.</field>
+            <field name="sequence">64</field>
+        </record>
+        <record id="insurance_document_type_adjuster_report" model="insurance.document.type">
+            <field name="name">Adjuster report</field>
+            <field name="description">Report and settlement of the insurer's adjuster.</field>
+            <field name="sequence">66</field>
+        </record>
+        <record id="insurance_document_type_surety_release" model="insurance.document.type">
+            <field name="name">Surety release certificate</field>
+            <field name="description">Certificate signed by the beneficiary releasing the surety bond. Required to mark the guarantee as released.</field>
+            <field name="sequence">70</field>
+        </record>
+
+        <record id="mail_activity_type_surety_release" model="mail.activity.type">
+            <field name="name">Surety release</field>
+            <field name="summary">Request the release of the surety bond</field>
+            <field name="icon">fa-handshake-o</field>
+            <field name="res_model">insurance.policy</field>
+        </record>
+
+        <!-- Daily: reminders of the claims without movement. Idempotent. -->
+        <record id="ir_cron_insurance_claims" model="ir.cron">
+            <field name="name">Insurance: claims without movement</field>
+            <field name="model_id" ref="model_insurance_claim"/>
+            <field name="state">code</field>
+            <field name="code">model._cron_process_claims()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="nextcall" eval="(DateTime.now().replace(hour=10, minute=45, second=0) + timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')"/>
+            <field name="user_id" ref="base.user_root"/>
+            <field name="active" eval="True"/>
+        </record>
+
+        <!-- Claim without movement: to its responsible, in their language; the
+             amounts only when the recipient may see them. -->
+        <record id="mail_template_claim_stale" model="mail.template">
+            <field name="name">Insurance: claim without movement</field>
+            <field name="model_id" ref="insurance_management.model_insurance_claim"/>
+            <field name="subject">{{ object._get_stale_subject() }}</field>
+            <field name="email_from">{{ (object.company_id.email_formatted or user.email_formatted) }}</field>
+            <field name="use_default_to" eval="False"/>
+            <field name="lang">{{ ctx.get('insurance_recipient_lang') or object.company_id.partner_id.lang }}</field>
+            <field name="auto_delete" eval="True"/>
+            <field name="description">Sent to the claim responsible every time the claim reaches the days without movement of the insurance settings.</field>
+            <field name="body_html" type="html">
+<div style="margin:0; padding:0; background-color:#f3f4f6;">
+<t t-set="claimed" t-value="object._get_mail_amount('amount_claimed')"/>
+<t t-set="pending" t-value="object._get_mail_amount('amount_pending')"/>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f3f4f6;">
+<tr><td align="center" style="padding:24px 12px;">
+<table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:100%; max-width:600px; background-color:#ffffff; border:1px solid #d1d5db; border-radius:6px; font-family:Arial, Helvetica, sans-serif; color:#1f2937;">
+    <tr><td style="padding:20px 24px; border-bottom:3px solid #b54708;">
+        <img t-att-src="'%s/logo.png?company=%s' % (object.get_base_url(), object.company_id.id)" t-att-alt="object.company_id.name" height="40" style="height:40px; max-width:200px; border:0; display:block;"/>
+    </td></tr>
+    <tr><td style="padding:24px 24px 8px 24px; font-size:15px; line-height:22px;">
+        <p style="margin:0 0 16px 0;">Hello <t t-out="ctx.get('insurance_recipient_name') or ''">Marc Demo</t>,</p>
+        <p style="margin:0 0 16px 0; font-size:17px; line-height:24px; font-weight:bold; color:#b54708;" t-out="object._get_stale_subject()">Claim SIN/2026/0001 (policy POL-001) has had no movement for 30 days</p>
+        <p style="margin:0 0 16px 0;">The status of this claim has not changed for a while. Follow it up with the insurer or the producer.</p>
+    </td></tr>
+    <tr><td style="padding:0 24px 8px 24px;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="font-size:14px; line-height:20px; border-collapse:collapse;">
+            <tr>
+                <td style="padding:8px; width:38%; color:#4b5563; border-bottom:1px solid #e5e7eb;">Claim</td>
+                <td style="padding:8px; font-weight:bold; border-bottom:1px solid #e5e7eb;" t-out="object.display_name">SIN/2026/0001</td>
+            </tr>
+            <tr>
+                <td style="padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;">Policy</td>
+                <td style="padding:8px; border-bottom:1px solid #e5e7eb;" t-out="object.policy_id.display_name">SEG/2026/0001 - POL-001</td>
+            </tr>
+            <tr t-if="object.insurer_id">
+                <td style="padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;">Insurer</td>
+                <td style="padding:8px; border-bottom:1px solid #e5e7eb;" t-out="object.insurer_id.name">Insurer</td>
+            </tr>
+            <tr>
+                <td style="padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;">Status</td>
+                <td style="padding:8px; border-bottom:1px solid #e5e7eb;" t-out="dict(object._fields['state']._description_selection(object.env)).get(object.state)">Under analysis</td>
+            </tr>
+            <tr t-if="claimed">
+                <td style="padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;">Claimed</td>
+                <td style="padding:8px; border-bottom:1px solid #e5e7eb;" t-out="claimed">$ 500,000.00</td>
+            </tr>
+            <tr t-if="pending and object.state == 'approved'">
+                <td style="padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;">Pending collection</td>
+                <td style="padding:8px; font-weight:bold; border-bottom:1px solid #e5e7eb;" t-out="pending">$ 450,000.00</td>
+            </tr>
+        </table>
+    </td></tr>
+    <tr><td style="padding:16px 24px 8px 24px;">
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+            <tr><td bgcolor="#1f4e79" style="border-radius:4px; background-color:#1f4e79;">
+                <a t-att-href="object._get_record_url()" target="_blank" style="display:inline-block; padding:12px 24px; font-family:Arial, Helvetica, sans-serif; font-size:15px; font-weight:bold; color:#ffffff; text-decoration:none; border-radius:4px;">View claim</a>
+            </td></tr>
+        </table>
+    </td></tr>
+    <tr><td style="padding:16px 24px 24px 24px; font-size:12px; line-height:18px; color:#6b7280;">
+        You receive this email because you are the responsible of this claim at <t t-out="object.company_id.name or ''">My Company</t>.
+    </td></tr>
+</table>
+</td></tr>
+</table>
+</div>
+            </field>
+        </record>
+
+        <!-- Surety release request: to the beneficiary (or the producer when
+             the beneficiary has no email), with a copy to the responsible. -->
+        <record id="mail_template_surety_release_request" model="mail.template">
+            <field name="name">Insurance: surety release request</field>
+            <field name="model_id" ref="insurance_management.model_insurance_policy"/>
+            <field name="subject">Release request - surety bond {{ object.policy_number or object.name }}</field>
+            <field name="email_from">{{ (object.company_id.email_formatted or user.email_formatted) }}</field>
+            <field name="use_default_to" eval="False"/>
+            <field name="partner_to">{{ object._get_surety_release_recipient().id }}</field>
+            <field name="lang">{{ object._get_surety_release_recipient().lang }}</field>
+            <field name="auto_delete" eval="True"/>
+            <field name="description">Sent to the beneficiary of a surety bond (or the producer) before the end of the guaranteed obligation, asking for the release certificate.</field>
+            <field name="body_html" type="html">
+<div style="margin:0; padding:0; background-color:#f3f4f6;">
+<t t-set="recipient" t-value="object._get_surety_release_recipient()"/>
+<t t-set="amount" t-value="object._get_mail_surety_amount()"/>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f3f4f6;">
+<tr><td align="center" style="padding:24px 12px;">
+<table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:100%; max-width:600px; background-color:#ffffff; border:1px solid #d1d5db; border-radius:6px; font-family:Arial, Helvetica, sans-serif; color:#1f2937;">
+    <tr><td style="padding:20px 24px; border-bottom:3px solid #1f4e79;">
+        <img t-att-src="'%s/logo.png?company=%s' % (object.get_base_url(), object.company_id.id)" t-att-alt="object.company_id.name" height="40" style="height:40px; max-width:200px; border:0; display:block;"/>
+    </td></tr>
+    <tr><td style="padding:24px 24px 8px 24px; font-size:15px; line-height:22px;">
+        <p style="margin:0 0 16px 0;">Hello <t t-out="recipient.name or ''">Beneficiary</t>,</p>
+        <p style="margin:0 0 16px 0; font-size:17px; line-height:24px; font-weight:bold; color:#1f4e79;">We ask you for the release of the following surety bond.</p>
+        <p style="margin:0 0 16px 0;">The obligation it guarantees is fulfilled or about to end. Please send us the signed release certificate, so we can return the surety bond to the insurer.</p>
+    </td></tr>
+    <tr><td style="padding:0 24px 8px 24px;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="font-size:14px; line-height:20px; border-collapse:collapse;">
+            <tr t-if="object.policy_number">
+                <td style="padding:8px; width:38%; color:#4b5563; border-bottom:1px solid #e5e7eb;">Surety bond number</td>
+                <td style="padding:8px; font-weight:bold; border-bottom:1px solid #e5e7eb;" t-out="object.policy_number">POL-001</td>
+            </tr>
+            <tr t-if="object.insurer_id">
+                <td style="padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;">Insurer</td>
+                <td style="padding:8px; border-bottom:1px solid #e5e7eb;" t-out="object.insurer_id.name">Insurer</td>
+            </tr>
+            <tr t-if="object.surety_type">
+                <td style="padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;">Surety type</td>
+                <td style="padding:8px; border-bottom:1px solid #e5e7eb;" t-out="object._get_surety_type_label()">Performance bond</td>
+            </tr>
+            <tr t-if="object.surety_obligation">
+                <td style="padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;">Guaranteed obligation</td>
+                <td style="padding:8px; border-bottom:1px solid #e5e7eb;" t-out="object.surety_obligation">Tender 12/2026</td>
+            </tr>
+            <tr t-if="amount">
+                <td style="padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;">Guaranteed amount</td>
+                <td style="padding:8px; border-bottom:1px solid #e5e7eb;" t-out="amount">$ 1,000,000.00</td>
+            </tr>
+            <tr t-if="object.surety_obligation_end">
+                <td style="padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;">Obligation end</td>
+                <td style="padding:8px; border-bottom:1px solid #e5e7eb;" t-out="format_date(object.surety_obligation_end)">30/06/2027</td>
+            </tr>
+        </table>
+    </td></tr>
+    <tr><td style="padding:20px 24px 24px 24px; font-size:15px; line-height:22px;">
+        <p style="margin:0 0 16px 0;">Thank you in advance.</p>
+        <p style="margin:0;">Kind regards,<br/>
+            <strong t-out="object.company_id.name or ''">My Company</strong>
+            <t t-if="object.company_id.email"><br/><t t-out="object.company_id.email">info@example.com</t></t>
+            <t t-if="object.company_id.phone"><br/><t t-out="object.company_id.phone">+54 11 0000-0000</t></t>
+        </p>
+    </td></tr>
+</table>
+</td></tr>
+</table>
+</div>
+            </field>
+        </record>
+
+        <!-- Surety released: tells the producer to stop the billing. -->
+        <record id="mail_template_surety_released" model="mail.template">
+            <field name="name">Insurance: surety released</field>
+            <field name="model_id" ref="insurance_management.model_insurance_policy"/>
+            <field name="subject">Surety bond {{ object.policy_number or object.name }} released - please stop the billing</field>
+            <field name="email_from">{{ (object.company_id.email_formatted or user.email_formatted) }}</field>
+            <field name="use_default_to" eval="False"/>
+            <field name="partner_to">{{ object.producer_id.id }}</field>
+            <field name="lang">{{ object.producer_id.lang }}</field>
+            <field name="auto_delete" eval="True"/>
+            <field name="description">Sent to the producer when the guarantee of a surety bond is released, so the insurer stops billing it.</field>
+            <field name="body_html" type="html">
+<div style="margin:0; padding:0; background-color:#f3f4f6;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f3f4f6;">
+<tr><td align="center" style="padding:24px 12px;">
+<table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:100%; max-width:600px; background-color:#ffffff; border:1px solid #d1d5db; border-radius:6px; font-family:Arial, Helvetica, sans-serif; color:#1f2937;">
+    <tr><td style="padding:20px 24px; border-bottom:3px solid #1f4e79;">
+        <img t-att-src="'%s/logo.png?company=%s' % (object.get_base_url(), object.company_id.id)" t-att-alt="object.company_id.name" height="40" style="height:40px; max-width:200px; border:0; display:block;"/>
+    </td></tr>
+    <tr><td style="padding:24px 24px 8px 24px; font-size:15px; line-height:22px;">
+        <p style="margin:0 0 16px 0;">Hello <t t-out="object.producer_id.name or ''">Producer</t>,</p>
+        <p style="margin:0 0 16px 0; font-size:17px; line-height:24px; font-weight:bold; color:#1f4e79;">The beneficiary released the following surety bond.</p>
+        <p style="margin:0 0 16px 0;">Please ask the insurer to cancel it and stop billing it. The release certificate is available on request.</p>
+    </td></tr>
+    <tr><td style="padding:0 24px 8px 24px;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="font-size:14px; line-height:20px; border-collapse:collapse;">
+            <tr t-if="object.policy_number">
+                <td style="padding:8px; width:38%; color:#4b5563; border-bottom:1px solid #e5e7eb;">Surety bond number</td>
+                <td style="padding:8px; font-weight:bold; border-bottom:1px solid #e5e7eb;" t-out="object.policy_number">POL-001</td>
+            </tr>
+            <tr t-if="object.insurer_id">
+                <td style="padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;">Insurer</td>
+                <td style="padding:8px; border-bottom:1px solid #e5e7eb;" t-out="object.insurer_id.name">Insurer</td>
+            </tr>
+            <tr t-if="object.surety_beneficiary_id">
+                <td style="padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;">Beneficiary</td>
+                <td style="padding:8px; border-bottom:1px solid #e5e7eb;" t-out="object.surety_beneficiary_id.name">City council</td>
+            </tr>
+            <tr t-if="object.surety_obligation">
+                <td style="padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;">Guaranteed obligation</td>
+                <td style="padding:8px; border-bottom:1px solid #e5e7eb;" t-out="object.surety_obligation">Tender 12/2026</td>
+            </tr>
+            <tr t-if="object.surety_release_date">
+                <td style="padding:8px; color:#4b5563; border-bottom:1px solid #e5e7eb;">Release date</td>
+                <td style="padding:8px; border-bottom:1px solid #e5e7eb;" t-out="format_date(object.surety_release_date)">30/06/2027</td>
+            </tr>
+        </table>
+    </td></tr>
+    <tr><td style="padding:20px 24px 24px 24px; font-size:15px; line-height:22px;">
+        <p style="margin:0 0 16px 0;">Thank you.</p>
+        <p style="margin:0;">Kind regards,<br/>
+            <strong t-out="object.company_id.name or ''">My Company</strong>
+            <t t-if="object.company_id.email"><br/><t t-out="object.company_id.email">info@example.com</t></t>
+            <t t-if="object.company_id.phone"><br/><t t-out="object.company_id.phone">+54 11 0000-0000</t></t>
+        </p>
+    </td></tr>
+</table>
+</td></tr>
+</table>
+</div>
+            </field>
+        </record>
+    </data>
+</odoo>

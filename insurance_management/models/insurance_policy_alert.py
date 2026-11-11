@@ -21,7 +21,12 @@ class InsurancePolicyAlert(models.Model):
     )
     company_id = fields.Many2one(related="policy_id.company_id", store=True, index=True)
     alert_type = fields.Selection(
-        selection=[("expiry_notice", "Expiry notice"), ("expired", "Policy expired")],
+        selection=[
+            ("expiry_notice", "Expiry notice"),
+            ("expired", "Policy expired"),
+            ("surety_release_request", "Surety release request"),
+            ("surety_unreleased", "Surety ended with the guarantee open"),
+        ],
         string="Alert",
         required=True,
     )

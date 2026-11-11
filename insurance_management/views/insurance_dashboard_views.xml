@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="insurance_dashboard_view_form" model="ir.ui.view">
+        <field name="name">insurance.dashboard.form</field>
+        <field name="model">insurance.dashboard</field>
+        <field name="arch" type="xml">
+            <form string="Insurance dashboard" create="0" delete="0" edit="0">
+                <header>
+                    <button name="action_refresh" type="object" string="Refresh" icon="fa-refresh"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>Insurance dashboard</h1>
+                    </div>
+                    <field name="company_currency_id" invisible="1"/>
+                    <h3 class="mt-3">Expirations</h3>
+                    <div class="row g-3" name="expirations">
+                        <div class="col-6 col-lg-3">
+                            <button name="action_open" type="object" context="{'dashboard_key': 'expiring_30'}" class="btn btn-light border w-100 h-100 text-start p-3">
+                                <div class="fs-2 fw-bold text-warning"><field name="expiring_30_count"/></div>
+                                <div>Expire in 30 days</div>
+                            </button>
+                        </div>
+                        <div class="col-6 col-lg-3">
+                            <button name="action_open" type="object" context="{'dashboard_key': 'expiring_60'}" class="btn btn-light border w-100 h-100 text-start p-3">
+                                <div class="fs-2 fw-bold"><field name="expiring_60_count"/></div>
+                                <div>Expire in 60 days</div>
+                            </button>
+                        </div>
+                        <div class="col-6 col-lg-3">
+                            <button name="action_open" type="object" context="{'dashboard_key': 'expiring_90'}" class="btn btn-light border w-100 h-100 text-start p-3">
+                                <div class="fs-2 fw-bold"><field name="expiring_90_count"/></div>
+                                <div>Expire in 90 days</div>
+                            </button>
+                        </div>
+                        <div class="col-6 col-lg-3">
+                            <button name="action_open" type="object" context="{'dashboard_key': 'expired'}" class="btn btn-light border w-100 h-100 text-start p-3">
+                                <div class="fs-2 fw-bold text-danger"><field name="expired_count"/></div>
+                                <div>Expired without renewal</div>
+                            </button>
+                        </div>
+                    </div>
+                    <h3 class="mt-4">Policies and cost</h3>
+                    <div class="row g-3" name="policies">
+                        <div class="col-6 col-lg-3">
+                            <button name="action_open" type="object" context="{'dashboard_key': 'in_force'}" class="btn btn-light border w-100 h-100 text-start p-3">
+                                <div class="fs-2 fw-bold text-success"><field name="in_force_count"/></div>
+                                <div>Policies in force</div>
+                            </button>
+                        </div>
+                        <div class="col-6 col-lg-3">
+                            <button name="action_open" type="object" context="{'dashboard_key': 'with_debt'}" class="btn btn-light border w-100 h-100 text-start p-3">
+                                <div class="fs-2 fw-bold text-danger"><field name="with_debt_count"/></div>
+                                <div>Policies with unpaid installments</div>
+                            </button>
+                        </div>
+                        <div class="col-12 col-lg-6" groups="insurance_management.group_insurance_see_amounts">
+                            <button name="action_open_cost" type="object" class="btn btn-light border w-100 h-100 text-start p-3">
+                                <div class="fs-2 fw-bold"><field name="cost_year_amount" widget="monetary" options="{'currency_field': 'company_currency_id'}"/></div>
+                                <div>Insurance cost this year (by branch and insurer)</div>
+                            </button>
+                        </div>
+                    </div>
+                    <h3 class="mt-4">Installments</h3>
+                    <div class="row g-3" name="installments">
+                        <div class="col-6 col-lg-3">
+                            <button name="action_open" type="object" context="{'dashboard_key': 'installments_month'}" class="btn btn-light border w-100 h-100 text-start p-3">
+                                <div class="fs-2 fw-bold"><field name="installments_month_count"/></div>
+                                <div>Installments due this month</div>
+                            </button>
+                        </div>
+                        <div class="col-6 col-lg-3" groups="insurance_management.group_insurance_see_amounts">
+                            <button name="action_open" type="object" context="{'dashboard_key': 'installments_month'}" class="btn btn-light border w-100 h-100 text-start p-3">
+                                <div class="fs-2 fw-bold"><field name="installments_month_pending" widget="monetary" options="{'currency_field': 'company_currency_id'}"/></div>
+                                <div>To pay this month</div>
+                            </button>
+                        </div>
+                        <div class="col-6 col-lg-3" groups="insurance_management.group_insurance_see_amounts">
+                            <button name="action_open" type="object" context="{'dashboard_key': 'installments_month'}" class="btn btn-light border w-100 h-100 text-start p-3">
+                                <div class="fs-2 fw-bold text-success"><field name="installments_month_paid" widget="monetary" options="{'currency_field': 'company_currency_id'}"/></div>
+                                <div>Paid this month</div>
+                            </button>
+                        </div>
+                        <div class="col-6 col-lg-3">
+                            <button name="action_open" type="object" context="{'dashboard_key': 'overdue_installments'}" class="btn btn-light border w-100 h-100 text-start p-3">
+                                <div class="fs-2 fw-bold text-danger"><field name="overdue_installment_count"/></div>
+                                <div>Overdue unpaid installments</div>
+                            </button>
+                        </div>
+                    </div>
+                    <h3 class="mt-4">Claims and surety bonds</h3>
+                    <div class="row g-3" name="claims">
+                        <div class="col-6 col-lg-3">
+                            <button name="action_open" type="object" context="{'dashboard_key': 'open_claims'}" class="btn btn-light border w-100 h-100 text-start p-3">
+                                <div class="fs-2 fw-bold"><field name="open_claim_count"/></div>
+                                <div>Open claims</div>
+                            </button>
+                        </div>
+                        <div class="col-6 col-lg-3">
+                            <button name="action_open" type="object" context="{'dashboard_key': 'stale_claims'}" class="btn btn-light border w-100 h-100 text-start p-3">
+                                <div class="fs-2 fw-bold text-warning"><field name="stale_claim_count"/></div>
+                                <div>Claims without movement</div>
+                            </button>
+                        </div>
+                        <div class="col-6 col-lg-3" groups="insurance_management.group_insurance_see_amounts">
+                            <button name="action_open" type="object" context="{'dashboard_key': 'claims_to_collect'}" class="btn btn-light border w-100 h-100 text-start p-3">
+                                <div class="fs-2 fw-bold"><field name="claims_to_collect" widget="monetary" options="{'currency_field': 'company_currency_id'}"/></div>
+                                <div>Claims to collect</div>
+                            </button>
+                        </div>
+                        <div class="col-6 col-lg-3">
+                            <button name="action_open" type="object" context="{'dashboard_key': 'open_sureties'}" class="btn btn-light border w-100 h-100 text-start p-3">
+                                <div class="fs-2 fw-bold"><field name="open_surety_count"/></div>
+                                <div>Open surety bonds</div>
+                                <div class="small text-muted" groups="insurance_management.group_insurance_see_amounts">
+                                    <field name="surety_guaranteed_amount" widget="monetary" options="{'currency_field': 'company_currency_id'}"/> guaranteed
+                                </div>
+                            </button>
+                        </div>
+                        <div class="col-6 col-lg-3">
+                            <button name="action_open" type="object" context="{'dashboard_key': 'sureties_to_release'}" class="btn btn-light border w-100 h-100 text-start p-3">
+                                <div class="fs-2 fw-bold text-warning"><field name="surety_to_release_count"/></div>
+                                <div>Sureties to release in 30 days</div>
+                            </button>
+                        </div>
+                    </div>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_server_insurance_dashboard" model="ir.actions.server">
+        <field name="name">Dashboard</field>
+        <field name="model_id" ref="model_insurance_dashboard"/>
+        <field name="state">code</field>
+        <field name="code">action = model.action_open_dashboard()</field>
+        <field name="group_ids" eval="[Command.link(ref('group_insurance_user'))]"/>
+    </record>
+</odoo>

@@ -22,6 +22,13 @@ COMPANY_FIELDS = {
     "go_live_date": "insurance_go_live_date",
     "opening_account_id": "insurance_opening_account_id",
     "opening_journal_id": "insurance_opening_journal_id",
+    "claim_journal_id": "insurance_claim_journal_id",
+    "claim_receivable_account_id": "insurance_claim_receivable_account_id",
+    "claim_recovery_account_id": "insurance_claim_recovery_account_id",
+    "surety_loss_account_id": "insurance_surety_loss_account_id",
+    "claim_stale_days": "insurance_claim_stale_days",
+    "surety_release_days": "insurance_surety_release_days",
+    "surety_release_send_mode": "insurance_surety_release_send_mode",
 }
 ACCOUNTING_GROUP = "account.group_account_manager"
 BATCH_SIZE_PARAM = "insurance_management.cron_batch_size"
@@ -126,6 +133,37 @@ class InsuranceSettings(models.TransientModel):
         string="Opening debt journal",
         domain="[('type', '=', 'purchase'), ('company_id', '=', company_id)]",
         groups=ACCOUNTING_GROUP,
+    )
+    claim_journal_id = fields.Many2one(
+        comodel_name="account.journal",
+        string="Claims journal",
+        domain="[('type', '=', 'general'), ('company_id', '=', company_id)]",
+        groups=ACCOUNTING_GROUP,
+    )
+    claim_receivable_account_id = fields.Many2one(
+        comodel_name="account.account",
+        string="Claims receivable account",
+        domain="[('account_type', '=', 'asset_receivable')]",
+        groups=ACCOUNTING_GROUP,
+    )
+    claim_recovery_account_id = fields.Many2one(
+        comodel_name="account.account",
+        string="Claims recovery account",
+        domain="[('account_type', 'in', ('income', 'income_other', 'expense', 'expense_direct_cost'))]",
+        groups=ACCOUNTING_GROUP,
+    )
+    surety_loss_account_id = fields.Many2one(
+        comodel_name="account.account",
+        string="Surety execution loss account",
+        domain="[('account_type', 'in', ('expense', 'expense_other', 'expense_direct_cost'))]",
+        groups=ACCOUNTING_GROUP,
+    )
+    claim_stale_days = fields.Integer(string="Claims without movement (days)")
+    surety_release_days = fields.Integer(string="Request the surety release (days before)")
+    surety_release_send_mode = fields.Selection(
+        selection=[("manual", "Manual"), ("automatic", "Automatic")],
+        string="Surety release request sending",
+        required=True,
     )
     # Initial load control (section 8.7): read only, never blocks.
     opening_unaccrued_total = fields.Monetary(
@@ -278,6 +316,6 @@ class InsuranceSettings(models.TransientModel):
             "name": name,
             "res_model": "mail.template",
             "view_mode": "list,form",
-            "domain": [("model", "=", "insurance.policy")],
+            "domain": [("model", "in", ("insurance.policy", "insurance.claim"))],
             "context": {"default_model": "insurance.policy"},
         }

@@ -134,6 +134,16 @@ class InsuranceEndorsement(models.Model):
         help="Data change: new producer of the policy.",
     )
     description = fields.Text(string="Description")
+    claim_id = fields.Many2one(
+        comodel_name="insurance.claim",
+        string="Claim",
+        readonly=True,
+        copy=False,
+        index="btree_not_null",
+        ondelete="set null",
+        help="Claim whose effect on the policy this endorsement applies "
+        "(total loss, sum rehabilitation, replacement, surety execution).",
+    )
 
     _number_policy_uniq = models.UniqueIndex(
         "(policy_id, endorsement_number) WHERE endorsement_number IS NOT NULL",
@@ -206,6 +216,8 @@ class InsuranceEndorsement(models.Model):
             endorsement._check_can_confirm()
             endorsement._apply_to_policy()
             endorsement.state = "confirmed"
+            if endorsement.claim_id:
+                endorsement.claim_id._on_endorsement_confirmed(endorsement)
             endorsement.policy_id._message_log(
                 body=Markup("%s <b>%s</b> (%s)")
                 % (
@@ -362,6 +374,25 @@ class InsuranceEndorsementLine(models.Model):
             if line.operation == "add" and not line.name:
                 raise ValidationError(self.env._("Describe the insured object to add."))
 
+    def _prepare_object_vals(self):
+        """Values of the insured object an "add" line creates (bridge modules
+        add their own links, e.g. the fleet vehicle)."""
+        self.ensure_one()
+        line = self.sudo()
+        endorsement = line.endorsement_id
+        return {
+            "policy_id": endorsement.policy_id.id,
+            "name": line.name,
+            "insured_item_id": line.insured_item_id.id,
+            "license_plate": line.license_plate,
+            "chassis_number": line.chassis_number,
+            "engine_number": line.engine_number,
+            "coverage": line.coverage,
+            "sum_insured": line.sum_insured,
+            "date_start": endorsement.effective_date,
+            "endorsement_in_id": endorsement.id,
+        }
+
     def _apply(self):
         """Apply the line to the policy objects (history is never deleted)."""
         self.ensure_one()
@@ -373,20 +404,7 @@ class InsuranceEndorsementLine(models.Model):
             # may run lazily, after the object has already been changed).
             line.old_sum_insured = line.object_id.sum_insured
         if self.operation == "add":
-            Object.sudo().create(
-                {
-                    "policy_id": endorsement.policy_id.id,
-                    "name": line.name,
-                    "insured_item_id": line.insured_item_id.id,
-                    "license_plate": line.license_plate,
-                    "chassis_number": line.chassis_number,
-                    "engine_number": line.engine_number,
-                    "coverage": line.coverage,
-                    "sum_insured": line.sum_insured,
-                    "date_start": endorsement.effective_date,
-                    "endorsement_in_id": endorsement.id,
-                }
-            )
+            Object.sudo().create(line._prepare_object_vals())
         elif self.operation == "remove":
             line.object_id._exclude(
                 endorsement.effective_date,

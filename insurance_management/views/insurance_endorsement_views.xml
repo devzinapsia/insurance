@@ -45,6 +45,7 @@
                         <group>
                             <field name="policy_id" readonly="state != 'draft' or context.get('default_policy_id')" options="{'no_create': True}"/>
                             <field name="type_id" readonly="state != 'draft'" options="{'no_create': True}"/>
+                            <field name="claim_id" invisible="not claim_id"/>
                             <field name="endorsement_number" readonly="state != 'draft'"/>
                         </group>
                         <group>

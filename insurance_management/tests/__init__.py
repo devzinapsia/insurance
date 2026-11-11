@@ -14,3 +14,6 @@ from . import test_endorsements
 from . import test_accounting_parameters
 from . import test_installments
 from . import test_import
+from . import test_claims
+from . import test_sureties
+from . import test_dashboard

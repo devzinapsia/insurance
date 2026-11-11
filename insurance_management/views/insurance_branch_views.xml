@@ -51,6 +51,15 @@
                                     <field name="analytic_distribution" widget="analytic_distribution" groups="analytic.group_analytic_accounting"/>
                                 </group>
                             </group>
+                            <group string="Claims and sureties" name="claim_accounts" groups="account.group_account_invoice,account.group_account_readonly">
+                                <group>
+                                    <field name="claim_receivable_account_id" options="{'no_create': True}" placeholder="Insurance settings account"/>
+                                    <field name="claim_recovery_account_id" options="{'no_create': True}" placeholder="Insurance settings account"/>
+                                </group>
+                                <group>
+                                    <field name="surety_loss_account_id" options="{'no_create': True}" placeholder="Insurance settings account"/>
+                                </group>
+                            </group>
                         </page>
                         <page name="notes" string="Notes">
                             <field name="note" placeholder="Internal notes about this branch..."/>

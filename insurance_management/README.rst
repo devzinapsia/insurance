@@ -7,17 +7,28 @@ the insured party, not a broker): policies by branch, their validity, renewal
 and non-renewal, insured objects, expiry alerts, documents and settings.
 
 This module is delivered in phases (see ``docs/ROADMAP.md`` in the
-repository). Phase 1, "expiry control", and phase 2, "economic and accounting
+repository). Phase 1, "expiry control", phase 2, "economic and accounting
 management" (endorsements, installments, vendor bills, payments, accrual,
-foreign currency, initial load and import), are included; fleet and employee
-integrations, claims, surety bonds and the dashboard arrive in phase 3.
+foreign currency, initial load and import), and phase 3, "claims, surety
+bonds and integrations" (claims and recovery accounting, surety bonds until
+release, the dashboard, and the Fleet, Employees, Sales and Projects
+bridges), are included.
 
-Three bridge modules install automatically when their dependency is present:
-``insurance_management_account_accountant`` (Enterprise deferred expenses as
-accrual method), ``insurance_management_l10n_latam_check`` (own deferred
-checks for the installments) and
-``insurance_management_account_payment_pro`` (adhoc's payments: the payment
-of an installment lists only that installment line in its debts).
+Bridge modules install automatically when their dependency is present:
+
+* ``insurance_management_account_accountant``: Enterprise deferred expenses
+  as accrual method.
+* ``insurance_management_l10n_latam_check``: own deferred checks for the
+  installments.
+* ``insurance_management_account_payment_pro``: adhoc's payments (the
+  payment of an installment lists only that installment line in its debts).
+* ``insurance_management_fleet``: fleet vehicles as insured objects,
+  automatic link by license plate, insurance history, claims and "insured
+  today" on the vehicle, vehicles without insurance in force.
+* ``insurance_management_hr``: employees as insured objects (personal
+  accident, life), with their insurance history and claims.
+* ``insurance_management_sale`` and ``insurance_management_project``: link a
+  surety bond to the sale order or the project it guarantees.
 
 Currently included:
 
@@ -362,15 +373,99 @@ Reports (phase 2)
   currency and in the original currency.
 * The *Policy sheet* PDF now lists the endorsements and the installments.
 
+Claims (phase 3)
+----------------
+
+* **Insurance ‣ Policies ‣ Claims** (also the *Claims* smart button and the
+  *New claim* button of the policy): internal reference numbered per company
+  and year (``SIN/2026/0001``), insurer's claim number, policy and affected
+  object, type (own damage, theft, civil liability, personal accident,
+  surety execution), dates (occurrence, report, approval, estimated and real
+  collection), place, account of the events, third parties, adjuster,
+  workshop or supplier, and the amounts: estimated damage, deductible,
+  claimed, approved, collected and the difference between claimed and
+  collected. A warning shows when the policy was not in force on the date
+  of occurrence. Documents tab with the claim document types (claim report,
+  photos, repair budget, adjuster report).
+* **States**: Draft, Reported, Under analysis, Approved, Rejected, Collected
+  and Closed. *Collected* is not a button: it is set when the claim
+  receivable is fully reconciled (bank reconciliation, a payment registered
+  on it, adhoc's customer receipt, an offset).
+* **Approval entry** (section 8.6), in the claims journal: debit the claims
+  receivable account (type *Receivable*, partner = insurer, due on the
+  estimated collection date) against the recovery account (with the policy
+  analytic distribution). Its reference is ``<internal number> - <insurer
+  number>``, so Odoo's bank reconciliation proposes the claim when the
+  transfer quotes either number, or by partner and exact amount. Approving
+  an entry needs the accounting *Invoicing* rights; without money involved
+  (replacement of the item, nothing approved) an insurance user approves on
+  their own. *Cancel approval* reverses the entry while nothing was
+  collected. The deductible is informative: it stays as the net expense.
+* **Collection**: register the payment on the claim receivable or reconcile
+  the bank statement line. A partial collection keeps the rest pending;
+  *Close with difference* writes it off against the recovery account.
+* **Offsets** (button *Offset*): the unpaid premium the insurer discounts
+  from the indemnity (the offset installments are paid and their draft
+  payments cancelled; a posted payment blocks the offset), or the bill of
+  the workshop the insurer paid directly. One entry in the claims journal,
+  without money.
+* **Effect on the policy**: *No effect*; *Reduces the sum insured* (the
+  object shows the sum available; *Rehabilitate the sum insured* prepares
+  the endorsement); *Total loss* (*Remove the object* prepares the removal
+  endorsement; removing the last object cancels the policy with a real
+  cancellation endorsement: installments not billed cancelled, accrual
+  closed, cancellation reason shown on the policy; *Insure replacement*
+  prepares an *Add object* endorsement, or a new draft policy when the
+  policy already ended); *Surety execution* (see below).
+* **Claims without movement**: the scheduled action *Insurance: claims
+  without movement* reminds the responsible every *Claims without movement
+  (days)* of the settings; amounts only for recipients allowed to see them.
+* **Reporting ‣ Claims and recoveries**: pivot and graph of the claimed,
+  approved and collected amounts and their difference.
+
+Surety bonds (phase 3)
+----------------------
+
+* A **surety bond** is a policy of a branch of type *Contract*. Its tab
+  *Surety bond* holds the beneficiary, the surety type (bid, performance,
+  advance payment, retention, rental, customs, judicial), the guaranteed
+  obligation (and the sale order or project with the bridges), the
+  guaranteed amount, the obligation end and the guarantee status: Issued,
+  Delivered to the beneficiary, Released, Returned to the insurer, Executed.
+* **Release** requires a *Surety release certificate* among the policy
+  documents; it then opens the email to the producer to stop the billing.
+* **Renewal type "Until release"**: the policy does not expire while the
+  guarantee is open; past its end date it stays Expiring (and covered), and
+  the responsible gets one activity to renew it or get the release. Released,
+  it ends as Not renewed. Renewals copy the guarantee; only the last policy
+  of the chain counts in the lists and alerts.
+* **Release request**: the settings' *Request the surety release (days
+  before)* the obligation end, either an activity for the responsible
+  (*Manual*, button *Request release*) or the email to the beneficiary, or
+  the producer when the beneficiary has no email (*Automatic*).
+* **Execution**: a claim of type *Surety execution* inverts the accounting:
+  the approval debits the surety execution loss account against the debt
+  with the insurer (payable, partner = insurer); the guarantee becomes
+  Executed and the policy is cancelled.
+* **Insurance ‣ Policies ‣ Surety bonds** and **Reporting ‣ Surety bonds by
+  beneficiary** list them, with the guaranteed amounts.
+
+Dashboard (phase 3)
+-------------------
+
+**Insurance ‣ Dashboard**: expirations in 30, 60 and 90 days, expired
+without renewal, policies in force and with unpaid installments, insurance
+cost of the year, installments of the month (to pay and paid), overdue
+installments, open claims, claims without movement and to collect, open
+surety bonds and those to release in 30 days (and, with the Fleet bridge,
+vehicles without insurance in force). Each figure opens its records.
+
 What comes next
 ---------------
 
-* **Phase 3 — claims, surety bonds and integrations**: Fleet and Employees
-  bridge modules (vehicles and employees as insured objects, "Insurance (n)"
-  history buttons, "insured today", insured payroll), claims and recovery
-  accounting, surety bonds until release, and the insurance dashboard.
 * **Backlog** (only on request): renewal quotations and year-on-year
-  comparison, coverage certificates for third parties, producer portal.
+  comparison, coverage certificates for third parties, producer portal,
+  automatic insured payroll (endorsements on hiring and leaving).
 
 **Table of contents**
 
@@ -436,6 +531,19 @@ Configuration
    settings, section *Payments*.
 #. Optionally, set a product, an expense account, an analytic distribution
    and a billing mode per branch (tab *Accounting* of the branch).
+#. Claims and surety bonds (phase 3), in **Insurance ‣ Configuration ‣
+   Settings**:
+
+   * Section *Claims and sureties*: *Claims without movement (days)*
+     (default 30, zero disables the reminders), *Request the surety release
+     (days before)* (default 30) and its sending, *Manual* or *Automatic*.
+   * Section *Claims accounting* (accounting administrator): the *Claims
+     journal* (miscellaneous), the *Claims receivable account* (type
+     *Receivable*, reconcilable), the *Claims recovery account* and the
+     *Surety execution loss account*. A branch can use its own claim
+     accounts (tab *Accounting* of the branch).
+#. With the Fleet bridge, mark *Requires fleet vehicle* on the vehicle
+   branches whose objects must always be a fleet vehicle.
 
 Usage
 =====
@@ -517,6 +625,30 @@ Initial load
 * Post the opening entry (prepaid insurance balance) and check that the
   *Opening difference* of the settings is zero. Link the opening bills of
   the insurers to their policies from the bill (*Insurance policy* field).
+
+Claims
+------
+
+* From the policy, **New claim** (or **Insurance ‣ Policies ‣ Claims**, or
+  the *Claims* button of a vehicle or an employee): choose the affected
+  object, the type, the effect on the policy and the recovery destination,
+  load the amounts and the documents, then **Report to the insurer**,
+  **Under analysis** and **Approve** (posts the approval entry).
+* Collect it from the bank reconciliation or with **Register payment** on
+  the claim receivable; or **Offset** it against the unpaid premium or the
+  workshop bill; **Close with difference** when the insurer pays less.
+* Total loss: **Remove the object**, confirm the endorsement and, if
+  needed, **Insure replacement**.
+
+Surety bonds
+------------
+
+* Load the policy in the *Surety* branch with the renewal type *Until
+  release* and the tab *Surety bond*; **Delivered to the beneficiary** when
+  it is handed over.
+* Before the obligation ends, **Request release**. When the certificate
+  arrives, upload it (type *Surety release certificate*) and **Release**:
+  send the email to the producer, then **Returned to the insurer**.
 
 Testing the emails by running the process by hand
 --------------------------------------------------

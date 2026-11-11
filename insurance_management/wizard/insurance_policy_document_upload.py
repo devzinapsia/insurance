@@ -1,4 +1,5 @@
 from odoo import fields, models
+from odoo.exceptions import UserError
 
 
 class InsurancePolicyDocumentUpload(models.TransientModel):
@@ -8,8 +9,13 @@ class InsurancePolicyDocumentUpload(models.TransientModel):
     policy_id = fields.Many2one(
         comodel_name="insurance.policy",
         string="Policy",
-        required=True,
         readonly=True,
+    )
+    claim_id = fields.Many2one(
+        comodel_name="insurance.claim",
+        string="Claim",
+        readonly=True,
+        help="Set when the document is uploaded to a claim instead of a policy.",
     )
     document_type_id = fields.Many2one(
         comodel_name="insurance.document.type",
@@ -25,16 +31,19 @@ class InsurancePolicyDocumentUpload(models.TransientModel):
 
     def action_upload(self):
         self.ensure_one()
+        record = self.claim_id or self.policy_id
+        if not record:
+            raise UserError(self.env._("Choose the policy or the claim of the document."))
         self.env["ir.attachment"].create(
             {
                 "name": self.description or self.filename or self.document_type_id.name,
                 "datas": self.file,
-                "res_model": "insurance.policy",
-                "res_id": self.policy_id.id,
+                "res_model": record._name,
+                "res_id": record.id,
                 "insurance_document_type_id": self.document_type_id.id,
             }
         )
-        self.policy_id._message_log(
+        record._message_log(
             body=self.env._(
                 "Document uploaded: %(name)s (%(type)s)",
                 name=self.description or self.filename,
