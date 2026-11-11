@@ -34,6 +34,7 @@ FORMAT_VERSION = 1
 ARTICLES = [
     ("guia", None, "Gestión de seguros – Guía de implementación", "🛡️", "00_inicio.html"),
     ("conceptos", "guia", "Conceptos y alcance", "📘", "01_conceptos.html"),
+    ("cauciones", "conceptos", "Qué es una caución", "🤝", "01a_cauciones.html"),
     ("puesta_en_marcha", "guia", "Puesta en marcha", "🚀", "02_puesta_en_marcha.html"),
     ("parametrizacion_contable", "puesta_en_marcha", "Parametrización contable", "🧮", "02a_parametrizacion_contable.html"),
     ("cargar_poliza", "guia", "Cargar una póliza", "📝", "03_cargar_poliza.html"),

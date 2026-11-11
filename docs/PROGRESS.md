@@ -16,7 +16,7 @@ Branch: `19.0` (never touch `main` or `20.0`). Odoo source: `ODOO_19_SRC` from
 | --- | --- |
 | Fase 1 — Control de vencimientos | Complete on branch 19.0, deployed to grupolara staging2 for testing — Hito 1 pending (the user confirms production use) |
 | Fase 2 — Gestión económica y contable | All stages (a)-(i) done 2026-11-03 + Knowledge guide updated; awaiting the user's commit/push confirmation, then grupolara staging2 testing. Ran IN PARALLEL with Fase 1 testing (Hito 1 not confirmed yet) |
-| Fase 3 — Siniestros, cauciones e integraciones | Not started (needs "arrancá la Fase 3" + Hito 2) |
+| Fase 3 — Siniestros, cauciones e integraciones | Started 2026-11-11 ("arrancá la Fase 3") in parallel with Fase 2 staging tests, Hito 2 NOT confirmed yet. Developed directly on `19.0` (user 2026-11-11: "mergea todo a 19.0... este módulo no está en producción"; the temporary `19.0-fase3` branch was merged and deleted). Paso 0 delivered, waiting for the user's answers |
 
 ### Fase 1 stages
 
@@ -581,6 +581,79 @@ notify the user, then commit and push only with their confirmation.
   could not reset to draft / read totals (sudo on accounting reads, grouped
   columns); Odoo's python term extractor took the technical keys after
   `_lt()` inside tuples as terms (template columns now dicts).
+
+## Fase 3 — Paso 0 findings (2026-11-11)
+
+Working agreement: Fase 3 is developed directly on `19.0` together with the
+Fase 2 fixes (user, 2026-11-11: the module is not in production, they test
+everything together on staging2). Base module version for Fase 3:
+19.0.3.0.0. No code before the Paso 0 answers.
+
+Current code (VERIFIED by reading it):
+- Base depends on mail, contacts, account only. No fleet / hr / claim /
+  surety code yet. `insurance.branch.object_type` has vehicle / person /
+  property / contract / generic; `insurance.policy.object` has plate,
+  chassis, engine, `insured_item_id` (master for property items only).
+- Reusable for claim effects: endorsement kinds `remove_object` (line
+  `exclusion_reason`), `cancellation` (sets the policy Cancelled, cancels
+  installments not locked, `_close_accrual_plan(effective_date)`),
+  `increase_sum` (sum rehabilitation).
+- Odoo 19 fleet: `fleet.vehicle.license_plate`, `vin_sn` (chassis),
+  `active`, `company_id`, `write_off_date`; `account_fleet` adds
+  `vehicle_id` on bill lines (repair bill of a vehicle claim).
+- Client (grupolara staging2): fleet / hr from Odoo, ingadhoc hr modules are
+  UX only, zinapsia/rrhh has `hr_ar_base`; sale and project available;
+  zinapsia/dashboards has `dashboards_base` + account dashboards (other repo).
+
+VERIFIED in local DBs, changes rolled back (insurance_ent_test Enterprise,
+insurance_apro_test with account_payment_pro):
+- Claims receivable account must be `asset_receivable` (reconcilable):
+  `account.payment.register` on the claim line (active_model
+  account.move.line) creates an inbound payment and reconciles it. With a
+  reconcilable `asset_current` account the wizard refuses ("nothing left to
+  pay"). So the claim appears in receivable aging and cash forecast.
+- Enterprise bank reconciliation (`_try_auto_reconcile_statement_lines`)
+  already matches the claim line with no custom reconcile model: by
+  reference (move `ref` = claim number, found inside the statement label)
+  and by partner + exact residual. Odoo 19 reconcile models have no
+  "invoice matching" rule type anymore, so the document's "modelo de
+  conciliación incluido" is replaced by: claim entry ref = claim number,
+  partner = insurer, maturity = estimated collection date.
+- account_payment_pro: a CUSTOMER inbound payment from the insurer
+  auto-fills `to_pay_move_line_ids` with the claim receivable line only
+  (open premium bills are not picked); a SUPPLIER payment picks the bills
+  only. Collecting a claim with adhoc's receipt works without a bridge.
+- Claim state Collected must be derived from the claim line reconciliation
+  (residual 0), as installments do, so bank rec, a manual payment and adhoc
+  receipts all move it.
+
+TO VERIFY in the stages:
+- Fleet auto-link through renewal copy, endorsement add lines and import.
+- Offset entries (unpaid premium discounted from the indemnity; direct
+  payment to the workshop) with account_payment_pro installed.
+- Upgrade 19.0.2.0.5 -> 19.0.3.0.0 with data, new bridges installed by the
+  post-migrate (same rule as 19.0.2.0.5).
+
+Paso 0 answers (user, 2026-11-11):
+- Q2 surety execution entry: debit "Loss on surety executions" (configurable
+  account), credit payable to the insurer (partner = insurer). Confirmed.
+- Guide: new child article "Qué es una caución" under "Conceptos y alcance"
+  (`01a_cauciones.html`, concept + module summary flagged as Fase 3 in
+  development), user request.
+
+Proposed stages (pending confirmation):
+| Stage | Scope |
+| --- | --- |
+| (a) | Claim settings (accounts, journal, days without movement), branch overrides, `insurance.claim` model, sequence, security, views, menus, documents |
+| (b) | Claim accounting: approval entry, collection, close with difference, offsets (unpaid premium, direct payment to the workshop) |
+| (c) | Claim effect on the policy: none / reduces the sum insured / total loss / surety execution, replacement |
+| (d) | Surety data (4.7), guarantee states, release with mandatory document, renewal type "Until release", release request and producer notice templates |
+| (e) | Crons and alerts (claims without movement, surety release), reports: claims and recoveries, sureties by beneficiary |
+| (f) | Bridge `insurance_management_fleet` |
+| (g) | Bridge `insurance_management_hr` |
+| (h) | Surety obligation bridges for sale / project (only if confirmed) |
+| (i) | Dashboard |
+| (j) | i18n, migration, upgrade with data, guide (claims, sureties, fleet, HR, accounting setup), manual test cases |
 
 ## User guide (Knowledge)
 
