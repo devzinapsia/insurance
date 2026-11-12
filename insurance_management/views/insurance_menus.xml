@@ -3,7 +3,7 @@
     <menuitem id="menu_insurance_root"
               name="Insurance"
               web_icon="insurance_management,static/description/icon.png"
-              action="insurance_policy_action"
+              action="action_server_insurance_dashboard"
               groups="group_insurance_user"
               sequence="60"/>
 
