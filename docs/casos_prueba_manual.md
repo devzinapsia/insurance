@@ -41,7 +41,7 @@ Convenciones:
 
 ### 0.1 Instalación y permisos
 1. Verificar en **Aplicaciones** que estén instalados *Gestión de seguros*
-   (19.0.3.0.1) y, si la base tiene Contabilidad Enterprise, cheques y los
+   (19.0.3.0.2) y, si la base tiene Contabilidad Enterprise, cheques y los
    pagos de adhoc, los puentes *Gestión de seguros - Diferidos de
    Enterprise*, *Gestión de seguros - Cheques propios* y *Gestión de
    seguros - Pagos de adhoc*. Con Flota, Empleados, Ventas y Proyectos
@@ -721,11 +721,15 @@ chatter) y no aparece en la póliza de incendio.
 la orden de venta y el proyecto muestran el botón **Cauciones**.
 
 ### 8.12 Tablero y permisos
-1. **Seguros › Tablero** con su usuario y con U1.
+1. Abrir la app **Seguros** desde el menú de aplicaciones, con su usuario y
+   con U1.
 2. Con U1 (sin Contabilidad), intentar **Aprobar** un siniestro con importe
    aprobado.
 
-**Esperado**: cada número abre sus registros; U1 no ve importes si *Ocultar
+**Esperado**: la app abre directamente en el **Tablero**, que ocupa todo el
+ancho de la pantalla, sin título repetido debajo de **Actualizar**. Con
+Flota, *Vehículos sin seguro vigente* queda en la misma fila que las pólizas
+y el costo. Cada número abre sus registros; U1 no ve importes si *Ocultar
 costos* está activo; U1 no puede aprobar con asiento (mensaje de permisos),
 sí puede aprobar uno sin importe.
 

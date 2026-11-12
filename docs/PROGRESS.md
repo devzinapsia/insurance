@@ -716,6 +716,17 @@ Stages (confirmed 2026-11-11; status updated at the end of each stage):
 | (i) | Dashboard | Done 2026-11-11 (227 Community tests OK with every bridge installed; i18n/docs in (j)) |
 | (j) | i18n, migration, upgrade with data, guide (claims, sureties, fleet, HR, accounting setup), manual test cases | Done 2026-11-11 |
 
+### 19.0.3.0.2 — Dashboard layout and app home (2026-11-12, user bug report)
+- Dashboard form without `<sheet>` (a sheet caps the width at 1400px, leaving
+  an empty band on the right) and without the repeated "Insurance dashboard"
+  title under Refresh. Cost card gets `name="cost"`; the fleet bridge
+  (19.0.1.1.1) narrows it to `col-lg-3` so "Vehicles without insurance in
+  force" sits on the same row.
+- The Insurance root menu opens the dashboard (server action) instead of the
+  policy list.
+- Tests 227 OK (base + fleet + documents, Enterprise DB). Not checked in a
+  browser (no local login available in this session).
+
 ### 19.0.3.0.1 — Documents bridge and manual vehicle link (2026-11-11, user request)
 
 - New bridge `insurance_management_documents` (depends documents,
