@@ -95,3 +95,24 @@ class TestInsuranceDocuments(InsuranceAccountingCommon):
         self.assertEqual(self._document(attachment).folder_id, self.folder)
         post_init_hook(self.env)
         self.assertEqual(len(self._document(attachment)), 1)
+
+    def test_install_hook_silent_on_unreadable_pdf(self):
+        """An encrypted or malformed PDF must not log a traceback while the
+        existing files are documented (odoo.sh fails the build on it)."""
+        policy = self._policy()
+        attachment = self.env["ir.attachment"].with_context(no_document=True).create(
+            {
+                "name": "Encrypted policy.pdf",
+                "datas": base64.b64encode(b"%PDF-1.4\nnot a readable pdf"),
+                "mimetype": "application/pdf",
+                "res_model": "insurance.policy",
+                "res_id": policy.id,
+            }
+        )
+        with self.assertNoLogs("odoo.addons.documents", level="WARNING"):
+            post_init_hook(self.env)
+            # The page count is a stored compute: it runs on flush.
+            self.env.flush_all()
+        document = self._document(attachment)
+        self.assertEqual(document.folder_id, self.folder)
+        self.assertFalse(document.is_multipage)

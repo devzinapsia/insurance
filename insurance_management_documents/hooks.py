@@ -1,4 +1,11 @@
+from odoo.tools import mute_logger
+
 INSURANCE_MODELS = ("insurance.policy", "insurance.claim")
+# Documents logs a warning with a traceback for every PDF it cannot read
+# (encrypted, malformed) while counting its pages, and odoo.sh fails the
+# build on a traceback logged during an update. The document is still
+# created, counted as a single page, as Documents does on any reading error.
+DOCUMENTS_LOGGER = "odoo.addons.documents.models.documents_document"
 
 
 def post_init_hook(env):
@@ -12,5 +19,7 @@ def post_init_hook(env):
         [("attachment_id.res_model", "in", INSURANCE_MODELS)]
     ).attachment_id
     attachments = Attachment.search([("res_model", "in", INSURANCE_MODELS), ("res_field", "=", False)]) - documented
-    for attachment in attachments:
-        attachment._create_document({"res_model": attachment.res_model, "res_id": attachment.res_id})
+    with mute_logger(DOCUMENTS_LOGGER):
+        for attachment in attachments:
+            attachment._create_document({"res_model": attachment.res_model, "res_id": attachment.res_id})
+        env.flush_all()
