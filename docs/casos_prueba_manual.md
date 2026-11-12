@@ -41,12 +41,13 @@ Convenciones:
 
 ### 0.1 Instalación y permisos
 1. Verificar en **Aplicaciones** que estén instalados *Gestión de seguros*
-   (19.0.3.0.0) y, si la base tiene Contabilidad Enterprise, cheques y los
+   (19.0.3.0.1) y, si la base tiene Contabilidad Enterprise, cheques y los
    pagos de adhoc, los puentes *Gestión de seguros - Diferidos de
    Enterprise*, *Gestión de seguros - Cheques propios* y *Gestión de
    seguros - Pagos de adhoc*. Con Flota, Empleados, Ventas y Proyectos
    instalados, también *Gestión de seguros - Flota*, *- Empleados*,
-   *- Ventas* y *- Proyectos* (se instalan solos al actualizar).
+   *- Ventas*, *- Proyectos* y, con la app Documentos, *- Documentos* (se
+   instalan solos al actualizar).
 2. Crear (o elegir) tres usuarios de prueba:
    - **U1**: Seguros / Usuario, sin permisos de Contabilidad.
    - **U2**: Seguros / Administrador.
@@ -701,11 +702,15 @@ y la póliza a *Anulada*; *Cancelar aprobación* no está permitido.
 4. En Flota, filtro **Sin seguro vigente**.
 5. En el ramo *Automotor*, marcar **Requiere vehículo de flota** y confirmar
    una póliza con un objeto de patente inexistente.
+6. Desmarcarlo, confirmar esa póliza y usar **Vincular vehículos de flota**
+   para elegirle el vehículo. Abrir una póliza de incendio confirmada.
 
 **Esperado**: los objetos quedan vinculados a sus vehículos; el vehículo
 dice *Asegurado* y lista la póliza; el filtro muestra los vehículos sin
 póliza vigente; la póliza con patente inexistente no se confirma. Los
-objetos cargados antes de actualizar quedaron vinculados solos.
+objetos cargados antes de actualizar quedaron vinculados solos. El botón
+**Vincular vehículos de flota** vincula el vehículo sin endoso (queda en el
+chatter) y no aparece en la póliza de incendio.
 
 ### 8.11 Empleados, ventas y proyectos
 1. Póliza de *Accidentes personales* con objetos que eligen empleados.
@@ -723,6 +728,22 @@ la orden de venta y el proyecto muestran el botón **Cauciones**.
 **Esperado**: cada número abre sus registros; U1 no ve importes si *Ocultar
 costos* está activo; U1 no puede aprobar con asiento (mensaje de permisos),
 sí puede aprobar uno sin importe.
+
+### 8.13 Carpeta Seguros en Documentos (solo con la app Documentos)
+1. En **Aplicaciones**, verificar *Gestión de seguros - Documentos*
+   instalado.
+2. Con U1 (Seguros / Usuario, sin Documentos), cargar un documento en una
+   póliza y otro en un siniestro.
+3. Con un usuario *Documentos / Usuario* que no sea miembro, abrir
+   **Documentos**.
+4. Con un *Administrador del sistema* de Documentos, abrir la carpeta
+   **Seguros**, **Compartir** y agregar a ese usuario como *Lector*.
+5. Mandar un documento a la papelera desde Documentos.
+
+**Esperado**: U1 carga y ve sus archivos desde la póliza; en la carpeta
+Seguros aparecen con la etiqueta *Póliza de seguro* / *Siniestro* y la
+aseguradora; el usuario no miembro no ve la carpeta y, una vez agregado, la
+ve con todos sus archivos; el documento en la papelera sigue en la póliza.
 
 ---
 

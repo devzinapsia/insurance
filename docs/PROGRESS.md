@@ -716,6 +716,30 @@ Stages (confirmed 2026-11-11; status updated at the end of each stage):
 | (i) | Dashboard | Done 2026-11-11 (227 Community tests OK with every bridge installed; i18n/docs in (j)) |
 | (j) | i18n, migration, upgrade with data, guide (claims, sureties, fleet, HR, accounting setup), manual test cases | Done 2026-11-11 |
 
+### 19.0.3.0.1 — Documents bridge and manual vehicle link (2026-11-11, user request)
+
+- New bridge `insurance_management_documents` (depends documents,
+  auto_install): `insurance.documents.mixin` (documents.mixin) on policies
+  and claims -> every attachment also becomes a document of the company
+  folder (default data folder "Insurance", restricted: access_internal
+  none, access_via_link none), tags "Insurance policy" / "Insurance claim",
+  partner = insurer. Company `insurance_documents_settings` (default on) +
+  `insurance_documents_folder_id` in Documents settings (files
+  centralization block, like documents_fleet). post_init_hook sets the
+  folder and documents the existing policy / claim attachments
+  (idempotent). VERIFIED: restricted folder is seen only by members
+  (documents.access) and Documents System Administrators, not by Documents
+  Administrators; sharing the folder gives access to existing and new
+  documents; insurance users without Documents rights upload fine;
+  trashing a document keeps the attachment on the policy, deleting it for
+  good deletes the attachment. Install/uninstall/reinstall cycle clean
+  (Enterprise DB); 19.0.3.0.1 post-migrate installs it on update.
+- Fleet bridge 19.0.1.1.0: wizard "Link fleet vehicles" (policy header,
+  only confirmed policies of vehicle branches) writes `vehicle_id` with
+  MASTER_LINK_CTX and logs the changes on the policy.
+- Guide: Documentos (access table), Flota y empleados, Permisos, Novedades
+  19.0.3.0.1; test cases 8.10 (manual link) and 8.13 (Documents).
+
 ## User guide (Knowledge)
 
 - `docs/guia_usuario/`: end-user implementation guide in Spanish, one HTML
@@ -755,7 +779,7 @@ Stages (confirmed 2026-11-11; status updated at the end of each stage):
 | 2026-11-10 | grupolara / staging2 | 04b0f68 | ba16794 (19.0.2.0.3: running policy installments, suggested amount to accrue, due debits) | Submodule update only; grupolara staging untouched. |
 | 2026-11-05 | grupolara / staging2 | b93128f | 0974ae9 (19.0.2.0.2: warning on zero premium, test cases explain scheduled actions) | Submodule update only; grupolara staging untouched. |
 | 2026-11-04 | grupolara / staging2 | 2d2d069 | 41396b9 (19.0.2.0.1: Not started state, insurable item history, type descriptions) | Submodule update only; grupolara staging untouched (user: "no actualizar staging"). |
-| — | grupolara / staging2 | — | 19.0.3.0.0 (Fase 3) | NOT deployed yet: waiting for the user's confirmation. |
+| 2026-11-11 | grupolara / staging2 | 0d71856 | cb18b40 (19.0.3.0.0: Fase 3 + bridges fleet, hr, sale, project) | Submodule update only. The upgrade installs the Fase 3 bridges whose apps are installed (post-migrate) and links the vehicle objects by plate. Test with docs/casos_prueba_manual.md level 8. Hito 2 pending (claim entries). |
 | 2026-11-03 | grupolara / staging2 | 17f835f | 02e32c8 (19.0.2.0.0: Fase 2 + 2 bridges) | Submodule update only. The 19.0.2.0.0 upgrade installs the bridges insurance_management_account_accountant and insurance_management_l10n_latam_check when their dependencies are installed. To test with docs/casos_prueba_manual.md. |
 | 2026-11-03 | grupolara / staging2 | 0c62ef0 | 40cdbed (19.0.1.0.1: staging bugs 1-2) | Submodule update only (`git submodule update --remote --merge -- zinapsia/insurance`). |
 | 2026-11-03 | grupolara / staging2 | a6bd5ef | 32b5ce7 (Fase 1) | New submodule `zinapsia/insurance` (branch 19.0, public repo, no deploy key needed). Module `insurance_management` 19.0.1.0.0 is NOT auto-installed: install "Gestión de seguros" from Apps. main and staging untouched. |

@@ -13,3 +13,18 @@
 <p>En pólizas <em>Vencidas</em>, <em>Renovadas</em> o <em>No renovadas</em> se pueden seguir cargando documentos y asignando tipos, aunque el resto de la póliza sea de solo lectura.</p>
 <p>Los documentos respetan los permisos de la póliza: un usuario que no ve la póliza tampoco ve sus documentos.</p>
 <p>Los <strong>siniestros</strong> tienen su propia pestaña <strong>Documentos</strong>, con el mismo botón <strong>Cargar documento</strong>. Para liberar una caución hay que cargar en la póliza un documento de tipo <strong>Constancia de liberación de caución</strong>.</p>
+<h2>Carpeta Seguros en la app Documentos (Enterprise)</h2>
+<p>Si la base tiene la app <strong>Documentos</strong> de Enterprise, se instala solo el puente <em>Gestión de seguros - Documentos</em>. Desde ese momento, cada archivo que se adjunta a una póliza o a un siniestro (pestaña Documentos, botón <strong>Cargar documento</strong> o el chatter) aparece también en la carpeta <strong>Seguros</strong> de Documentos, con la etiqueta <em>Póliza de seguro</em> o <em>Siniestro</em> y la aseguradora como contacto. Al instalarlo, los archivos que ya estaban se agregan igual.</p>
+<p>La configuración está en <strong>Documentos › Configuración › Ajustes</strong>, sección <em>Centralización de archivos</em>: <strong>Centralizar los documentos de seguros</strong> (activo por defecto) y la carpeta, por compañía.</p>
+<h3>Qué acceso necesita cada usuario</h3>
+<table class="table table-bordered">
+<thead><tr><th>Para…</th><th>Hace falta</th></tr></thead>
+<tbody>
+<tr><td>Cargar y ver los documentos desde la póliza o el siniestro</td><td>Solo el permiso de <strong>Seguros</strong> (Usuario o Administrador). <strong>No</strong> hace falta ningún permiso de Documentos: los archivos llegan a la carpeta igual.</td></tr>
+<tr><td>Ver la carpeta Seguros en la app Documentos</td><td>Permiso <strong>Documentos / Usuario</strong> y ser <strong>miembro</strong> de la carpeta Seguros con rol <em>Lector</em>.</td></tr>
+<tr><td>Ordenar, mover o eliminar archivos desde Documentos</td><td>Permiso <strong>Documentos / Usuario</strong> y ser miembro de la carpeta con rol <em>Editor</em>.</td></tr>
+<tr><td>Agregar miembros a la carpeta</td><td>Un <strong>Administrador del sistema</strong> de Documentos (ve todas las carpetas) o un miembro <em>Editor</em> de la carpeta: abre la carpeta Seguros, <strong>Compartir</strong>, y agrega a las personas con su rol.</td></tr>
+</tbody>
+</table>
+<div class="alert alert-warning" role="alert"><p>La carpeta Seguros se crea <strong>restringida</strong>: ni siquiera el <em>Administrador</em> de Documentos la ve si no es miembro; solo el <em>Administrador del sistema</em> de Documentos ve todo. Si quiere que la vean todos los usuarios internos, cambie el acceso de la carpeta para usuarios internos a <em>Lector</em>. La opción <em>Ocultar costos</em> de Seguros no aplica dentro de Documentos: si los archivos (por ejemplo, el PDF de la póliza) muestran importes, compártala solo con quien pueda verlos.</p></div>
+<p>Mandar un documento a la <strong>papelera</strong> en Documentos no lo saca de la póliza. <strong>Eliminarlo definitivamente</strong> lo borra también de la póliza o del siniestro.</p>
