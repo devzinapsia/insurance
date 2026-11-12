@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Restricted folder: only its members (shared by a Documents
+             administrator) and the Documents system administrators see it.
+             The files keep being visible from the policies and claims for
+             every insurance user. -->
+        <record id="documents_insurance_folder" model="documents.document" forcecreate="0">
+            <field name="name">Insurance</field>
+            <field name="type">folder</field>
+            <field name="access_internal">none</field>
+            <field name="access_via_link">none</field>
+            <field name="sequence">14</field>
+        </record>
+        <record id="documents_tag_insurance_policy" model="documents.tag" forcecreate="0">
+            <field name="name">Insurance policy</field>
+            <field name="sequence">40</field>
+        </record>
+        <record id="documents_tag_insurance_claim" model="documents.tag" forcecreate="0">
+            <field name="name">Insurance claim</field>
+            <field name="sequence">41</field>
+        </record>
+    </data>
+</odoo>
