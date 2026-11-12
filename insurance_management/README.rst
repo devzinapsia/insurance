@@ -29,6 +29,8 @@ Bridge modules install automatically when their dependency is present:
   accident, life), with their insurance history and claims.
 * ``insurance_management_sale`` and ``insurance_management_project``: link a
   surety bond to the sale order or the project it guarantees.
+* ``insurance_management_documents``: the files of policies and claims are
+  centralized in the *Insurance* folder of the Enterprise Documents app.
 
 Currently included:
 
