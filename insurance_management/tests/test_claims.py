@@ -351,13 +351,14 @@ class TestClaims(InsuranceClaimCommon):
             self.env, login="claim_resp", email="resp@example.com",
             groups="base.group_user,insurance_management.group_insurance_user",
         )
-        with freeze_time(date(self.year, 3, 10)):
+        # Noon, so that "today" is March 10 in any user timezone.
+        with freeze_time(f"{self.year}-03-10 12:00:00"):
             claim = self._claim(self._vehicle_policy(), user_id=responsible.id)
         mails = lambda: self.env["mail.mail"].search(
             [("model", "=", "insurance.claim"), ("res_id", "=", claim.id), ("is_notification", "=", False)]
         )
         self.Claim._process_claims_batch(claim, date(self.year, 3, 19))
-        self.assertFalse(mails())
+        self.assertFalse(mails(), mails().mapped("subject"))
         self.assertTrue(claim.with_context(insurance_today=date(self.year, 3, 20)).is_stale)
         self.assertIn(claim, self.Claim.with_context(insurance_today=date(self.year, 3, 20)).search([("is_stale", "=", True)]))
         self.Claim._process_claims_batch(claim, date(self.year, 3, 20))

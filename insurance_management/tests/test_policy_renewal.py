@@ -11,7 +11,7 @@ LIFECYCLE = {"insurance_lifecycle_write": True}
 
 
 @tagged("post_install", "-at_install")
-@freeze_time("2026-12-10")
+@freeze_time("2026-12-10 12:00:00")  # noon: the same date in any user timezone
 class TestPolicyRenewal(InsuranceCommon):
     @classmethod
     def setUpClass(cls):

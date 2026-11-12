@@ -6,7 +6,7 @@ from freezegun import freeze_time
 from odoo.tests import new_test_user, tagged
 from odoo.tools import mute_logger
 
-from odoo.addons.insurance_management.models.insurance_policy import InsurancePolicy
+from odoo.addons.insurance_management.models.insurance_policy import CONFIRMED_STATES, InsurancePolicy
 
 from .common import InsuranceCommon
 
@@ -265,17 +265,21 @@ class TestAlerts(InsuranceCommon):
             date(2026, 6, 12), policy_number="B2"
         ) | self._policy(date(2026, 6, 14), policy_number="B3")
         self.env["ir.config_parameter"].sudo().set_param("insurance_management.cron_batch_size", 2)
+        # The cron processes the confirmed policies of every company, real data included.
+        expected = self.Policy.sudo().search_count([("state", "in", CONFIRMED_STATES)])
         calls = []
         with patch.object(type(self.env["ir.cron"]), "_commit_progress", lambda self, processed=0, **kw: calls.append(processed) or 1.0), freeze_time(TODAY):
             self.Policy._cron_process_expiry()
         self.assertTrue(calls and all(processed <= 2 for processed in calls), calls)
-        self.assertEqual(sum(calls), self.Policy.search_count([("state", "in", ("in_force", "expiring"))]))
+        self.assertEqual(sum(calls), expected)
         for policy in policies:
             self.assertTrue(self._mails(policy))
 
     def test_cron_definition(self):
         cron = self.env.ref("insurance_management.ir_cron_insurance_policy_expiry")
-        self.assertTrue(cron.active)
+        # A neutralized database (staging copies) deactivates every cron.
+        if not self.env["ir.config_parameter"].sudo().get_param("database.is_neutralized"):
+            self.assertTrue(cron.active)
         self.assertEqual((cron.interval_number, cron.interval_type), (1, "days"))
         self.assertEqual(cron.nextcall.hour, 10, "07:00 in Argentina is 10:00 UTC")
         self.assertTrue(
