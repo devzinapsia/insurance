@@ -47,9 +47,50 @@ msgid ""
 msgstr "El ramo %(branch)s requiere un vehículo de flota en cada objeto asegurado: vincule %(objects)s con su vehículo."
 
 #. module: insurance_management_fleet
+#: model:ir.model.fields,field_description:insurance_management_fleet.field_insurance_policy_vehicle_link_line__chassis_number
+msgid "Chassis number"
+msgstr "Número de chasis"
+
+#. module: insurance_management_fleet
+#: model_terms:ir.ui.view,arch_db:insurance_management_fleet.insurance_policy_vehicle_link_view_form
+msgid ""
+"Choose the fleet vehicle of each insured object. Linking the vehicle does "
+"not change the insured contract, so no endorsement is needed; the change is "
+"logged on the policy."
+msgstr "Elija el vehículo de flota de cada objeto asegurado. Vincular el vehículo no cambia el contrato asegurado, así que no hace falta un endoso; el cambio queda registrado en la póliza."
+
+#. module: insurance_management_fleet
 #: model_terms:ir.ui.view,arch_db:insurance_management_fleet.fleet_vehicle_view_form_insurance
 msgid "Claims"
 msgstr "Siniestros"
+
+#. module: insurance_management_fleet
+#: model:ir.model.fields,field_description:insurance_management_fleet.field_insurance_policy_vehicle_link__company_id
+#: model:ir.model.fields,field_description:insurance_management_fleet.field_insurance_policy_vehicle_link_line__company_id
+msgid "Company"
+msgstr "Compañía"
+
+#. module: insurance_management_fleet
+#: model:ir.model.fields,field_description:insurance_management_fleet.field_insurance_policy_vehicle_link__create_uid
+#: model:ir.model.fields,field_description:insurance_management_fleet.field_insurance_policy_vehicle_link_line__create_uid
+msgid "Created by"
+msgstr "Creado por"
+
+#. module: insurance_management_fleet
+#: model:ir.model.fields,field_description:insurance_management_fleet.field_insurance_policy_vehicle_link__create_date
+#: model:ir.model.fields,field_description:insurance_management_fleet.field_insurance_policy_vehicle_link_line__create_date
+msgid "Created on"
+msgstr "Creado el"
+
+#. module: insurance_management_fleet
+#: model:ir.model.fields,field_description:insurance_management_fleet.field_insurance_policy_vehicle_link_line__name
+msgid "Description"
+msgstr "Descripción"
+
+#. module: insurance_management_fleet
+#: model_terms:ir.ui.view,arch_db:insurance_management_fleet.insurance_policy_vehicle_link_view_form
+msgid "Discard"
+msgstr "Descartar"
 
 #. module: insurance_management_fleet
 #: model:ir.model.fields,field_description:insurance_management_fleet.field_fleet_vehicle__display_name
@@ -60,6 +101,8 @@ msgstr "Siniestros"
 #: model:ir.model.fields,field_description:insurance_management_fleet.field_insurance_endorsement_line__display_name
 #: model:ir.model.fields,field_description:insurance_management_fleet.field_insurance_policy__display_name
 #: model:ir.model.fields,field_description:insurance_management_fleet.field_insurance_policy_object__display_name
+#: model:ir.model.fields,field_description:insurance_management_fleet.field_insurance_policy_vehicle_link__display_name
+#: model:ir.model.fields,field_description:insurance_management_fleet.field_insurance_policy_vehicle_link_line__display_name
 msgid "Display Name"
 msgstr "Nombre para mostrar"
 
@@ -75,9 +118,24 @@ msgstr "Cada objeto asegurado de las pólizas de este ramo debe estar vinculado 
 #: model:ir.model.fields,field_description:insurance_management_fleet.field_insurance_claim__vehicle_id
 #: model:ir.model.fields,field_description:insurance_management_fleet.field_insurance_endorsement_line__vehicle_id
 #: model:ir.model.fields,field_description:insurance_management_fleet.field_insurance_policy_object__vehicle_id
+#: model:ir.model.fields,field_description:insurance_management_fleet.field_insurance_policy_vehicle_link_line__vehicle_id
 #: model_terms:ir.ui.view,arch_db:insurance_management_fleet.insurance_claim_view_search_fleet
 msgid "Fleet vehicle"
 msgstr "Vehículo de flota"
+
+#. module: insurance_management_fleet
+#. odoo-python
+#: code:addons/insurance_management_fleet/models/insurance_policy.py:0
+msgid ""
+"Fleet vehicles are linked here only on confirmed policies of a vehicle "
+"branch."
+msgstr "Los vehículos de flota se vinculan acá solo en pólizas confirmadas de un ramo de vehículos."
+
+#. module: insurance_management_fleet
+#. odoo-python
+#: code:addons/insurance_management_fleet/wizard/insurance_policy_vehicle_link.py:0
+msgid "Fleet vehicles linked by hand:"
+msgstr "Vehículos de flota vinculados a mano:"
 
 #. module: insurance_management_fleet
 #: model:ir.model.fields,field_description:insurance_management_fleet.field_fleet_vehicle__id
@@ -88,6 +146,8 @@ msgstr "Vehículo de flota"
 #: model:ir.model.fields,field_description:insurance_management_fleet.field_insurance_endorsement_line__id
 #: model:ir.model.fields,field_description:insurance_management_fleet.field_insurance_policy__id
 #: model:ir.model.fields,field_description:insurance_management_fleet.field_insurance_policy_object__id
+#: model:ir.model.fields,field_description:insurance_management_fleet.field_insurance_policy_vehicle_link__id
+#: model:ir.model.fields,field_description:insurance_management_fleet.field_insurance_policy_vehicle_link_line__id
 msgid "ID"
 msgstr "ID"
 
@@ -143,6 +203,7 @@ msgstr "Póliza de seguro vigente"
 
 #. module: insurance_management_fleet
 #: model:ir.model,name:insurance_management_fleet.model_insurance_policy_object
+#: model:ir.model.fields,field_description:insurance_management_fleet.field_insurance_policy_vehicle_link_line__object_id
 msgid "Insured object"
 msgstr "Objeto asegurado"
 
@@ -154,16 +215,61 @@ msgid ""
 msgstr "El objeto asegurado %(object)s no se vinculó con un vehículo de flota: %(reason)s"
 
 #. module: insurance_management_fleet
+#: model:ir.model,name:insurance_management_fleet.model_insurance_policy_vehicle_link_line
+msgid "Insured object to link to a fleet vehicle"
+msgstr "Objeto asegurado a vincular con un vehículo de flota"
+
+#. module: insurance_management_fleet
+#: model:ir.model.fields,field_description:insurance_management_fleet.field_insurance_policy_vehicle_link__line_ids
+msgid "Insured objects"
+msgstr "Objetos asegurados"
+
+#. module: insurance_management_fleet
 #: model:ir.model.fields,field_description:insurance_management_fleet.field_fleet_vehicle__insured_today
 #: model_terms:ir.ui.view,arch_db:insurance_management_fleet.fleet_vehicle_view_search_insurance
 msgid "Insured today"
 msgstr "Asegurado hoy"
 
 #. module: insurance_management_fleet
+#: model:ir.model.fields,field_description:insurance_management_fleet.field_insurance_policy_vehicle_link__write_uid
+#: model:ir.model.fields,field_description:insurance_management_fleet.field_insurance_policy_vehicle_link_line__write_uid
+msgid "Last Updated by"
+msgstr "Última actualización por"
+
+#. module: insurance_management_fleet
+#: model:ir.model.fields,field_description:insurance_management_fleet.field_insurance_policy_vehicle_link__write_date
+#: model:ir.model.fields,field_description:insurance_management_fleet.field_insurance_policy_vehicle_link_line__write_date
+msgid "Last Updated on"
+msgstr "Última actualización el"
+
+#. module: insurance_management_fleet
+#: model:ir.model.fields,field_description:insurance_management_fleet.field_insurance_policy_vehicle_link_line__license_plate
+msgid "License plate"
+msgstr "Patente"
+
+#. module: insurance_management_fleet
+#. odoo-python
+#: code:addons/insurance_management_fleet/models/insurance_policy.py:0
+#: model_terms:ir.ui.view,arch_db:insurance_management_fleet.insurance_policy_vehicle_link_view_form
+#: model_terms:ir.ui.view,arch_db:insurance_management_fleet.insurance_policy_view_form_fleet
+msgid "Link fleet vehicles"
+msgstr "Vincular vehículos de flota"
+
+#. module: insurance_management_fleet
+#: model:ir.model,name:insurance_management_fleet.model_insurance_policy_vehicle_link
+msgid "Link insured objects to fleet vehicles"
+msgstr "Vincular objetos asegurados con vehículos de flota"
+
+#. module: insurance_management_fleet
 #. odoo-python
 #: code:addons/insurance_management_fleet/models/insurance_policy_object.py:0
 msgid "Only policies of a branch of type Vehicle can insure fleet vehicles."
 msgstr "Solo las pólizas de un ramo de tipo Vehículo pueden asegurar vehículos de flota."
+
+#. module: insurance_management_fleet
+#: model:ir.model.fields,field_description:insurance_management_fleet.field_insurance_policy_vehicle_link__policy_id
+msgid "Policy"
+msgstr "Póliza"
 
 #. module: insurance_management_fleet
 #: model:ir.model.fields,help:insurance_management_fleet.field_fleet_vehicle__insurance_policy_id
@@ -174,6 +280,16 @@ msgstr "Póliza que cubre el vehículo hoy."
 #: model:ir.model.fields,field_description:insurance_management_fleet.field_insurance_branch__requires_fleet_vehicle
 msgid "Requires fleet vehicle"
 msgstr "Requiere vehículo de flota"
+
+#. module: insurance_management_fleet
+#: model_terms:ir.ui.view,arch_db:insurance_management_fleet.insurance_policy_vehicle_link_view_form
+msgid "Save"
+msgstr "Guardar"
+
+#. module: insurance_management_fleet
+#: model:ir.model.fields,field_description:insurance_management_fleet.field_insurance_policy_vehicle_link_line__object_state
+msgid "Status"
+msgstr "Estado"
 
 #. module: insurance_management_fleet
 #. odoo-python
@@ -216,6 +332,11 @@ msgstr "Vehículos sin seguro vigente"
 #: model_terms:ir.ui.view,arch_db:insurance_management_fleet.fleet_vehicle_view_search_insurance
 msgid "Without insurance in force"
 msgstr "Sin seguro vigente"
+
+#. module: insurance_management_fleet
+#: model:ir.model.fields,field_description:insurance_management_fleet.field_insurance_policy_vehicle_link_line__wizard_id
+msgid "Wizard"
+msgstr "Asistente"
 
 #. module: insurance_management_fleet
 #. odoo-python

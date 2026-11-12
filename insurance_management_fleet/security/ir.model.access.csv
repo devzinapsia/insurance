@@ -1,2 +1,4 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_fleet_vehicle_insurance_user,fleet.vehicle insurance user,fleet.model_fleet_vehicle,insurance_management.group_insurance_user,1,0,0,0
+access_insurance_policy_vehicle_link_user,insurance.policy.vehicle.link user,model_insurance_policy_vehicle_link,insurance_management.group_insurance_user,1,1,1,0
+access_insurance_policy_vehicle_link_line_user,insurance.policy.vehicle.link.line user,model_insurance_policy_vehicle_link_line,insurance_management.group_insurance_user,1,1,1,1

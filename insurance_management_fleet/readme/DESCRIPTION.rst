@@ -11,6 +11,9 @@ present.
   created.
 * On install, the insured objects loaded before are linked the same way.
 * Renewals and endorsements keep the vehicle.
+* **Link fleet vehicles** (policy button, confirmed vehicle policies only):
+  choose or change the vehicle of each insured object by hand, without an
+  endorsement (the change is logged on the policy).
 * The vehicle form shows the *Insurance* smart button (every policy, with
   *Insured* / *Not insured* today) and the *Claims* button; the vehicle list
   and search get *Insured today* and *Without insurance in force*.

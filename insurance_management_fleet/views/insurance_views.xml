@@ -8,6 +8,9 @@
             <xpath expr="//field[@name='object_ids']/list/field[@name='name']" position="after">
                 <field name="vehicle_id" column_invisible="parent.object_type != 'vehicle'" optional="show" options="{'no_create': True}"/>
             </xpath>
+            <xpath expr="//header/button[@name='action_new_endorsement']" position="after">
+                <button name="action_open_vehicle_link" type="object" string="Link fleet vehicles" invisible="object_type != 'vehicle' or state == 'draft'"/>
+            </xpath>
         </field>
     </record>
 
@@ -94,6 +97,33 @@
                     </button>
                 </div>
             </xpath>
+        </field>
+    </record>
+
+    <record id="insurance_policy_vehicle_link_view_form" model="ir.ui.view">
+        <field name="name">insurance.policy.vehicle.link.form</field>
+        <field name="model">insurance.policy.vehicle.link</field>
+        <field name="arch" type="xml">
+            <form string="Link fleet vehicles">
+                <div class="text-muted mb-2">Choose the fleet vehicle of each insured object. Linking the vehicle does not change the insured contract, so no endorsement is needed; the change is logged on the policy.</div>
+                <field name="policy_id" invisible="1"/>
+                <field name="company_id" invisible="1"/>
+                <field name="line_ids">
+                    <list editable="bottom" create="0" delete="0" decoration-muted="object_state != 'active'">
+                        <field name="object_id" column_invisible="True"/>
+                        <field name="company_id" column_invisible="True"/>
+                        <field name="name"/>
+                        <field name="license_plate"/>
+                        <field name="chassis_number" optional="show"/>
+                        <field name="object_state" widget="badge" optional="show"/>
+                        <field name="vehicle_id" options="{'no_create': True}"/>
+                    </list>
+                </field>
+                <footer>
+                    <button name="action_confirm" type="object" string="Save" class="btn-primary" data-hotkey="q"/>
+                    <button string="Discard" special="cancel" class="btn-secondary" data-hotkey="x"/>
+                </footer>
+            </form>
         </field>
     </record>
 </odoo>

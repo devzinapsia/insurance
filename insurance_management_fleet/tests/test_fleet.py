@@ -113,3 +113,21 @@ class TestFleet(InsuranceAccountingCommon):
         policy = self._vehicle_policy([{"name": "Truck", "license_plate": "AB123CD"}])
         data = policy.object_ids.with_user(user).web_read({"vehicle_id": {"fields": {"display_name": {}}}})
         self.assertEqual(data[0]["vehicle_id"]["id"], self.truck.id)
+
+    def test_link_vehicle_by_hand_on_a_confirmed_policy(self):
+        policy = self._vehicle_policy([{"name": "Unknown", "license_plate": "ZZ000ZZ"}])
+        self.assertEqual(policy.state, "in_force")
+        action = policy.action_open_vehicle_link()
+        wizard = self.env["insurance.policy.vehicle.link"].with_context(**action["context"]).create({})
+        self.assertEqual(wizard.line_ids.object_id, policy.object_ids)
+        wizard.line_ids.vehicle_id = self.van
+        wizard.action_confirm()
+        self.assertEqual(policy.object_ids.vehicle_id, self.van)
+        self.assertTrue(policy.message_ids.filtered(lambda m: "linked by hand" in (m.body or "")))
+        # Still no other change without an endorsement.
+        with self.assertRaises(UserError):
+            policy.object_ids.license_plate = "CHANGED"
+        # Only on confirmed vehicle policies.
+        fire = self._policy(policy_number="ACC-9", branch_id=self.env.ref("insurance_management.insurance_branch_fire").id)
+        with self.assertRaises(UserError):
+            fire.action_open_vehicle_link()

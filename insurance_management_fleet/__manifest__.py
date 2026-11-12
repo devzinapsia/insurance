@@ -1,6 +1,6 @@
 {
     "name": "Gestión de seguros - Flota",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.1.0",
     "summary": "Vehículos de Flota como objetos asegurados: historial de pólizas y "
     "siniestros del vehículo y vehículos sin seguro vigente.",
     "author": "Zinapsia",
