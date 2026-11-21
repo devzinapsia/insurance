@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 19.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-11 22:52+0000\n"
-"PO-Revision-Date: 2026-11-11 22:52+0000\n"
+"POT-Creation-Date: 2026-11-21 11:39+0000\n"
+"PO-Revision-Date: 2026-11-21 11:39+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -649,6 +649,7 @@ msgid "A tag with this name already exists."
 msgstr ""
 
 #. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_settings__claim_recovery_account_id
 #: model:ir.model.fields,help:insurance_management.field_res_company__insurance_claim_recovery_account_id
 msgid ""
 "Account credited when a claim is approved (recovery of the damage). A branch"
@@ -656,6 +657,7 @@ msgid ""
 msgstr ""
 
 #. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_settings__surety_loss_account_id
 #: model:ir.model.fields,help:insurance_management.field_res_company__insurance_surety_loss_account_id
 msgid ""
 "Account debited when a surety bond is executed, against the debt with the "
@@ -1006,6 +1008,7 @@ msgid "An extension needs a new end date after the current one."
 msgstr ""
 
 #. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_settings__claim_stale_days
 #: model:ir.model.fields,help:insurance_management.field_res_company__insurance_claim_stale_days
 msgid ""
 "An open claim whose status has not changed for this many days is notified to"
@@ -1094,6 +1097,7 @@ msgid ""
 msgstr ""
 
 #. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_settings__prepaid_account_id
 #: model:ir.model.fields,help:insurance_management.field_res_company__insurance_prepaid_account_id
 msgid ""
 "Asset account where the premium waits to be accrued month by month (module "
@@ -2152,6 +2156,7 @@ msgid ""
 msgstr ""
 
 #. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_settings__non_renewal_days
 #: model:ir.model.fields,help:insurance_management.field_res_company__insurance_non_renewal_days
 msgid ""
 "Days before the end date on which the automatic non-renewal instruction is "
@@ -2159,6 +2164,7 @@ msgid ""
 msgstr ""
 
 #. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_settings__surety_release_days
 #: model:ir.model.fields,help:insurance_management.field_res_company__insurance_surety_release_days
 msgid ""
 "Days before the end of the guaranteed obligation on which the release of the"
@@ -2166,6 +2172,7 @@ msgid ""
 msgstr ""
 
 #. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_settings__alert_days
 #: model:ir.model.fields,help:insurance_management.field_res_company__insurance_alert_days
 msgid ""
 "Days before the policy end date on which an expiry notice is sent, as a "
@@ -2235,11 +2242,13 @@ msgid "Deductible type"
 msgstr ""
 
 #. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_settings__accrual_method
 #: model:ir.model.fields,help:insurance_management.field_res_company__insurance_accrual_method
 msgid "Default accrual method of new policies."
 msgstr ""
 
 #. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_settings__billing_mode
 #: model:ir.model.fields,help:insurance_management.field_res_company__insurance_billing_mode
 msgid "Default billing mode of new policies (a branch can set its own)."
 msgstr ""
@@ -3260,6 +3269,7 @@ msgid "Installments data"
 msgstr ""
 
 #. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_settings__go_live_date
 #: model:ir.model.fields,help:insurance_management.field_res_company__insurance_go_live_date
 msgid ""
 "Installments due before this date are historical: they are recorded as paid,"
@@ -3997,6 +4007,7 @@ msgid "Locked"
 msgstr ""
 
 #. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_settings__max_duration_months
 #: model:ir.model.fields,help:insurance_management.field_res_company__insurance_max_duration_months
 msgid "Longest validity period accepted for an insurance policy."
 msgstr ""
@@ -4023,6 +4034,7 @@ msgid "Manual payment"
 msgstr ""
 
 #. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_settings__non_renewal_send_mode
 #: model:ir.model.fields,help:insurance_management.field_res_company__insurance_non_renewal_send_mode
 msgid ""
 "Manual: sent from the Do not renew button. Automatic: sent by the daily "
@@ -4040,6 +4052,7 @@ msgid ""
 msgstr ""
 
 #. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_settings__surety_release_send_mode
 #: model:ir.model.fields,help:insurance_management.field_res_company__insurance_surety_release_send_mode
 msgid ""
 "Manual: the responsible gets an activity and sends the request with the "
@@ -4125,6 +4138,7 @@ msgid "Minimum policy duration (months)"
 msgstr ""
 
 #. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_settings__claim_journal_id
 #: model:ir.model.fields,help:insurance_management.field_res_company__insurance_claim_journal_id
 msgid ""
 "Miscellaneous journal of the claim entries: approval, offsets and closing "
@@ -4132,6 +4146,7 @@ msgid ""
 msgstr ""
 
 #. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_settings__accrual_journal_id
 #: model:ir.model.fields,help:insurance_management.field_res_company__insurance_accrual_journal_id
 msgid "Miscellaneous journal of the monthly accrual entries (module accrual)."
 msgstr ""
@@ -4946,6 +4961,7 @@ msgid ""
 msgstr ""
 
 #. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_settings__default_payment_mode_id
 #: model:ir.model.fields,help:insurance_management.field_res_company__insurance_default_payment_mode_id
 msgid "Payment mode proposed on new policies."
 msgstr ""
@@ -5494,6 +5510,7 @@ msgid "Property"
 msgstr ""
 
 #. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_settings__opening_journal_id
 #: model:ir.model.fields,help:insurance_management.field_res_company__insurance_opening_journal_id
 msgid ""
 "Purchase journal of the opening debt bills (e.g. one without fiscal "
@@ -5535,11 +5552,12 @@ msgid "Reason"
 msgstr ""
 
 #. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_settings__claim_receivable_account_id
 #: model:ir.model.fields,help:insurance_management.field_res_company__insurance_claim_receivable_account_id
 msgid ""
 "Receivable account of the indemnities to collect from insurers (type "
-"Receivable, so the claim shows in the aging and is collected like any "
-"receivable). A branch can use its own."
+"Receivable, so it is collected like any receivable). Mark it as non-trade to"
+" keep it apart from the customer receivables. A branch can use its own."
 msgstr ""
 
 #. module: insurance_management
@@ -5967,6 +5985,7 @@ msgid "Run the expiry process now"
 msgstr ""
 
 #. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_settings__opening_account_id
 #: model:ir.model.fields,help:insurance_management.field_res_company__insurance_opening_account_id
 msgid ""
 "Running policies billed up front: the opening debt with the insurer "
@@ -6140,6 +6159,7 @@ msgid ""
 msgstr ""
 
 #. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_settings__product_id
 #: model:ir.model.fields,help:insurance_management.field_res_company__insurance_product_id
 msgid ""
 "Service product used on insurance bills: its taxes and expense account are "
@@ -6228,6 +6248,7 @@ msgid "Shared by all companies"
 msgstr ""
 
 #. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_settings__min_duration_months
 #: model:ir.model.fields,help:insurance_management.field_res_company__insurance_min_duration_months
 msgid "Shortest validity period accepted for an insurance policy."
 msgstr ""
@@ -6849,6 +6870,7 @@ msgid ""
 msgstr ""
 
 #. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_settings__coverage_time
 #: model:ir.model.fields,help:insurance_management.field_res_company__insurance_coverage_time
 msgid ""
 "Time at which policies start and end, shown in the emails. 12:00: the policy"
@@ -7071,6 +7093,7 @@ msgid "User"
 msgstr ""
 
 #. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_settings__unpaid_notify_user_ids
 #: model:ir.model.fields,help:insurance_management.field_res_company__insurance_unpaid_notify_user_ids
 msgid ""
 "Users (typically accounting) notified, with the responsible, when an "
@@ -7078,6 +7101,7 @@ msgid ""
 msgstr ""
 
 #. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_settings__notify_user_ids
 #: model:ir.model.fields,help:insurance_management.field_res_company__insurance_notify_user_ids
 msgid ""
 "Users notified about every policy of the company, in addition to the users "
@@ -7178,6 +7202,7 @@ msgid "What happened, how and where..."
 msgstr ""
 
 #. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_settings__duration_check
 #: model:ir.model.fields,help:insurance_management.field_res_company__insurance_duration_check
 msgid ""
 "What happens when a policy duration is outside the minimum and maximum: show"

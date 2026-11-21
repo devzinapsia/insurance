@@ -154,8 +154,9 @@ class ResCompany(models.Model):
         string="Claims receivable account",
         domain="[('account_type', '=', 'asset_receivable')]",
         help="Receivable account of the indemnities to collect from insurers "
-        "(type Receivable, so the claim shows in the aging and is collected "
-        "like any receivable). A branch can use its own.",
+        "(type Receivable, so it is collected like any receivable). Mark it "
+        "as non-trade to keep it apart from the customer receivables. A "
+        "branch can use its own.",
     )
     insurance_claim_recovery_account_id = fields.Many2one(
         comodel_name="account.account",

@@ -52,7 +52,12 @@ class InsuranceSettings(models.TransientModel):
         readonly=True,
         default=lambda self: self.env.company,
     )
-    alert_days = fields.Char(string="Alert days")
+    alert_days = fields.Char(
+        string="Alert days",
+        help="Days before the policy end date on which an expiry notice is sent, "
+        "as a comma-separated list (e.g. 30,15,7). A branch or a policy can "
+        "set its own value, which takes precedence.",
+    )
     notify_user_ids = fields.Many2many(
         comodel_name="res.users",
         relation="insurance_settings_notify_user_rel",
@@ -60,29 +65,50 @@ class InsuranceSettings(models.TransientModel):
         column2="user_id",
         string="Users to notify",
         domain=[("share", "=", False)],
+        help="Users notified about every policy of the company, in addition to "
+        "the users of the branch, of the policy and its responsible.",
     )
-    min_duration_months = fields.Integer(string="Minimum policy duration (months)")
-    max_duration_months = fields.Integer(string="Maximum policy duration (months)")
+    min_duration_months = fields.Integer(
+        string="Minimum policy duration (months)",
+        help="Shortest validity period accepted for an insurance policy.",
+    )
+    max_duration_months = fields.Integer(
+        string="Maximum policy duration (months)",
+        help="Longest validity period accepted for an insurance policy.",
+    )
     duration_check = fields.Selection(
         selection=[("warning", "Warning"), ("block", "Block")],
         string="Policy duration check",
         required=True,
+        help="What happens when a policy duration is outside the minimum and "
+        "maximum: show a warning and let it be confirmed, or block it.",
     )
     coverage_time = fields.Selection(
         selection=[("12", "12:00"), ("0", "0:00")],
         string="Coverage start and end time",
         required=True,
+        help="Time at which policies start and end, shown in the emails. 12:00: "
+        "the policy ends at noon of its end date. 0:00: it ends at "
+        "midnight, at 0:00 of the day after its end date.",
     )
     non_renewal_send_mode = fields.Selection(
         selection=[("manual", "Manual"), ("automatic", "Automatic")],
         string="Non-renewal instruction sending",
         required=True,
+        help="Manual: sent from the Do not renew button. Automatic: sent by the "
+        "daily process the configured days before the end date, for "
+        "policies marked not to renew.",
     )
-    non_renewal_days = fields.Integer(string="Send non-renewal instruction (days before)")
+    non_renewal_days = fields.Integer(
+        string="Send non-renewal instruction (days before)",
+        help="Days before the end date on which the automatic non-renewal "
+        "instruction is sent.",
+    )
     default_payment_mode_id = fields.Many2one(
         comodel_name="insurance.payment.mode",
         string="Default payment mode",
         domain="[('company_id', '=', company_id)]",
+        help="Payment mode proposed on new policies.",
     )
     unpaid_notify_user_ids = fields.Many2many(
         comodel_name="res.users",
@@ -91,6 +117,8 @@ class InsuranceSettings(models.TransientModel):
         column2="user_id",
         string="Accounting users to notify",
         domain=[("share", "=", False)],
+        help="Users (typically accounting) notified, with the responsible, when "
+        "an installment is overdue and unpaid.",
     )
     # Accounting setup: only for accounting administrators.
     product_id = fields.Many2one(
@@ -98,72 +126,116 @@ class InsuranceSettings(models.TransientModel):
         string="Insurance product",
         domain="[('type', '=', 'service'), ('purchase_ok', '=', True)]",
         groups=ACCOUNTING_GROUP,
+        help="Service product used on insurance bills: its taxes and expense "
+        "account are proposed on every bill (a branch can use its own "
+        "product).",
     )
     prepaid_account_id = fields.Many2one(
         comodel_name="account.account",
         string="Prepaid insurance account",
         domain="[('account_type', 'in', ('asset_prepayments', 'asset_current', 'asset_non_current'))]",
         groups=ACCOUNTING_GROUP,
+        help="Asset account where the premium waits to be accrued month by month "
+        "(module accrual).",
     )
     accrual_journal_id = fields.Many2one(
         comodel_name="account.journal",
         string="Accrual journal",
         domain="[('type', '=', 'general'), ('company_id', '=', company_id)]",
         groups=ACCOUNTING_GROUP,
+        help="Miscellaneous journal of the monthly accrual entries (module "
+        "accrual).",
     )
     accrual_method = fields.Selection(
         selection=[("module", "Module accrual"), ("none", "No accrual (direct expense)")],
         string="Accrual method",
         groups=ACCOUNTING_GROUP,
+        help="Default accrual method of new policies.",
     )
     billing_mode = fields.Selection(
         selection=[("policy", "One bill per policy"), ("installment", "One bill per installment")],
         string="Billing mode",
         groups=ACCOUNTING_GROUP,
+        help="Default billing mode of new policies (a branch can set its own).",
     )
-    go_live_date = fields.Date(string="Go-live date", groups=ACCOUNTING_GROUP)
+    go_live_date = fields.Date(
+        string="Go-live date",
+        groups=ACCOUNTING_GROUP,
+        help="Installments due before this date are historical: they are "
+        "recorded as paid, without payments nor journal entries.",
+    )
     opening_account_id = fields.Many2one(
         comodel_name="account.account",
         string="Opening transitory account",
         domain="[('account_type', 'not in', ('asset_receivable', 'liability_payable', 'off_balance'))]",
         groups=ACCOUNTING_GROUP,
+        help="Running policies billed up front: the opening debt with the "
+        "insurer (installments left at go-live) is brought in with a bill "
+        "on this account, against the same account in the opening entry, so "
+        "it ends at zero.",
     )
     opening_journal_id = fields.Many2one(
         comodel_name="account.journal",
         string="Opening debt journal",
         domain="[('type', '=', 'purchase'), ('company_id', '=', company_id)]",
         groups=ACCOUNTING_GROUP,
+        help="Purchase journal of the opening debt bills (e.g. one without "
+        "fiscal documents). Empty: the default purchase journal.",
     )
     claim_journal_id = fields.Many2one(
         comodel_name="account.journal",
         string="Claims journal",
         domain="[('type', '=', 'general'), ('company_id', '=', company_id)]",
         groups=ACCOUNTING_GROUP,
+        help="Miscellaneous journal of the claim entries: approval, offsets and "
+        "closing differences.",
     )
     claim_receivable_account_id = fields.Many2one(
         comodel_name="account.account",
         string="Claims receivable account",
         domain="[('account_type', '=', 'asset_receivable')]",
         groups=ACCOUNTING_GROUP,
+        help="Receivable account of the indemnities to collect from insurers "
+        "(type Receivable, so it is collected like any receivable). Mark it "
+        "as non-trade to keep it apart from the customer receivables. A "
+        "branch can use its own.",
     )
     claim_recovery_account_id = fields.Many2one(
         comodel_name="account.account",
         string="Claims recovery account",
         domain="[('account_type', 'in', ('income', 'income_other', 'expense', 'expense_direct_cost'))]",
         groups=ACCOUNTING_GROUP,
+        help="Account credited when a claim is approved (recovery of the "
+        "damage). A branch can use its own.",
     )
     surety_loss_account_id = fields.Many2one(
         comodel_name="account.account",
         string="Surety execution loss account",
         domain="[('account_type', 'in', ('expense', 'expense_other', 'expense_direct_cost'))]",
         groups=ACCOUNTING_GROUP,
+        help="Account debited when a surety bond is executed, against the debt "
+        "with the insurer that pays the beneficiary. A branch can use its "
+        "own.",
     )
-    claim_stale_days = fields.Integer(string="Claims without movement (days)")
-    surety_release_days = fields.Integer(string="Request the surety release (days before)")
+    claim_stale_days = fields.Integer(
+        string="Claims without movement (days)",
+        help="An open claim whose status has not changed for this many days is "
+        "notified to its responsible, again every this many days. Zero: "
+        "never.",
+    )
+    surety_release_days = fields.Integer(
+        string="Request the surety release (days before)",
+        help="Days before the end of the guaranteed obligation on which the "
+        "release of the surety bond is requested.",
+    )
     surety_release_send_mode = fields.Selection(
         selection=[("manual", "Manual"), ("automatic", "Automatic")],
         string="Surety release request sending",
         required=True,
+        help="Manual: the responsible gets an activity and sends the request "
+        "with the Request release button. Automatic: the daily process "
+        "emails it to the beneficiary (or the producer), with a copy to the "
+        "responsible.",
     )
     # Initial load control (section 8.7): read only, never blocks.
     opening_unaccrued_total = fields.Monetary(

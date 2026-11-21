@@ -14,6 +14,31 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #. module: insurance_management
+#: model:ir.model.fields,help:insurance_management.field_insurance_settings__duration_check
+#: model:ir.model.fields,help:insurance_management.field_insurance_settings__notify_user_ids
+#: model:ir.model.fields,help:insurance_management.field_insurance_settings__unpaid_notify_user_ids
+#: model:ir.model.fields,help:insurance_management.field_insurance_settings__coverage_time
+#: model:ir.model.fields,help:insurance_management.field_insurance_settings__min_duration_months
+#: model:ir.model.fields,help:insurance_management.field_insurance_settings__product_id
+#: model:ir.model.fields,help:insurance_management.field_insurance_settings__opening_account_id
+#: model:ir.model.fields,help:insurance_management.field_insurance_settings__claim_receivable_account_id
+#: model:ir.model.fields,help:insurance_management.field_insurance_settings__opening_journal_id
+#: model:ir.model.fields,help:insurance_management.field_insurance_settings__default_payment_mode_id
+#: model:ir.model.fields,help:insurance_management.field_insurance_settings__accrual_journal_id
+#: model:ir.model.fields,help:insurance_management.field_insurance_settings__claim_journal_id
+#: model:ir.model.fields,help:insurance_management.field_insurance_settings__surety_release_send_mode
+#: model:ir.model.fields,help:insurance_management.field_insurance_settings__non_renewal_send_mode
+#: model:ir.model.fields,help:insurance_management.field_insurance_settings__max_duration_months
+#: model:ir.model.fields,help:insurance_management.field_insurance_settings__go_live_date
+#: model:ir.model.fields,help:insurance_management.field_insurance_settings__billing_mode
+#: model:ir.model.fields,help:insurance_management.field_insurance_settings__accrual_method
+#: model:ir.model.fields,help:insurance_management.field_insurance_settings__alert_days
+#: model:ir.model.fields,help:insurance_management.field_insurance_settings__surety_release_days
+#: model:ir.model.fields,help:insurance_management.field_insurance_settings__non_renewal_days
+#: model:ir.model.fields,help:insurance_management.field_insurance_settings__prepaid_account_id
+#: model:ir.model.fields,help:insurance_management.field_insurance_settings__claim_stale_days
+#: model:ir.model.fields,help:insurance_management.field_insurance_settings__surety_loss_account_id
+#: model:ir.model.fields,help:insurance_management.field_insurance_settings__claim_recovery_account_id
 #. odoo-python
 #: code:addons/insurance_management/models/insurance_policy.py:0
 msgid "%(count)s installments generated%(endorsement)s."
@@ -1651,7 +1676,7 @@ msgstr ""
 msgid ""
 "Branches can use their own claim accounts. The receivable account must be of"
 " type Receivable."
-msgstr "Los ramos pueden usar sus propias cuentas de siniestros. La cuenta de créditos debe ser de tipo A cobrar."
+msgstr "Los ramos pueden usar sus propias cuentas de siniestros. La cuenta de créditos debe ser de tipo Por cobrar."
 
 #. module: insurance_management
 #: model_terms:ir.actions.act_window,help:insurance_management.insurance_branch_action
@@ -6058,9 +6083,9 @@ msgstr "Motivo"
 #: model:ir.model.fields,help:insurance_management.field_res_company__insurance_claim_receivable_account_id
 msgid ""
 "Receivable account of the indemnities to collect from insurers (type "
-"Receivable, so the claim shows in the aging and is collected like any "
-"receivable). A branch can use its own."
-msgstr "Cuenta de créditos de las indemnizaciones a cobrar a las aseguradoras (tipo A cobrar, así el siniestro aparece en la antigüedad de saldos y se cobra como cualquier crédito). Un ramo puede usar la suya."
+"Receivable, so it is collected like any receivable). Mark it as non-trade to"
+" keep it apart from the customer receivables. A branch can use its own."
+msgstr "Cuenta de créditos de las indemnizaciones a cobrar a las aseguradoras (tipo Por cobrar, así se cobra como cualquier crédito). Márquela como no comercial para separarla de los créditos con clientes. Un ramo puede usar la suya."
 
 #. module: insurance_management
 #: model:ir.model.fields,help:insurance_management.field_insurance_claim__claim_line_id
