@@ -1,6 +1,5 @@
 <h1>Parametrización contable</h1>
 <p>Qué tiene que existir en Contabilidad <strong>antes</strong> de completar la sección <em>Contabilidad</em> de los Ajustes de Seguros y de crear los medios de pago. Lo hace el contador o un administrador de Contabilidad, una sola vez por compañía.</p>
-<div class="alert alert-info" role="status"><p>Este artículo se completa en cada fase. Cubre la <strong>Fase 2</strong> (facturas, pagos y devengamiento) y la <strong>Fase 3</strong> (siniestros y cauciones, punto 9).</p></div>
 <p>Los nombres y códigos son ejemplos: use los de su plan de cuentas. Los tipos de cuenta y de diario son los que muestra Odoo en el campo <strong>Tipo</strong>.</p>
 
 <h2>Resumen</h2>
@@ -21,9 +20,9 @@
 <tr><td>Moneda extranjera y diferencia de cambio</td><td>Moneda / cuentas de diferencia de cambio</td><td>Pólizas en dólares</td></tr>
 <tr><td>Cuenta transitoria de apertura y diario de deuda de apertura</td><td>Cuenta – Activos corrientes / Diario – Compras sin documentos</td><td>Carga inicial de pólizas en curso facturadas al inicio</td></tr>
 <tr><td>Diario de siniestros</td><td>Diario – Varios</td><td>Siniestros con indemnización y cauciones ejecutadas</td></tr>
-<tr><td>Cuenta de siniestros a cobrar</td><td>Cuenta – A cobrar, conciliable</td><td>Siniestros con indemnización</td></tr>
+<tr><td>Cuenta de siniestros a cobrar</td><td>Cuenta – Por cobrar, conciliable, no comercial</td><td>Siniestros con indemnización</td></tr>
 <tr><td>Cuenta de recupero de siniestros</td><td>Cuenta – Otros ingresos (o gasto, en negativo)</td><td>Siniestros con indemnización</td></tr>
-<tr><td>Cuenta de pérdida por ejecución de cauciones</td><td>Cuenta – Gastos</td><td>Cauciones ejecutadas</td></tr>
+<tr><td>Cuenta de pérdida por ejecución de cauciones</td><td>Cuenta – Gastos u Otros gastos</td><td>Cauciones ejecutadas</td></tr>
 </tbody>
 </table>
 
@@ -136,18 +135,58 @@
 <h2>8. Fechas de bloqueo</h2>
 <p>El devengamiento respeta las fechas de bloqueo contable: si un mes ya está cerrado, su asiento se registra el primer día abierto. No hace falta configurar nada; conviene saberlo antes de cerrar períodos.</p>
 
-<h2>9. Siniestros y cauciones (Fase 3)</h2>
+<h2>9. Siniestros y cauciones</h2>
 <p>El siniestro aprobado genera un <strong>asiento de aprobación</strong> en el diario de siniestros. La indemnización no se factura: sin ese asiento, el cobro llegaría al banco sin nada contra qué conciliar.</p>
 <table class="table table-bordered">
 <thead><tr><th>Qué (ejemplo)</th><th>Tipo</th><th>Permitir conciliación</th><th>Para qué</th></tr></thead>
 <tbody>
 <tr><td><strong>Siniestros</strong> (diario)</td><td>Diario – Varios</td><td>—</td><td>Asientos de aprobación, compensaciones y diferencias de cierre de los siniestros.</td></tr>
-<tr><td><strong>Siniestros a cobrar</strong></td><td><strong>A cobrar</strong></td><td><strong>Sí</strong> (lo exige el tipo)</td><td>Lo que la aseguradora debe pagar por el siniestro (partner = aseguradora, vencimiento = fecha estimada de cobro). Tiene que ser de tipo <em>A cobrar</em>: así aparece en la antigüedad de saldos y en el flujo de fondos, y se cobra como cualquier crédito (con una cuenta de activo corriente conciliable, Odoo no deja registrar el cobro).</td></tr>
+<tr><td><strong>Siniestros a cobrar</strong></td><td><strong>Por cobrar</strong>, marcada <strong>No comercial</strong></td><td><strong>Sí</strong> (lo exige el tipo)</td><td>Lo que la aseguradora debe pagar por el siniestro (partner = aseguradora, vencimiento = fecha estimada de cobro). Tiene que ser de tipo <em>Por cobrar</em>: así se cobra y se concilia como cualquier crédito (con una cuenta de activo corriente conciliable, Odoo no deja registrar el cobro). Marcada <em>No comercial</em>, no se mezcla con los créditos con clientes.</td></tr>
 <tr><td><strong>Recupero de siniestros</strong></td><td>Otros ingresos</td><td>No</td><td>Contrapartida de la aprobación. Si el contador prefiere neutralizar el gasto de la reparación, puede ser una cuenta de gastos (el recupero queda en negativo).</td></tr>
-<tr><td><strong>Pérdida por ejecución de cauciones</strong></td><td>Gastos</td><td>No</td><td>Cuando el beneficiario ejecuta una caución: la aseguradora le paga y luego le reclama a la empresa. Debe esta cuenta, haber la deuda con la aseguradora (su cuenta a pagar).</td></tr>
+<tr><td><strong>Pérdida por ejecución de cauciones</strong></td><td>Gastos u Otros gastos</td><td>No</td><td>Cuando el beneficiario ejecuta una caución: la aseguradora le paga y luego le reclama a la empresa. Debe esta cuenta, haber la deuda con la aseguradora (su cuenta a pagar).</td></tr>
 </tbody>
 </table>
 <p>Las cuentas de siniestros se pueden cambiar por <strong>ramo</strong> (pestaña <em>Contabilidad</em>, grupo <em>Siniestros y cauciones</em>).</p>
+<h3>Argentina: cómo dar de alta las cuentas de siniestros</h3>
+<p>Con el plan de cuentas argentino y los módulos de ajuste por inflación (por ejemplo, en Grupo Lara). Los códigos son ejemplos. La línea del Estado de Situación Patrimonial o del Estado de Resultados la define la <strong>etiqueta</strong>; el código solo ordena la cuenta dentro del plan.</p>
+<h4>Siniestros a cobrar</h4>
+<table class="table table-bordered">
+<thead><tr><th>Campo</th><th>Valor</th><th>Por qué</th></tr></thead>
+<tbody>
+<tr><td>Código</td><td>Dentro de <strong>1.1.5 Otros créditos</strong> (ej. <code>1.1.5.01.020</code>, junto a <em>Deudores varios</em>)</td><td>La indemnización no es una venta: <strong>no</strong> va en <code>1.1.3</code> (Créditos por ventas).</td></tr>
+<tr><td>Tipo</td><td>Por cobrar</td><td>Lo exige el ajuste: así se cobra y se concilia como cualquier crédito.</td></tr>
+<tr><td>Etiquetas</td><td>AR ESP: Otros Créditos</td><td>Con <em>Créditos por Ventas</em>, el balance la mostraría como crédito con clientes.</td></tr>
+<tr><td>No comercial</td><td><strong>Marcado</strong></td><td>Los reportes de Contabilidad la separan de los clientes: en la antigüedad de saldos aparece con el filtro <em>Cuentas por cobrar no comerciales</em>. Odoo lo deja desmarcado: <strong>hay que marcarlo a mano</strong>.</td></tr>
+<tr><td>Permitir conciliación</td><td>Marcado</td><td>Odoo lo marca solo para el tipo Por cobrar.</td></tr>
+<tr><td>Es Monetario</td><td>Marcado</td><td>Es un crédito en dinero: no se reexpresa por inflación.</td></tr>
+<tr><td>Moneda</td><td>Cualquier moneda (sin fijar)</td><td></td></tr>
+</tbody>
+</table>
+<h4>Recupero de siniestros</h4>
+<table class="table table-bordered">
+<thead><tr><th>Campo</th><th>Valor</th><th>Por qué</th></tr></thead>
+<tbody>
+<tr><td>Código</td><td>Dentro de <strong>4 Ingresos</strong> (ej. <code>4.2.1.01.011</code>, o en <code>4.3.1</code> junto a <em>Recupero de gastos</em>)</td><td>Lo decide el contador; la etiqueta es la que define dónde aparece en el Estado de Resultados.</td></tr>
+<tr><td>Tipo</td><td>Otros ingresos</td><td>Si el contador prefiere neutralizar el gasto de la reparación, puede ser una cuenta de gastos (ver la tabla de arriba).</td></tr>
+<tr><td>Etiquetas</td><td>AR EERR: Otros ingresos y egresos</td><td>No es una venta ni un resultado financiero.</td></tr>
+<tr><td>Permitir conciliación</td><td>Desmarcado</td><td>El módulo no la concilia.</td></tr>
+<tr><td>Es Monetario</td><td>Desmarcado</td><td>Como las demás cuentas de resultado.</td></tr>
+</tbody>
+</table>
+<p><img src="../img/cuenta_recupero_siniestros_ar.png" alt="Cuenta Recupero de siniestros bien configurada: código 4.2.1.01.011, tipo Otro ingreso, etiqueta AR EERR: Otros ingresos y egresos, sin conciliación y sin Es Monetario" style="max-width: 100%;"/></p>
+<p><em>La cuenta de recupero bien configurada.</em></p>
+<h4>Pérdida por ejecución de cauciones</h4>
+<table class="table table-bordered">
+<thead><tr><th>Campo</th><th>Valor</th><th>Por qué</th></tr></thead>
+<tbody>
+<tr><td>Código</td><td>Fuera de <strong>5.1.2 Gastos de producción</strong>, en el grupo que el contador elija (por ejemplo, junto a <em>Seguros Caución</em>)</td><td>Una caución ejecutada no es un costo de producción.</td></tr>
+<tr><td>Tipo</td><td>Gastos u Otros gastos</td><td>El ajuste acepta los dos.</td></tr>
+<tr><td>Etiquetas</td><td>AR EERR: Otros ingresos y egresos</td><td>Es una pérdida fuera de la operación normal, como <em>Pérdida por diferencia de efectivo</em>. Con <em>Otros Gastos</em> quedaría entre los gastos de la operación. A validar con el contador.</td></tr>
+<tr><td>Permitir conciliación</td><td>Desmarcado</td><td>El módulo no la concilia.</td></tr>
+<tr><td>Es Monetario</td><td>Desmarcado</td><td>Como las demás cuentas de resultado.</td></tr>
+</tbody>
+</table>
+<p>El <strong>diario de siniestros</strong> se configura igual que el de devengamiento (punto 2): tipo Varios, sin cuenta predeterminada y sin moneda.</p>
 <h3>Asientos de ejemplo</h3>
 <p>Daño de 500.000, franquicia de 50.000, indemnización aprobada de 450.000 cobrada por la empresa:</p>
 <table class="table table-bordered">
@@ -163,7 +202,7 @@
 </tbody>
 </table>
 <p>La <strong>franquicia</strong> (50.000) no tiene asiento ni cuenta propia: queda como gasto neto (500.000 de la reparación menos 450.000 del recupero).</p>
-<div class="alert alert-warning" role="alert"><p>Estos asientos todavía tienen que ser validados por el equipo contable (Hito 2): revise las cuentas elegidas antes de aprobar siniestros reales.</p></div>
+<div class="alert alert-warning" role="alert"><p>Antes de aprobar siniestros reales, el contador tiene que revisar las cuentas elegidas y estos asientos.</p></div>
 
 <h2>Después: cargar los Ajustes de Seguros</h2>
 <p>Con todo lo anterior creado, siga con los pasos <strong>8. Contabilidad de seguros</strong> y <strong>9. Medios de pago</strong> de <em>Puesta en marcha</em>:</p>

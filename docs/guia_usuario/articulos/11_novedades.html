@@ -1,4 +1,10 @@
 <h1>Novedades por versión</h1>
+<h2>19.0.3.0.3</h2>
+<ul>
+<li><strong>Ajustes de Seguros</strong>: todos los campos muestran su ayuda (el signo <strong>?</strong> junto al nombre), también los de pagos, carga inicial, siniestros y cauciones.</li>
+<li>La ayuda de <em>Cuenta de siniestros a cobrar</em> recomienda marcar la cuenta como <strong>No comercial</strong>.</li>
+<li>Guía: <em>Parametrización contable</em> detalla cómo dar de alta las cuentas de siniestros a cobrar, recupero de siniestros y pérdida por ejecución de cauciones con el plan de cuentas argentino.</li>
+</ul>
 <h2>19.0.3.0.2</h2>
 <ul>
 <li>Al entrar a la aplicación <strong>Seguros</strong> se abre el <strong>Tablero</strong> (antes se abría la lista de pólizas).</li>
@@ -6,23 +12,23 @@
 </ul>
 <h2>19.0.3.0.1</h2>
 <ul>
-<li>Nuevo puente <em>Gestión de seguros - Documentos</em> (se instala solo si está la app Documentos de Enterprise): los archivos de pólizas y siniestros se centralizan en la carpeta <strong>Seguros</strong>, restringida a sus miembros. Ver <em>Documentos</em>.</li>
+<li>Nueva integración <em>Gestión de seguros - Documentos</em> (se instala solo si está la app Documentos de Enterprise): los archivos de pólizas y siniestros se centralizan en la carpeta <strong>Seguros</strong>, restringida a sus miembros. Ver <em>Documentos</em>.</li>
 <li>Flota: botón <strong>Vincular vehículos de flota</strong> en las pólizas confirmadas de ramos de vehículos, para elegir o corregir el vehículo de cada objeto sin endoso.</li>
 </ul>
-<h2>19.0.3.0.0 – Fase 3</h2>
+<h2>19.0.3.0.0 – Siniestros, cauciones e integraciones</h2>
 <ul>
 <li><strong>Siniestros</strong> (<em>Seguros › Pólizas › Siniestros</em> y botón <em>Nuevo siniestro</em> de la póliza): estados de la denuncia al cobro, documentos, asiento de aprobación en el diario de siniestros, cobro desde la conciliación bancaria o con <em>Registrar cobro</em>, compensación con premio impago o con la factura del taller, cierre con diferencia y recordatorio de siniestros sin movimiento. Ver <em>Siniestros</em>.</li>
 <li><strong>Efecto sobre la póliza</strong>: suma disponible y rehabilitación, pérdida total (baja del objeto y anulación de la póliza sin objetos) y reemplazo.</li>
 <li><strong>Cauciones</strong>: pestaña <em>Caución</em>, estado de la garantía, tipo de renovación <em>Hasta liberación</em>, pedido de liberación, aviso al productor al liberar y ejecución con su asiento. Ver <em>Cauciones</em>.</li>
 <li><strong>Tablero</strong> (<em>Seguros › Tablero</em>) y reportes <em>Siniestros y recuperos</em> y <em>Cauciones por beneficiario</em>.</li>
 <li>Ajustes: sección <em>Siniestros y cauciones</em> y <em>Contabilidad de siniestros</em> (diario y cuentas). Nuevos tipos de documento: fotos del siniestro, presupuesto de reparación, informe del liquidador y constancia de liberación de caución.</li>
-<li>Puentes nuevos, se instalan solos al actualizar si están sus aplicaciones: <em>Gestión de seguros - Flota</em> (vincula los objetos ya cargados con su vehículo por patente o chasis), <em>Gestión de seguros - Empleados</em>, <em>Gestión de seguros - Ventas</em> y <em>Gestión de seguros - Proyectos</em>.</li>
+<li>Integraciones nuevas, se instalan solas al actualizar si están sus aplicaciones: <em>Gestión de seguros - Flota</em> (vincula los objetos ya cargados con su vehículo por patente o chasis), <em>Gestión de seguros - Empleados</em>, <em>Gestión de seguros - Ventas</em> y <em>Gestión de seguros - Proyectos</em>.</li>
 </ul>
 <h2>19.0.2.0.5</h2>
 <ul>
 <li>Los pagos de las cuotas ya no tienen los campos <em>Cuota de seguros</em> y <em>Póliza de seguro</em>: quedan como cualquier pago, vinculados a su factura. La cuota sigue mostrando su pago.</li>
 <li>En la factura de proveedor, <em>Póliza de seguro</em>, <em>Endoso de seguro</em> y <em>Cuota de seguros</em> pasan a la columna izquierda, debajo de <em>Clasificación</em> (o de <em>Autocompletar</em> si no se usa la clasificación de comprobantes).</li>
-<li>Con los pagos de adhoc (<em>account_payment_pro</em>), la orden de pago de una cuota lista en <em>Deudas</em> solo el vencimiento de esa cuota, en lugar de todas las deudas con la aseguradora. Los pagos en borrador ya creados se corrigen al actualizar (nuevo puente <em>Gestión de seguros - Pagos de adhoc</em>, se instala solo).</li>
+<li>Con los pagos de adhoc (<em>account_payment_pro</em>), la orden de pago de una cuota lista en <em>Deudas</em> solo el vencimiento de esa cuota, en lugar de todas las deudas con la aseguradora. Los pagos en borrador ya creados se corrigen al actualizar (nueva integración <em>Gestión de seguros - Pagos de adhoc</em>, se instala sola).</li>
 </ul>
 <h2>19.0.2.0.4</h2>
 <ul>
@@ -47,7 +53,7 @@
 <li>Bien asegurable: al elegirlo en un objeto asegurado se completan la descripción y la suma asegurada; tiene botón <strong>Pólizas</strong> y pestaña <strong>Historial de seguros</strong>.</li>
 <li>Los tipos de documento y de endoso iniciales traen una descripción (los de endoso, con un ejemplo real). En bases que ya tenían el módulo se completa al actualizar, solo donde estaba vacía.</li>
 </ul>
-<h2>19.0.2.0.0 – Fase 2: Gestión económica y contable</h2>
+<h2>19.0.2.0.0 – Gestión económica y contable</h2>
 <ul>
 <li>Endosos: una póliza confirmada solo cambia por endoso (altas, bajas, sumas, coberturas, datos, prórroga y anulación), cada uno con su diferencia de premio.</li>
 <li>Cuotas generadas en partes iguales, editables hasta facturarlas, con la diferencia contra el premio.</li>
@@ -65,7 +71,7 @@
 <li>Al crear una etiqueta, el color se elige de la paleta.</li>
 <li>Los campos Aseguradora y Productor indican que solo se listan contactos marcados y explican dónde marcarlos.</li>
 </ul>
-<h2>19.0.1.0.0 – Fase 1: Control de vencimientos</h2>
+<h2>19.0.1.0.0 – Control de vencimientos</h2>
 <ul>
 <li>Pólizas, ramos, objetos asegurados y bienes asegurables.</li>
 <li>Estados de la póliza, renovación, no renovación y solicitud de renovación.</li>

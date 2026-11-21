@@ -15,8 +15,15 @@ Branch: `19.0` (never touch `main` or `20.0`). Odoo source: `ODOO_19_SRC` from
 | Phase | Status |
 | --- | --- |
 | Fase 1 — Control de vencimientos | Complete on branch 19.0, deployed to grupolara staging2 for testing — Hito 1 pending (the user confirms production use) |
-| Fase 2 — Gestión económica y contable | All stages (a)-(i) done 2026-11-03 + Knowledge guide updated; awaiting the user's commit/push confirmation, then grupolara staging2 testing. Ran IN PARALLEL with Fase 1 testing (Hito 1 not confirmed yet) |
-| Fase 3 — Siniestros, cauciones e integraciones | Started 2026-11-11 ("arrancá la Fase 3") in parallel with Fase 2 staging tests, Hito 2 NOT confirmed yet. Developed directly on `19.0` (user 2026-11-11: "mergea todo a 19.0... este módulo no está en producción"). All stages (a)-(j) done 2026-11-11 (19.0.3.0.0 + 4 bridges + guide + test cases); awaiting the user's commit/push confirmation, then grupolara staging2. Hito 2 still pending (accounting validates the claim entries) |
+| Fase 2 — Gestión económica y contable | All stages (a)-(i) done 2026-11-03, on 19.0 and deployed to grupolara staging2 (user testing). Hito 2 pending (accounting validates the chart of accounts and test entries) |
+| Fase 3 — Siniestros, cauciones e integraciones | Started 2026-11-11 ("arrancá la Fase 3") in parallel with Fase 2 staging tests, Hito 2 NOT confirmed yet. Developed directly on `19.0` (user 2026-11-11: "mergea todo a 19.0... este módulo no está en producción"). All stages (a)-(j) done 2026-11-11 (19.0.3.0.0 + 4 bridges + guide + test cases). Follow-ups 19.0.3.0.1 (documents bridge, manual vehicle link) and 19.0.3.0.2 (dashboard). Deployed to grupolara staging2 2026-11-12 (build green, 125054d); the user starts testing everything together 2026-11-12. Hito 2 still pending (accounting validates the claim entries) |
+
+Pending as of 2026-11-12 (only if the user asks; agreed to test first):
+Hito 1 / Hito 2 confirmations; small items "Otros conceptos del premio" line,
+"Crear factura" button in the Installments tab, hint for the default payment
+mode, screenshots in the guide; backlog: automatic insured payroll (HR),
+renewal quotations and year-over-year comparison, coverage certificates for
+third parties, producer portal.
 
 ### Fase 1 stages
 
@@ -111,6 +118,32 @@ Fase 1, Paso 0 (2026-11-02):
      addons path = Odoo 19 community + this repo only (no enterprise).
 - **Branch names**: English source with es / es_AR translations (rule 2), data
   in `noupdate="1"`.
+
+Fase 3 follow-ups (2026-11-11 / 2026-11-12):
+
+- **Documents folder (RF-10)**: separate bridge `insurance_management_documents`
+  (auto_install with Enterprise `documents`), restricted "Insurance" folder.
+  Access levels documented in the guide (user asked to state them): insurance
+  permission alone to upload/see files from the policy or claim; Documents /
+  User + folder member (Viewer / Editor) to see / manage the folder; Documents
+  System Administrator or an Editor member to share it; Documents
+  Administrator does NOT see it unless member; "Hide costs" does not apply
+  inside Documents.
+- **Manual vehicle link** (user: "seria si la poliza es de tipo Automotor, sino
+  que no aparezca el boton"): button only on confirmed policies of branches
+  with object type Vehicle (covers Automotor and any other vehicle branch);
+  hidden in draft (vehicle edited in the object list), no endorsement, logged
+  in the chatter.
+- **Dashboard** (user bug report): no repeated title, full width (no sheet),
+  and the Insurance app opens on the dashboard instead of the policy list.
+- **Sale / project bridges**: Claude's own call; the user may still ask to drop
+  them after testing.
+- **odoo.sh staging2 builds**: `-u` without tests; any traceback logged while a
+  module loads marks the build red ("At least one test failed when loading the
+  modules (<module>)"). Read the failing build's `update.log`, not `odoo.log`.
+  Install hooks touching client files must not log tracebacks (mute known
+  third-party warnings). Tests must also survive real data (other companies'
+  records, neutralized crons, Argentina timezone: freeze time at noon).
 
 ## Stage notes
 
@@ -726,6 +759,17 @@ Stages (confirmed 2026-11-11; status updated at the end of each stage):
   policy list.
 - Tests 227 OK (base + fleet + documents, Enterprise DB). Not checked in a
   browser (no local login available in this session).
+- grupolara staging2 builds went red twice (2026-11-12). Reproduced on a
+  restored staging2 backup (local DB `grupolara_s2_test`, kept on the SSD):
+  - a6fa665: 4 base tests assumed an empty DB (cron active, cron count across
+    companies, midnight-UTC freeze vs Argentina timezone) -> fixed, although
+    odoo.sh does not run tests on staging2;
+  - 125054d (the real cause): the documents bridge post_init_hook documented
+    an encrypted policy PDF; Documents logged a traceback counting its pages
+    (no PyCryptodome on odoo.sh). The hook now mutes that logger and flushes
+    inside the block; new test with an unreadable PDF. Build green.
+- Local Enterprise checkout pulled to 3f0044c (2026-11-12); it is a separate
+  repo from community and had not been updated since 2026-03-09.
 
 ### 19.0.3.0.1 — Documents bridge and manual vehicle link (2026-11-11, user request)
 
@@ -785,6 +829,10 @@ Stages (confirmed 2026-11-11; status updated at the end of each stage):
 
 | Date | Client repo / branch | Client commit | insurance commit | Notes |
 | --- | --- | --- | --- | --- |
+| 2026-11-12 | grupolara / staging2 | 25c4345 | 125054d (documents bridge install without traceback) | Build GREEN. 19.0.3.0.2 applied, documents bridge installed. User testing from here. |
+| 2026-11-12 | grupolara / staging2 | ace8a26 | a6fa665 (tests robust to real data) | Build red (same documents traceback, see 19.0.3.0.2 notes). |
+| 2026-11-12 | grupolara / staging2 | 296adfd | d3d791c (19.0.3.0.2: dashboard full width, app opens on the dashboard) | Build red: traceback while installing the documents bridge (encrypted PDF). |
+| 2026-11-11 | grupolara / staging2 | 4e0676e | 9742da9 (19.0.3.0.1: documents bridge, manual vehicle link) | Build red, same cause. |
 | 2026-11-10 | grupolara / staging2 | 98b330b | 238de5b (19.0.2.0.5: payments without insurance fields, account_payment_pro bridge, insurance fields on the bill left group) | Submodule update only; grupolara staging untouched. The upgrade installs insurance_management_account_payment_pro (post-migrate) and fixes the existing draft installment payments (debts = installment line only). |
 | 2026-11-10 | grupolara / staging2 | b7212a6 | 5fafe80 (19.0.2.0.4: opening debt bill for running policies billed up front) | Submodule update only; grupolara staging untouched. Set the opening transitory account (and optionally an opening debt journal without documents) in Insurance settings before testing running policies. |
 | 2026-11-10 | grupolara / staging2 | 04b0f68 | ba16794 (19.0.2.0.3: running policy installments, suggested amount to accrue, due debits) | Submodule update only; grupolara staging untouched. |
@@ -811,6 +859,14 @@ Stages (confirmed 2026-11-11; status updated at the end of each stage):
 | 1 | Creating a tag from the policy shows the color as a number | Added form and list views for `insurance.policy.tag` with `widget="color_picker"` (default form showed the raw integer) | 19.0.1.0.1 |
 | 2 | Producer selector empty, only "Create and edit" | By design (RF-03/RF-04): only contacts marked as producer / insurer are listed and none were marked yet on staging. Added placeholders ("Contacts marked as producer/insurer") and field help explaining where to mark them; creating from the field already marks the contact (tested) | 19.0.1.0.1 |
 | 3 | Allow several responsibles | Dropped by the user: one responsible; other people go in "Users to notify" (Notifications tab), who already get every alert email | — |
+| 4 | Dashboard: repeated "Tablero de seguros" title under Refresh | Title removed (breadcrumb only) | 19.0.3.0.2 |
+| 5 | Dashboard: empty band on the right | Form without sheet (full width); with fleet the cost card takes one column so the 4 cards share a row | 19.0.3.0.2 |
+| 6 | Entering the Insurance app should open the dashboard | Root menu action = dashboard server action | 19.0.3.0.2 |
+| 7 | staging2 build red "At least one test failed ... (insurance_management_documents)" | Traceback from Documents on an encrypted policy PDF during the bridge install hook; muted (125054d) | 19.0.3.0.2 |
+| 8 | Guide talks about phases (Fase 1/2/3) although the module is finished | Phases and "Hito" removed from the user guide (kept in internal docs); "puente" replaced by "integración" | 19.0.3.0.3 |
+| 9 | Fleet "Requires fleet vehicle" sentence in Puesta en marcha not understandable | Rewritten in user terms (Fleet app, Vehicle-type branches, what is blocked) | 19.0.3.0.3 |
+| 10 | Claim accounts in Parametrización contable: screenshots and check of grupolara's accounts | AR field tables for the three accounts; Recupero screenshot added. Siniestros a cobrar: code 1.1.5, tag Otros Créditos, No comercial (user had 1.1.3 / Créditos por Ventas). Pérdida por ejecución: out of 5.1.2, tag Otros ingresos y egresos, to validate with the accountant | 19.0.3.0.3 |
+| 11 | Insurance settings fields without help (tooltip) | Every insurance.settings field mirrors the res.company help (same msgid, po refs added) | 19.0.3.0.3 |
 
 ## Open ambiguities (Paso 0, Fase 1)
 

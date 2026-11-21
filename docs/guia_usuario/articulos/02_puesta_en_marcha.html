@@ -46,7 +46,7 @@
 <tr><td>Fecha de puesta en marcha</td><td>Solo para la carga inicial de pólizas en curso. Con la fecha cargada aparece el control del saldo de apertura.</td></tr>
 </tbody>
 </table>
-<p>En la misma pantalla, sección <strong>Contabilidad de siniestros</strong> (también solo para administradores de Contabilidad): <strong>diario de siniestros</strong>, <strong>cuenta de siniestros a cobrar</strong> (tipo A cobrar), <strong>cuenta de recupero de siniestros</strong> y <strong>cuenta de pérdida por ejecución de cauciones</strong> (ver <em>Parametrización contable</em>, punto 9).</p>
+<p>En la misma pantalla, sección <strong>Contabilidad de siniestros</strong> (también solo para administradores de Contabilidad): <strong>diario de siniestros</strong>, <strong>cuenta de siniestros a cobrar</strong> (tipo Por cobrar, marcada No comercial), <strong>cuenta de recupero de siniestros</strong> y <strong>cuenta de pérdida por ejecución de cauciones</strong> (ver <em>Parametrización contable</em>, punto 9).</p>
 <p>En cada <strong>ramo</strong>, pestaña <strong>Contabilidad</strong>, se puede definir producto, cuenta de gasto, distribución analítica, modo de facturación y cuentas de siniestros propios.</p>
 <h2>9. Medios de pago</h2>
 <p>En <strong>Seguros › Configuración › Medios de pago</strong> cree uno por cada forma de pagar las cuotas:</p>
@@ -66,6 +66,6 @@
 <tr><td>Envío de la solicitud de liberación</td><td>Manual</td><td><em>Manual</em>: el responsable recibe una actividad y la envía con <strong>Pedir liberación</strong>. <em>Automático</em>: el proceso diario la manda por correo al beneficiario (o al productor si el beneficiario no tiene correo).</td></tr>
 </tbody>
 </table>
-<p>Con el puente de <strong>Flota</strong> instalado, en los ramos de vehículos puede marcar <strong>Requiere vehículo de flota</strong>: la póliza no se confirma si algún objeto no tiene vehículo.</p>
+<p>Si usa la aplicación <strong>Flota</strong>, Seguros se integra con ella (ver <em>Flota y empleados</em>). En los ramos de tipo <em>Vehículo</em> (por ejemplo, Automotor) aparece la opción <strong>Requiere vehículo de flota</strong>. Si la marca, una póliza de ese ramo no se puede confirmar hasta que cada objeto asegurado tenga elegido su vehículo de Flota. Sirve para que ningún vehículo asegurado quede afuera de Flota.</p>
 <h2>11. Correo saliente</h2>
 <p>Los avisos se envían por correo. Verifique con el administrador de Odoo que el servidor de correo saliente esté configurado. <strong>En una base de prueba</strong>, asegúrese de que no envíe correos reales a los productores antes de probar.</p>

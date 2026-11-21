@@ -41,7 +41,7 @@ Convenciones:
 
 ### 0.1 Instalación y permisos
 1. Verificar en **Aplicaciones** que estén instalados *Gestión de seguros*
-   (19.0.3.0.2) y, si la base tiene Contabilidad Enterprise, cheques y los
+   (19.0.3.0.3) y, si la base tiene Contabilidad Enterprise, cheques y los
    pagos de adhoc, los puentes *Gestión de seguros - Diferidos de
    Enterprise*, *Gestión de seguros - Cheques propios* y *Gestión de
    seguros - Pagos de adhoc*. Con Flota, Empleados, Ventas y Proyectos
@@ -581,13 +581,15 @@ Con un usuario en inglés como responsable y U3 en español, repetir 3.5.
 Antes, el contador crea el diario y las cuentas del punto 9 de
 **Parametrización contable**. En **Seguros › Configuración › Ajustes**:
 1. Sección **Contabilidad de siniestros**: diario *Siniestros* (varios),
-   cuenta *Siniestros a cobrar* (tipo A cobrar), *Recupero de siniestros* y
-   *Pérdida por ejecución de cauciones*.
+   cuenta *Siniestros a cobrar* (tipo Por cobrar, marcada No comercial),
+   *Recupero de siniestros* y *Pérdida por ejecución de cauciones*.
 2. Sección **Siniestros y cauciones**: *Siniestros sin movimiento* = 30,
    *Pedir la liberación* = 30, envío *Manual*.
 
-**Esperado**: la cuenta de siniestros a cobrar solo acepta cuentas de tipo A
-cobrar.
+**Esperado**: la cuenta de siniestros a cobrar solo acepta cuentas de tipo Por
+cobrar. Todos los campos de Ajustes muestran su ayuda en castellano al pasar
+el mouse por el signo **?** (por ejemplo *Medio de pago por defecto*,
+*Diario de siniestros*, *Envío de la solicitud de liberación*).
 
 ### 8.1 Siniestro cobrado a la empresa
 1. En una póliza de automotor vigente, **Nuevo siniestro**: objeto afectado,
