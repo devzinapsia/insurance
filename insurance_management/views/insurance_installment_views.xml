@@ -159,12 +159,13 @@
         <field name="model">insurance.accrual.line</field>
         <field name="arch" type="xml">
             <list string="Accrual plan" create="0" default_order="date, policy_id" decoration-muted="state == 'posted'">
-                <field name="policy_id"/>
+                <!-- widget many2one: the cell is a link that opens the record -->
+                <field name="policy_id" widget="many2one"/>
                 <field name="endorsement_id" optional="show"/>
                 <field name="date"/>
                 <field name="company_currency_id" column_invisible="True"/>
                 <field name="amount" sum="Total"/>
-                <field name="move_id" groups="account.group_account_invoice,account.group_account_readonly"/>
+                <field name="move_id" widget="many2one" groups="account.group_account_invoice,account.group_account_readonly"/>
                 <field name="state" widget="badge" decoration-success="state == 'posted'"/>
             </list>
         </field>
