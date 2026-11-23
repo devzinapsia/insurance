@@ -41,7 +41,7 @@ Convenciones:
 
 ### 0.1 Instalación y permisos
 1. Verificar en **Aplicaciones** que estén instalados *Gestión de seguros*
-   (19.0.3.0.5) y, si la base tiene Contabilidad Enterprise, cheques y los
+   (19.0.3.0.6) y, si la base tiene Contabilidad Enterprise, cheques y los
    pagos de adhoc, los puentes *Gestión de seguros - Diferidos de
    Enterprise*, *Gestión de seguros - Cheques propios* y *Gestión de
    seguros - Pagos de adhoc*. Con Flota, Empleados, Ventas y Proyectos
