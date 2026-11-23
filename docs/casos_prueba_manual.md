@@ -41,7 +41,7 @@ Convenciones:
 
 ### 0.1 Instalación y permisos
 1. Verificar en **Aplicaciones** que estén instalados *Gestión de seguros*
-   (19.0.3.0.3) y, si la base tiene Contabilidad Enterprise, cheques y los
+   (19.0.3.0.4) y, si la base tiene Contabilidad Enterprise, cheques y los
    pagos de adhoc, los puentes *Gestión de seguros - Diferidos de
    Enterprise*, *Gestión de seguros - Cheques propios* y *Gestión de
    seguros - Pagos de adhoc*. Con Flota, Empleados, Ventas y Proyectos
@@ -302,7 +302,8 @@ parcial. El proceso automático nunca paga cuotas manuales.
 **Esperado**: los meses ya terminados quedan *Devengados*, con un asiento cada
 uno (gasto contra seguros a devengar, con analítica si el ramo la tiene).
 Ejecutarlo otra vez no duplica asientos. Una línea no devengada se puede
-editar; una devengada, no.
+editar; una devengada, no. En el reporte, un clic en la **Póliza** abre la
+póliza y un clic en el **Asiento** abre el asiento contable.
 
 ### 3.7 Una factura por cuota
 1. En otra póliza, pestaña **Contabilidad**, modo *Una factura por cuota*.
