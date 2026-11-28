@@ -16,14 +16,31 @@ Branch: `19.0` (never touch `main` or `20.0`). Odoo source: `ODOO_19_SRC` from
 | --- | --- |
 | Fase 1 — Control de vencimientos | Complete on branch 19.0, deployed to grupolara staging2 for testing — Hito 1 pending (the user confirms production use) |
 | Fase 2 — Gestión económica y contable | All stages (a)-(i) done 2026-11-03, on 19.0 and deployed to grupolara staging2 (user testing). Hito 2 pending (accounting validates the chart of accounts and test entries) |
-| Fase 3 — Siniestros, cauciones e integraciones | Started 2026-11-11 ("arrancá la Fase 3") in parallel with Fase 2 staging tests, Hito 2 NOT confirmed yet. Developed directly on `19.0` (user 2026-11-11: "mergea todo a 19.0... este módulo no está en producción"). All stages (a)-(j) done 2026-11-11 (19.0.3.0.0 + 4 bridges + guide + test cases). Follow-ups 19.0.3.0.1 (documents bridge, manual vehicle link) and 19.0.3.0.2 (dashboard). Deployed to grupolara staging2 2026-11-12 (build green, 125054d); the user starts testing everything together 2026-11-12. Hito 2 still pending (accounting validates the claim entries) |
+| Fase 3 — Siniestros, cauciones e integraciones | Started 2026-11-11 ("arrancá la Fase 3") in parallel with Fase 2 staging tests, Hito 2 NOT confirmed yet. Developed directly on `19.0` (user 2026-11-11: "mergea todo a 19.0... este módulo no está en producción"). All stages (a)-(j) done 2026-11-11 (19.0.3.0.0 + 4 bridges + guide + test cases). Follow-ups 19.0.3.0.1 (documents bridge, manual vehicle link) and 19.0.3.0.2 (dashboard). Deployed to grupolara staging2 2026-11-12 (build green, 125054d); the user starts testing everything together 2026-11-12. Hito 2 still pending (accounting validates the claim entries). Follow-ups 19.0.3.0.3 to 19.0.3.0.7 (2026-11-16 to 2026-11-28) deployed to staging2; 19.0.3.0.7 not tested by the user yet |
+| Production (grupolara main) | 2026-11-28: submodule `zinapsia/insurance` added to `main` at 38277c8 (19.0.3.0.7) on the user's explicit request ("2"), BEFORE staging2 testing of 19.0.3.0.7 was confirmed. Code only: "Gestión de seguros" is NOT installed in the production DB. Installing and configuring it there is a separate, pending step |
 
-Pending as of 2026-11-12 (only if the user asks; agreed to test first):
-Hito 1 / Hito 2 confirmations; small items "Otros conceptos del premio" line,
-"Crear factura" button in the Installments tab, hint for the default payment
-mode, screenshots in the guide; backlog: automatic insured payroll (HR),
-renewal quotations and year-over-year comparison, coverage certificates for
-third parties, producer portal.
+Pending as of 2026-11-28 (only if the user asks; agreed to test first):
+- User tests 19.0.3.0.7 on staging2 (cancellation with refund, dashboard
+  titles, "Está vigente").
+- Surety questions ("Pedir liberación" vs "Liberar" and related): the user
+  resolves them during the week of 2026-11-30.
+- Production: install "Gestión de seguros" in grupolara main and configure it
+  (settings, accounts, journals, product, payment modes) — agree the steps
+  with the user first.
+- Guide: new screenshots of "Siniestros a cobrar" and "Pérdida por ejecución
+  de cauciones" once the user fixes those accounts in staging2 (their first
+  screenshots had wrong values, not added); in staging2 Knowledge, the old
+  "Novedades por versión" article must be archived by hand (re-import does
+  not delete it).
+- Open small choices offered to the user, not done: padlock-only icon for the
+  home menu; move "Overdue unpaid installments" out of the "Installments due
+  this month" dashboard section; unify the "Cubierta hoy" search filter with
+  the "Está vigente" field label.
+- Hito 1 / Hito 2 confirmations; small items "Otros conceptos del premio"
+  line, "Crear factura" button in the Installments tab, hint for the default
+  payment mode; backlog: automatic insured payroll (HR), renewal quotations
+  and year-over-year comparison, coverage certificates for third parties,
+  producer portal.
 
 ### Fase 1 stages
 
@@ -749,6 +766,65 @@ Stages (confirmed 2026-11-11; status updated at the end of each stage):
 | (i) | Dashboard | Done 2026-11-11 (227 Community tests OK with every bridge installed; i18n/docs in (j)) |
 | (j) | i18n, migration, upgrade with data, guide (claims, sureties, fleet, HR, accounting setup), manual test cases | Done 2026-11-11 |
 
+### 19.0.3.0.7 — Cancellation accrual, late documents, labels (2026-11-23/28, user questions and requests)
+- Decision (user, 2026-11-23): a cancellation on the 20th with its credit
+  note must leave the cancellation month with only the covered days. Design
+  chosen: `_close_accrual_plan` keeps expensing the whole rest in the
+  cancellation month (robust if the refund never comes or is not exactly
+  proportional); the plan of any document posted on a cancelled policy is
+  clipped at the cancellation month (`_get_cancellation_date`), so the
+  refund offsets that month. Example 1,200,000 / 12, cancelled 20/04, refund
+  833,333.33: April = 100,000 + 800,000 - 833,333.33 = 66,666.67.
+- Late documents (pre-existing bug found then): only one accrual entry per
+  policy and month (unique index), so plan lines in months already accrued
+  could never be posted (cron failed every night, prepaid left with a
+  balance). Now `_create_accrual_lines` catches those months up in the first
+  month without an accrual entry from the document date
+  (`_get_open_accrual_month`); a refund received after the cancellation
+  month was accrued reduces the expense of the month it is received in. A
+  cancellation recorded after its month was accrued also goes to the first
+  open month.
+- 5 new tests (all fail on the previous code, pass now); 226/234 tests OK on
+  the Enterprise DB. Not handled: with Enterprise deferred expenses the
+  original bill keeps deferring to the old end date (net is right when the
+  refund is proportional; grupolara uses the module method).
+- Labels (user, 2026-11-28): dashboard "Policy expiration" (es "Vencimiento
+  de pólizas", sentence case although the user wrote "Pólizas"),
+  "Installments due this month" as the section title, indicators "Count"
+  ("Cantidad") and "Amount to pay" ("Importe"; "Amount" / "Amount due" were
+  already translated "Monto" / "Saldo pendiente"). Policy field
+  `covered_today` string "Is in force" ("Está vigente"); the search filter
+  "Covered today" kept on purpose (there is also a state filter "In force").
+- i18n: es/es_AR rebuilt from the exported .pot with a sync script (pot
+  order and references, msgstr kept). The 19.0.3.0.3 hand patch had left the
+  25 settings help references stuck on the first entry of the .po (helps
+  rendered fine anyway). Lesson: regenerate .po from the exported .pot,
+  never insert references by anchoring on "#. module" lines.
+
+### 19.0.3.0.4 to 19.0.3.0.6 — Accrual plan links, module icon (2026-11-23)
+- Accrual plan list: `widget="many2one"` on Policy and Journal entry so the
+  cells are links (a list that is not editable renders plain text without a
+  widget; same as purchase_views.xml). Not clicked in a browser.
+- Module icon: the user's square Zinapsia padlock logo (600x600 jpg) as a
+  256x256 PNG in all 9 modules (`static/description/icon.png`, also the home
+  menu `web_icon`). Ideal size agreed: square PNG 256 (Odoo apps use 100,
+  ingadhoc 300). A first landscape version (19.0.3.0.5) was replaced.
+  insurance_management version bumped so odoo.sh updates the menu icon.
+
+### 19.0.3.0.3 — Guide wording, claim accounts, settings help (2026-11-16, user review of the guide)
+- Guide: no "Fase"/"Hito" in user-facing articles (project language; kept in
+  internal docs); "puente" -> "integración"; Fleet "Requires fleet vehicle"
+  rewritten in user terms.
+- Claim accounts reviewed against grupolara's chart (local copy):
+  Siniestros a cobrar must be under 1.1.5 Otros créditos, tag "AR ESP: Otros
+  Créditos", No comercial ON (the user had 1.1.3 / Créditos por Ventas);
+  Recupero de siniestros OK (screenshot added); Pérdida por ejecución de
+  cauciones out of 5.1.2 Gastos de producción, tag "Otros ingresos y
+  egresos" — to validate with the accountant. Non-trade receivables only
+  show in the aged receivable with the "Non trade receivable" filter.
+- `insurance.settings`: every field mirrors the res.company help verbatim
+  (translations reused).
+
 ### 19.0.3.0.2 — Dashboard layout and app home (2026-11-12, user bug report)
 - Dashboard form without `<sheet>` (a sheet caps the width at 1400px, leaving
   an empty band on the right) and without the repeated "Insurance dashboard"
@@ -819,9 +895,11 @@ Stages (confirmed 2026-11-11; status updated at the end of each stage):
   knowledge_transfer attachments; verified 2026-11-03 by importing the
   18-article ZIP in a scratch Enterprise DB (image attached and rendered
   via /web/image).
-- **Working rule**: update the guide with every phase and every module
-  version that changes something visible to users (edit the article, add the
-  entry in `articulos/11_novedades.html`, rebuild the ZIP, commit both).
+- **Working rule**: update the guide with every module version that changes
+  something visible to users (edit the article, the version in
+  `00_inicio.html`, rebuild the ZIP, commit both). Since 2026-11-28 (user)
+  the guide has NO "Novedades por versión" article: the version history
+  lives in git and in this file.
 - Pending: screenshots (the format supports attachments) once the UI is
   stable on staging.
 
@@ -829,6 +907,13 @@ Stages (confirmed 2026-11-11; status updated at the end of each stage):
 
 | Date | Client repo / branch | Client commit | insurance commit | Notes |
 | --- | --- | --- | --- | --- |
+| 2026-11-28 | grupolara / **main** | 449d9d2 | 38277c8 (19.0.3.0.7) | First time on production: `.gitmodules` entry + submodule only (done in a separate worktree). NOT installed in the production DB. User chose this before testing 19.0.3.0.7 on staging2. |
+| 2026-11-28 | grupolara / staging2 | b78eb3a | 38277c8 (19.0.3.0.7: cancellation accrual, late documents, dashboard titles, "Está vigente", guide without Novedades) | Another dev had moved `zinapsia/miscellaneous`; only the local working tree was realigned. |
+| 2026-11-23 | grupolara / staging2 | 61bf891 | 908eda6 (19.0.3.0.6: square icon) | |
+| 2026-11-23 | grupolara / staging2 | 90838f4 | — | Empty commit to trigger an odoo.sh rebuild (user request). |
+| 2026-11-23 | grupolara / staging2 | 05a25e9 | 35b6119 (19.0.3.0.5: first new icon) | |
+| 2026-11-23 | grupolara / staging2 | 635c1e0 | 6fcdf57 (19.0.3.0.4: accrual plan links) | |
+| 2026-11-16 | grupolara / staging2 | 033cacb | ed6e828 (19.0.3.0.3: settings help, guide wording, claim accounts) | Another dev had moved `zinapsia/account-financial-tools`; only the local working tree was realigned. |
 | 2026-11-12 | grupolara / staging2 | 25c4345 | 125054d (documents bridge install without traceback) | Build GREEN. 19.0.3.0.2 applied, documents bridge installed. User testing from here. |
 | 2026-11-12 | grupolara / staging2 | ace8a26 | a6fa665 (tests robust to real data) | Build red (same documents traceback, see 19.0.3.0.2 notes). |
 | 2026-11-12 | grupolara / staging2 | 296adfd | d3d791c (19.0.3.0.2: dashboard full width, app opens on the dashboard) | Build red: traceback while installing the documents bridge (encrypted PDF). |
@@ -850,7 +935,9 @@ Stages (confirmed 2026-11-11; status updated at the end of each stage):
   Outlook/Gmail (incl. dark mode), and that the staging database does not
   send real emails to producers before running the expiry process.
 - Production (grupolara main) only after the user confirms staging2 testing
-  passed (Section B branch caution).
+  passed (Section B branch caution). Exception 2026-11-28: the user
+  explicitly chose to add the submodule to main before testing 19.0.3.0.7;
+  installing the app in production still waits for the staging2 OK.
 
 ## Staging feedback (grupolara staging2)
 
@@ -867,6 +954,11 @@ Stages (confirmed 2026-11-11; status updated at the end of each stage):
 | 9 | Fleet "Requires fleet vehicle" sentence in Puesta en marcha not understandable | Rewritten in user terms (Fleet app, Vehicle-type branches, what is blocked) | 19.0.3.0.3 |
 | 10 | Claim accounts in Parametrización contable: screenshots and check of grupolara's accounts | AR field tables for the three accounts; Recupero screenshot added. Siniestros a cobrar: code 1.1.5, tag Otros Créditos, No comercial (user had 1.1.3 / Créditos por Ventas). Pérdida por ejecución: out of 5.1.2, tag Otros ingresos y egresos, to validate with the accountant | 19.0.3.0.3 |
 | 11 | Insurance settings fields without help (tooltip) | Every insurance.settings field mirrors the res.company help (same msgid, po refs added) | 19.0.3.0.3 |
+| 12 | Accrual plan: Policy and Journal entry should open the record | `widget="many2one"` on both columns | 19.0.3.0.4 |
+| 13 | New module icon (twice) | Square 256x256 PNG in the 9 modules | 19.0.3.0.5 / 19.0.3.0.6 |
+| 14 | What happens to the accrual on a cancellation? Cancellation on the 20th + credit note must prorate the month | Refund accrues in the cancellation month (or the month received if already accrued); late documents caught up in the first open month | 19.0.3.0.7 |
+| 15 | Guide: remove "Novedades por versión" | Article removed from the guide and the ZIP | 19.0.3.0.7 |
+| 16 | Dashboard titles and indicators; policy "Cubierta hoy" -> "Está vigente" | See 19.0.3.0.7 notes | 19.0.3.0.7 |
 
 ## Open ambiguities (Paso 0, Fase 1)
 
