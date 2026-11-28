@@ -285,7 +285,7 @@ class InsurancePolicy(models.Model):
         store=True,
     )
     covered_today = fields.Boolean(
-        string="Covered today",
+        string="Is in force",
         compute="_compute_covered_today",
         search="_search_covered_today",
         help="Confirmed, not cancelled, and today is within its validity "
@@ -2129,24 +2129,50 @@ class InsurancePolicy(models.Model):
             current = date_utils.end_of(current + relativedelta(days=1), "month")
         return months
 
+    def _get_open_accrual_month(self, date):
+        """End of the first month from ``date`` without an accrual entry of
+        the policy (there is one accrual entry per policy and month)."""
+        self.ensure_one()
+        accrued = set(self.accrual_line_ids.filtered("move_id").mapped("date"))
+        month = date_utils.end_of(date, "month")
+        while month in accrued:
+            month = date_utils.end_of(month + relativedelta(days=1), "month")
+        return month
+
     def _create_accrual_lines(self, amount, date_from, date_to, endorsement=None, source_move=None):
         """Equal monthly parts of ``amount`` (company currency), the last one
-        absorbing the rounding."""
+        absorbing the rounding.
+
+        The part of the months already accrued (a document received late) is
+        caught up in the first month without an accrual entry from the
+        document date: those months can no longer take another entry.
+        """
         self.ensure_one()
         months = self._get_months(date_from, date_to)
         if not months or self.company_currency_id.is_zero(amount):
             return self.env["insurance.accrual.line"]
         currency = self.company_currency_id
         base = currency.round(amount / len(months))
+        amounts = {
+            month: base if index < len(months) - 1 else currency.round(amount - base * (len(months) - 1))
+            for index, month in enumerate(months)
+        }
+        accrued = set(self.accrual_line_ids.filtered("move_id").mapped("date"))
+        late = [month for month in amounts if month in accrued]
+        if late:
+            reference = source_move.date if source_move else fields.Date.context_today(self)
+            target = self._get_open_accrual_month(max(reference, max(late)))
+            late_amount = sum(amounts.pop(month) for month in late)
+            amounts[target] = currency.round(amounts.get(target, 0.0) + late_amount)
         values = [
             {
                 "policy_id": self.id,
                 "endorsement_id": endorsement.id if endorsement else False,
                 "source_move_id": source_move.id if source_move else False,
                 "date": month,
-                "amount": base if index < len(months) - 1 else currency.round(amount - base * (len(months) - 1)),
+                "amount": month_amount,
             }
-            for index, month in enumerate(months)
+            for month, month_amount in sorted(amounts.items())
         ]
         return self.env["insurance.accrual.line"].sudo().create(values)
 
@@ -2178,11 +2204,27 @@ class InsurancePolicy(models.Model):
             # Posted again with another amount: rebuild the plan.
             existing.sudo().unlink()
         date_from = endorsement.effective_date if endorsement else self.date_from
+        date_to = self.date_to
         if running and go_live:
             # Billed by installment after the go-live: the months before it
             # were accrued in the previous system.
             date_from = max(date_from, go_live)
-        return self._create_accrual_lines(amount, date_from, self.date_to, endorsement, move)
+        cancelled_on = self._get_cancellation_date()
+        if cancelled_on:
+            # Cancelled policy: nothing is accrued after the cancellation
+            # month, where the rest of the premium was already expensed
+            # (_close_accrual_plan). The refund of the cancellation (or any
+            # later document) lands in that same month and offsets it, so the
+            # month keeps only the part actually covered.
+            date_to = min(date_to, cancelled_on)
+            date_from = min(date_from, date_to)
+        return self._create_accrual_lines(amount, date_from, date_to, endorsement, move)
+
+    def _get_cancellation_date(self):
+        """Effective date of the confirmed cancellation endorsement, if any."""
+        self.ensure_one()
+        cancellations = self.endorsement_ids.filtered(lambda e: e.kind == "cancellation" and e.state == "confirmed")
+        return min(cancellations.mapped("effective_date")) if cancellations else False
 
     def action_generate_initial_accrual(self):
         """Running policy (initial load): accrual plan of the amount still to
@@ -2226,7 +2268,9 @@ class InsurancePolicy(models.Model):
         are moved into the month of ``date``, so the rest is expensed at once.
         If the insurer refunds premium, the credit note reduces it."""
         self.ensure_one()
-        period = date_utils.end_of(date, "month")
+        # Usually the cancellation month; if it was already accrued (the
+        # cancellation is recorded late), the first month still open.
+        period = self._get_open_accrual_month(date)
         future = self.accrual_line_ids.filtered(lambda l: not l.move_id and l.date > period)
         if not future:
             return

@@ -9,7 +9,7 @@
                     <button name="action_refresh" type="object" string="Refresh" icon="fa-refresh"/>
                 </header>
                 <field name="company_currency_id" invisible="1"/>
-                <h3 class="mt-0">Expirations</h3>
+                <h3 class="mt-0">Policy expiration</h3>
                 <div class="row g-3" name="expirations">
                     <div class="col-6 col-lg-3">
                         <button name="action_open" type="object" context="{'dashboard_key': 'expiring_30'}" class="btn btn-light border w-100 h-100 text-start p-3">
@@ -57,18 +57,18 @@
                         </button>
                     </div>
                 </div>
-                <h3 class="mt-4">Installments</h3>
+                <h3 class="mt-4">Installments due this month</h3>
                 <div class="row g-3" name="installments">
                     <div class="col-6 col-lg-3">
                         <button name="action_open" type="object" context="{'dashboard_key': 'installments_month'}" class="btn btn-light border w-100 h-100 text-start p-3">
                             <div class="fs-2 fw-bold"><field name="installments_month_count"/></div>
-                            <div>Installments due this month</div>
+                            <div>Count</div>
                         </button>
                     </div>
                     <div class="col-6 col-lg-3" groups="insurance_management.group_insurance_see_amounts">
                         <button name="action_open" type="object" context="{'dashboard_key': 'installments_month'}" class="btn btn-light border w-100 h-100 text-start p-3">
                             <div class="fs-2 fw-bold"><field name="installments_month_pending" widget="monetary" options="{'currency_field': 'company_currency_id'}"/></div>
-                            <div>To pay this month</div>
+                            <div>Amount to pay</div>
                         </button>
                     </div>
                     <div class="col-6 col-lg-3" groups="insurance_management.group_insurance_see_amounts">

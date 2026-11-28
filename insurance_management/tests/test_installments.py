@@ -559,6 +559,172 @@ class TestAccrual(InsuranceAccountingCommon):
         self.assertFalse(open_lines.filtered(lambda l: l.date > date(self.year, 4, 30)))
         self.assertEqual(sum(open_lines.mapped("amount")), 1000000.0, "The rest is expensed in the cancellation month")
 
+    def _cancel_with_refund(self, refund_date):
+        """Policy of 1,200,000 (100,000 a month), January to March accrued,
+        cancelled on April 20 with the refund of the 10 days left of April
+        and May to December, credit note dated ``refund_date``."""
+        policy = self._policy(payment_mode_id=self.manual_mode.id)
+        self._installments(policy, count=12)
+        self._post_bill(policy)
+        Accrual = self.env["insurance.accrual.line"]
+        Accrual._process_accrual_batch(policy.accrual_line_ids.filtered(lambda l: l.date <= date(self.year, 3, 31)))
+        endorsement = self.env["insurance.endorsement"].create(
+            {
+                "policy_id": policy.id,
+                "type_id": self.env.ref("insurance_management.insurance_endorsement_type_cancellation").id,
+                "effective_date": date(self.year, 4, 20),
+                "premium_difference": -833333.33,
+                "refund_mode": "insurer",
+                "description": "Vehicle sold",
+            }
+        )
+        endorsement.action_confirm()
+        refund = self.env["account.move"].browse(endorsement.action_create_bill()["res_id"])
+        refund.invoice_date = refund_date
+        refund.action_post()
+        return policy, endorsement
+
+    def _assert_fully_released(self, policy, cost):
+        """Every line posted, the prepaid account of the policy back to zero
+        and the expense equal to ``cost``."""
+        self.env["insurance.accrual.line"]._process_accrual_batch(policy.accrual_line_ids)
+        self.assertFalse(policy.accrual_line_ids.filtered(lambda l: not l.move_id), "Every month posted")
+        prepaid = policy._get_prepaid_account()
+        balance = sum(
+            self.env["account.move.line"].search(
+                [("account_id", "=", prepaid.id), ("move_id.state", "=", "posted"), ("move_id.insurance_policy_id", "=", policy.id)]
+            ).mapped("balance")
+        )
+        self.assertAlmostEqual(balance, 0.0, places=2, msg="Prepaid insurance fully released")
+        self.assertAlmostEqual(sum(policy.accrual_line_ids.mapped("amount")), cost, places=2)
+
+    def _month_total(self, policy, month):
+        return sum(policy.accrual_line_ids.filtered(lambda l: l.date == month).mapped("amount"))
+
+    def test_cancellation_refund_same_month_prorates_the_month(self):
+        """Cancelled on April 20, credit note received in April: April keeps
+        only its 20 covered days."""
+        policy, endorsement = self._cancel_with_refund(date(self.year, 4, 25))
+        refund_plan = policy.accrual_line_ids.filtered(lambda l: l.endorsement_id == endorsement)
+        self.assertEqual(refund_plan.mapped("date"), [date(self.year, 4, 30)], "The refund accrues in the cancellation month only")
+        self.assertAlmostEqual(refund_plan.amount, -833333.33, places=2)
+        self.assertFalse(policy.accrual_line_ids.filtered(lambda l: l.date > date(self.year, 4, 30)), "Nothing after the cancellation month")
+        self.assertAlmostEqual(self._month_total(policy, date(self.year, 4, 30)), 66666.67, places=2, msg="20 of the 30 days of April")
+        self._assert_fully_released(policy, 366666.67)
+
+    def test_cancellation_refund_received_later(self):
+        """The credit note arrives in June, when April (the cancellation
+        month) is already accrued: April keeps the whole rest and the refund
+        reduces the expense of June, the month it is received in."""
+        policy = self._policy(payment_mode_id=self.manual_mode.id)
+        self._installments(policy, count=12)
+        self._post_bill(policy)
+        Accrual = self.env["insurance.accrual.line"]
+        Accrual._process_accrual_batch(policy.accrual_line_ids.filtered(lambda l: l.date <= date(self.year, 3, 31)))
+        endorsement = self.env["insurance.endorsement"].create(
+            {
+                "policy_id": policy.id,
+                "type_id": self.env.ref("insurance_management.insurance_endorsement_type_cancellation").id,
+                "effective_date": date(self.year, 4, 20),
+                "premium_difference": -833333.33,
+                "refund_mode": "insurer",
+                "description": "Vehicle sold",
+            }
+        )
+        endorsement.action_confirm()
+        Accrual._process_accrual_batch(policy.accrual_line_ids)
+        self.assertAlmostEqual(self._month_total(policy, date(self.year, 4, 30)), 900000.0, places=2, msg="April expenses the whole rest")
+        refund = self.env["account.move"].browse(endorsement.action_create_bill()["res_id"])
+        refund.invoice_date = date(self.year, 6, 5)
+        refund.action_post()
+        refund_plan = policy.accrual_line_ids.filtered(lambda l: l.endorsement_id == endorsement)
+        self.assertEqual(refund_plan.mapped("date"), [date(self.year, 6, 30)], "Caught up in the month the refund is received")
+        self.assertAlmostEqual(refund_plan.amount, -833333.33, places=2)
+        self._assert_fully_released(policy, 366666.67)
+
+    def test_cancellation_recorded_after_its_month_was_accrued(self):
+        """Cancellation of April 20 recorded in June, April and May already
+        accrued: the rest goes to June (first open month), never to an
+        accrued month (one accrual entry per policy and month)."""
+        policy = self._policy(payment_mode_id=self.manual_mode.id)
+        self._installments(policy, count=12)
+        self._post_bill(policy)
+        self.env["insurance.accrual.line"]._process_accrual_batch(
+            policy.accrual_line_ids.filtered(lambda l: l.date <= date(self.year, 5, 31))
+        )
+        self.env["insurance.endorsement"].create(
+            {
+                "policy_id": policy.id,
+                "type_id": self.env.ref("insurance_management.insurance_endorsement_type_cancellation").id,
+                "effective_date": date(self.year, 4, 20),
+            }
+        ).action_confirm()
+        open_lines = policy.accrual_line_ids.filtered(lambda l: not l.move_id)
+        self.assertEqual(set(open_lines.mapped("date")), {date(self.year, 6, 30)}, "Posted together in one June entry")
+        self.assertAlmostEqual(sum(open_lines.mapped("amount")), 700000.0, places=2, msg="June to December")
+        self._assert_fully_released(policy, 1200000.0)
+
+    def test_late_endorsement_catches_up_accrued_months(self):
+        """A refund effective in March billed in July, March to June already
+        accrued: those four months are caught up in July."""
+        policy = self._policy(payment_mode_id=self.manual_mode.id)
+        self._installments(policy, count=12)
+        self._post_bill(policy)
+        self.env["insurance.accrual.line"]._process_accrual_batch(
+            policy.accrual_line_ids.filtered(lambda l: l.date <= date(self.year, 6, 30))
+        )
+        endorsement = self.env["insurance.endorsement"].create(
+            {
+                "policy_id": policy.id,
+                "type_id": self.env.ref("insurance_management.insurance_endorsement_type_data_change").id,
+                "effective_date": date(self.year, 3, 1),
+                "premium_difference": -100000.0,
+                "refund_mode": "insurer",
+                "description": "Lower premium",
+            }
+        )
+        endorsement.action_confirm()
+        refund = self.env["account.move"].browse(endorsement.action_create_bill()["res_id"])
+        refund.invoice_date = date(self.year, 7, 10)
+        refund.action_post()
+        plan = policy.accrual_line_ids.filtered(lambda l: l.endorsement_id == endorsement)
+        self.assertEqual(plan.mapped("date")[0], date(self.year, 7, 31), "March to June caught up in July")
+        self.assertAlmostEqual(plan[0].amount, -50000.0, places=2, msg="5 of the 10 months (March to July)")
+        self.assertEqual(len(plan), 6, "July to December")
+        self._assert_fully_released(policy, 1100000.0)
+
+    def test_endorsement_billed_after_cancellation_stops_at_cancellation(self):
+        """A refund endorsement confirmed before the cancellation but billed
+        after it accrues up to the cancellation month, not to the old end."""
+        policy = self._policy(payment_mode_id=self.manual_mode.id)
+        self._installments(policy, count=12)
+        self._post_bill(policy)
+        Endorsement = self.env["insurance.endorsement"]
+        lower = Endorsement.create(
+            {
+                "policy_id": policy.id,
+                "type_id": self.env.ref("insurance_management.insurance_endorsement_type_data_change").id,
+                "effective_date": date(self.year, 3, 1),
+                "premium_difference": -100000.0,
+                "refund_mode": "insurer",
+                "description": "Lower premium",
+            }
+        )
+        lower.action_confirm()
+        Endorsement.create(
+            {
+                "policy_id": policy.id,
+                "type_id": self.env.ref("insurance_management.insurance_endorsement_type_cancellation").id,
+                "effective_date": date(self.year, 4, 20),
+            }
+        ).action_confirm()
+        refund = self.env["account.move"].browse(lower.action_create_bill()["res_id"])
+        refund.invoice_date = date(self.year, 5, 2)
+        refund.action_post()
+        plan = policy.accrual_line_ids.filtered(lambda l: l.endorsement_id == lower)
+        self.assertEqual(plan.mapped("date"), [date(self.year, 3, 31), date(self.year, 4, 30)], "March and April only")
+        self.assertAlmostEqual(sum(plan.mapped("amount")), -100000.0, places=2)
+
 
 @tagged("post_install", "-at_install")
 class TestInitialLoad(InsuranceAccountingCommon):
