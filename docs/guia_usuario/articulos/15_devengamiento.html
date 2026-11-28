@@ -67,8 +67,27 @@
 <li>Pestaña <strong>Devengamiento</strong> de la póliza (con permiso contable) y <strong>Seguros › Reportes › Plan de devengamiento</strong>.</li>
 <li>Cada línea es un mes. Se puede editar el importe o el mes hasta que se registra su asiento.</li>
 <li>El proceso diario <em>Seguros: devengamiento mensual</em> registra un asiento por póliza y mes, en el diario de devengamiento. Si el período está cerrado, lo registra el primer día abierto.</li>
-<li>Endosos: el premio adicional se devenga desde la fecha del endoso; una devolución devenga en negativo. Una anulación lleva lo pendiente al mes de la anulación.</li>
+<li>Endosos: el premio adicional se devenga desde la fecha del endoso; una devolución devenga en negativo.</li>
+<li>Comprobante que llega tarde (por ejemplo, un endoso de marzo facturado en julio): la parte de los meses que ya tienen asiento se junta en el primer mes sin asiento desde la fecha del comprobante. Nunca se registra un segundo asiento en un mes ya devengado.</li>
 </ul>
+<h2>Anulación</h2>
+<p>Al confirmar un endoso de <strong>Anulación</strong>:</p>
+<ul>
+<li>Los meses ya devengados no cambian.</li>
+<li>Lo pendiente de los meses posteriores se junta en el <strong>mes de la anulación</strong>: el resto del seguro pasa a gasto de una vez y <em>Seguros a devengar</em> queda en cero para la póliza. Si ese mes ya estaba devengado (la anulación se carga tarde), va al primer mes sin asiento.</li>
+<li>La <strong>nota de crédito</strong> de la anulación (devolución de premio) devenga en negativo, entera, en el mes de la anulación, nunca en los meses posteriores. Así ese mes queda solo con la parte cubierta.</li>
+<li>Si la nota de crédito llega cuando el mes de la anulación ya se devengó, la devolución baja el gasto del mes en que llega.</li>
+</ul>
+<p>Ejemplo: póliza de enero a diciembre por 1.200.000 (100.000 por mes), devengada hasta marzo, anulada el 20/04. La aseguradora devuelve 833.333,33 (los 10 días que faltan de abril y de mayo a diciembre).</p>
+<table class="table table-bordered">
+<thead><tr><th>Mes</th><th>Nota de crédito en abril</th><th>Nota de crédito en junio</th></tr></thead>
+<tbody>
+<tr><td>Enero a marzo</td><td>100.000 por mes</td><td>100.000 por mes</td></tr>
+<tr><td>Abril</td><td>100.000 + 800.000 − 833.333,33 = <strong>66.666,67</strong> (20 días)</td><td>900.000</td></tr>
+<tr><td>Junio</td><td>—</td><td>−833.333,33</td></tr>
+<tr><td>Total</td><td>366.666,67</td><td>366.666,67</td></tr>
+</tbody>
+</table>
 <h2>Cuentas</h2>
 <ul>
 <li><strong>Cuenta de gasto</strong>: la de la póliza; si no, la del ramo; si no, la del producto de seguros.</li>

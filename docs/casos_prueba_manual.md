@@ -41,7 +41,7 @@ Convenciones:
 
 ### 0.1 Instalación y permisos
 1. Verificar en **Aplicaciones** que estén instalados *Gestión de seguros*
-   (19.0.3.0.6) y, si la base tiene Contabilidad Enterprise, cheques y los
+   (19.0.3.0.7) y, si la base tiene Contabilidad Enterprise, cheques y los
    pagos de adhoc, los puentes *Gestión de seguros - Diferidos de
    Enterprise*, *Gestión de seguros - Cheques propios* y *Gestión de
    seguros - Pagos de adhoc*. Con Flota, Empleados, Ventas y Proyectos
@@ -138,7 +138,7 @@ premio en cero*. Con prima y premio cargados, Confirmar no muestra nada.
 2. Ejecutar a mano el proceso de vencimientos.
 
 **Esperado**: la póliza queda **Por iniciar** (no Vigente ni Por vencer),
-*Cubierta hoy* = No, no figura en el filtro *Vigentes* y el proceso no envía
+*Está vigente* = No, no figura en el filtro *Vigentes* y el proceso no envía
 avisos. Se le puede agregar un endoso. El día de su fecha desde pasa a *Por vencer* y recién ahí recibe el aviso.
 
 ### 1.3 Póliza bloqueada
@@ -356,6 +356,22 @@ endosos quedan en la pestaña Endosos.
 
 **Esperado**: la póliza pasa a *Anulada*, las cuotas no facturadas a *Anulada*
 y los meses de devengamiento posteriores se juntan en el mes de la anulación.
+
+### 4.5 Anulación con devolución
+1. Póliza de 1.200.000 (12 meses), devengada hasta el mes anterior. Endoso
+   *Anulación* con fecha el día 20 del mes actual, diferencia de premio
+   negativa (lo que devuelve la aseguradora), devolución *Devolución de la
+   aseguradora*. Confirmar.
+2. **Crear nota de crédito**, con fecha del mes actual, y publicarla.
+
+**Esperado**:
+- El plan no tiene meses posteriores al de la anulación.
+- La nota de crédito devenga entera en negativo en el mes de la anulación; ese
+  mes suma solo los días cubiertos (por ejemplo, 20 de 30).
+- Al devengar el mes, *Seguros a devengar* de la póliza queda en cero.
+- Variante: si la nota de crédito se carga cuando el mes de la anulación ya
+  tiene asiento, la devolución va al primer mes sin asiento (el mes en que
+  llega), no a un mes ya devengado.
 
 ---
 
@@ -732,7 +748,9 @@ la orden de venta y el proyecto muestran el botón **Cauciones**.
 **Esperado**: la app abre directamente en el **Tablero**, que ocupa todo el
 ancho de la pantalla, sin título repetido debajo de **Actualizar**. Con
 Flota, *Vehículos sin seguro vigente* queda en la misma fila que las pólizas
-y el costo. Cada número abre sus registros; U1 no ve importes si *Ocultar
+y el costo. Los títulos son *Vencimiento de pólizas* y *Cuotas que vencen
+este mes* (con los indicadores *Cantidad* e *Importe*). Cada número abre sus
+registros; U1 no ve importes si *Ocultar
 costos* está activo; U1 no puede aprobar con asiento (mensaje de permisos),
 sí puede aprobar uno sin importe.
 

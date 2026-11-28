@@ -4,9 +4,10 @@ Guía para los usuarios finales del módulo `insurance_management`, en
 español, armada para importarse en **Knowledge** (Odoo Enterprise) con el
 módulo `knowledge_transfer` de Zinapsia (repo `devzinapsia/knowledge`).
 
-Se actualiza **en cada fase y en cada versión del módulo**: cuando cambia
-algo visible para el usuario, se edita el artículo que corresponde y se
-agrega la entrada en `articulos/11_novedades.html`.
+Se actualiza **en cada versión del módulo**: cuando cambia algo visible para
+el usuario, se edita el artículo que corresponde y la versión en
+`articulos/00_inicio.html`. La guía no lleva historial de versiones (el
+historial está en git y en `docs/PROGRESS.md`).
 
 ## Estructura
 

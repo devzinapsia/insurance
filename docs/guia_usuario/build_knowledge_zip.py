@@ -54,7 +54,6 @@ ARTICLES = [
     ("consultas", "guia", "Consultas y reportes", "📊", "08_consultas.html"),
     ("permisos", "guia", "Permisos y costos ocultos", "🔐", "09_permisos.html"),
     ("faq", "guia", "Preguntas frecuentes", "❓", "10_faq.html"),
-    ("novedades", "guia", "Novedades por versión", "🆕", "11_novedades.html"),
 ]
 
 
